@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "id": "2026-09-04-typography-scale",
+  "status": "completed",
+  "summary": "Constrain the starter interface to three routine typography roles and one rare display role.",
+  "impact": {
+    "features": ["authentication", "account-profile"],
+    "architecture": [],
+    "technology": ["ui-and-state"],
+    "designSystem": true
+  },
+  "verification": ["bun run verify"],
+  "date": "2026-09-04"
+}

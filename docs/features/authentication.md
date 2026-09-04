@@ -39,6 +39,8 @@ operations require the global admin role.
 - Better Auth owns session and credential mechanics; Postgres is the durable store.
 - Resend is the production mail boundary and a development-safe adapter is used locally.
 - Authentication mutations use explicit input schemas and typed safe failures.
+- Authentication screens use the three routine typography roles; they do not
+  use the exceptional display role.
 - An agent may describe or navigate to auth flows, but enrollment and sign-in
   always use the browser’s normal human-confirmed security ceremony.
 
@@ -57,4 +59,4 @@ again after dismissal and what mail provider fallback, if any, is warranted.
 
 ## Links
 
-[Account profile](account-profile.md) · [WebMCP policy](../architecture/webmcp.md) · [Error policy](../guides/error-handling.md)
+[Account profile](account-profile.md) · [WebMCP policy](../architecture/webmcp.md) · [Typography](../design-system/typography.md) · [Error policy](../guides/error-handling.md)

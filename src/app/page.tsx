@@ -12,13 +12,13 @@ export default async function HomePage() {
       <SiteHeader session={session} />
       <main className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-6xl items-center px-5 py-16 sm:px-8">
         <section className="max-w-2xl">
-          <p className="text-sm font-medium tracking-wide text-muted-foreground">
+          <p className="text-ui font-medium tracking-wide text-muted-foreground">
             A deliberate starting point
           </p>
-          <h1 className="mt-5 text-balance text-4xl font-semibold tracking-[-0.045em] text-foreground sm:text-6xl">
+          <h1 className="mt-5 text-balance text-display font-semibold text-foreground">
             Build the product, not the foundation again.
           </h1>
-          <p className="mt-6 max-w-xl text-pretty text-base leading-7 text-muted-foreground sm:text-lg">
+          <p className="mt-6 max-w-xl text-pretty text-body text-muted-foreground">
             A clean Next.js foundation for thoughtful applications: purpose-built
             contracts, durable backend boundaries, and an interface that stays out of
             the way.

@@ -11,7 +11,7 @@ export function AuthShell({ children, description, title }: AuthShellProps) {
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between self-start">
         <Link
           href="/"
-          className="text-sm font-semibold tracking-[-0.025em] text-foreground"
+          className="text-ui font-semibold tracking-[-0.025em] text-foreground"
         >
           nextjs-start
         </Link>
@@ -19,10 +19,8 @@ export function AuthShell({ children, description, title }: AuthShellProps) {
       </div>
       <section className="mx-auto w-full max-w-md self-center py-12">
         <div className="rounded-2xl bg-card px-6 py-8 sm:px-9 sm:py-10">
-          <p className="text-sm font-medium text-muted-foreground">Account</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-foreground">
-            {title}
-          </h1>
+          <p className="text-ui font-medium text-muted-foreground">Account</p>
+          <h1 className="mt-3 text-title font-semibold text-foreground">{title}</h1>
           <p className="mt-3 text-pretty leading-6 text-muted-foreground">
             {description}
           </p>

@@ -47,7 +47,7 @@ export function SignOutButton() {
     <div className="flex items-center gap-2">
       {message === null ? null : (
         <span
-          className="text-xs text-destructive"
+          className="text-ui text-destructive"
           role="status"
         >
           {message}

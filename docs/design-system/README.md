@@ -14,6 +14,10 @@ Sparse borders are accents, never the primary way to separate the page.
   type before adding a border. Use restrained shadows only for real elevation.
 - Keep corners and visual density calm; avoid decorative cards and heavy chrome.
 - Use one primary action per local context; secondary actions stay visually quiet.
+- Use only the `ui`, `body`, and `title` type sizes in routine product UI. The
+  fourth `display` size is a rare exception for a principal hero statement.
+- Keep font family, loading, role selection, and hierarchy consistent with the
+  [typography directive](typography.md); raw or route-local sizes are prohibited.
 - Preserve visible focus, semantic HTML, keyboard access, contrast, and reduced motion.
 - ShadCN Base UI `base-nova` components live in `src/components/shadcn/`.
 - Check ShadCN and user-named compatible sources before introducing a custom primitive.
@@ -27,3 +31,5 @@ changes this document and follows [the evolution workflow](evolution.md).
 ## Links
 
 [Frontend organization](../architecture/frontend-organization.md) · [UI and state](../technologies/ui-and-state.md) · [Feature workflow](../guides/feature-workflow.md) · [Change impact](../reference/change-impact.md)
+
+[Typography](typography.md) · [Evolution workflow](evolution.md)

@@ -94,7 +94,7 @@ export function SignUpForm() {
       >
         {isPending ? 'Creating account…' : 'Create account'}
       </Button>
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-ui text-muted-foreground">
         Already have an account?{' '}
         <Link
           href="/sign-in"

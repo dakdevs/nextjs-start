@@ -11,7 +11,7 @@ export function SiteHeader({ session }: SiteHeaderProps) {
     <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
       <Link
         href="/"
-        className="text-sm font-semibold tracking-[-0.025em] text-foreground"
+        className="text-ui font-semibold tracking-[-0.025em] text-foreground"
       >
         nextjs-start
       </Link>

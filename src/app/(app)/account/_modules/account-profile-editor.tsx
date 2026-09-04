@@ -102,7 +102,7 @@ export function AccountProfileEditor({
         <Field>
           <div className="flex items-baseline justify-between gap-4">
             <FieldLabel htmlFor="bio">Bio</FieldLabel>
-            <span className="text-xs text-muted-foreground">Up to 500 characters</span>
+            <span className="text-ui text-muted-foreground">Up to 500 characters</span>
           </div>
           <Textarea
             id="bio"
@@ -119,7 +119,7 @@ export function AccountProfileEditor({
       <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
         <div
           aria-live="polite"
-          className="text-sm text-muted-foreground"
+          className="text-ui text-muted-foreground"
         >
           {message}
         </div>

@@ -62,7 +62,7 @@ export function PasskeyEnrollment({
       {message === null ? null : (
         <p
           aria-live="polite"
-          className="mt-4 text-sm text-muted-foreground"
+          className="mt-4 text-ui text-muted-foreground"
         >
           {message}
         </p>
@@ -94,8 +94,8 @@ export function PasskeyEnrollment({
   if (hasPasskey) {
     return (
       <section className="rounded-2xl bg-muted p-6 sm:p-8">
-        <p className="text-sm font-medium">Sign-in security</p>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+        <p className="text-ui font-medium">Sign-in security</p>
+        <p className="mt-2 text-ui leading-6 text-muted-foreground">
           A passkey is available as an alternative sign-in method.
         </p>
       </section>

@@ -83,7 +83,7 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
           <div className="flex items-baseline justify-between gap-3">
             <FieldLabel htmlFor="password">Password</FieldLabel>
             <Link
-              className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+              className="text-ui text-muted-foreground underline underline-offset-4 hover:text-foreground"
               href="/forgot-password"
             >
               Forgot password?
@@ -114,7 +114,7 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
       {passkeysEnabled ? (
         <div className="space-y-4 rounded-xl bg-muted p-4">
           <div>
-            <p className="text-sm font-medium">Use a passkey instead</p>
+            <p className="text-ui font-medium">Use a passkey instead</p>
             <FieldDescription>
               A passkey is an alternative sign-in method, not a second step.
             </FieldDescription>
@@ -132,7 +132,7 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
           </Button>
         </div>
       ) : null}
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-ui text-muted-foreground">
         New here?{' '}
         <Link
           href="/sign-up"

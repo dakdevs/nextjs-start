@@ -42,6 +42,7 @@ server read for its initial data and an interactive client mutation for saving.
 - Repository queries select only account-screen fields, never a broad user record.
 - The authenticated account owner is implicit from session, never client input.
 - Shared code remains shared only while every consumer benefits from every change.
+- The account screen uses only the three routine semantic typography roles.
 - Queue notification is deliberately non-critical: an exhausted publish logs its
   event/correlation identifiers but does not reverse an already committed edit.
 - Audit receipts and terminal queue failures retain identifiers, never profile
@@ -62,4 +63,4 @@ this screen’s contract or a new purpose-built feature contract.
 
 ## Links
 
-[Authentication](authentication.md) · [BFF contracts](../architecture/bff-orpc.md) · [Testing](../reference/testing-strategy.md)
+[Authentication](authentication.md) · [BFF contracts](../architecture/bff-orpc.md) · [Typography](../design-system/typography.md) · [Testing](../reference/testing-strategy.md)

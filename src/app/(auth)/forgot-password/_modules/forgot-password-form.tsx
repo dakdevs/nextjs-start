@@ -87,7 +87,7 @@ export function ForgotPasswordForm() {
       >
         {isPending ? 'Sending link…' : 'Send reset link'}
       </Button>
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-ui text-muted-foreground">
         <Link
           href="/sign-in"
           className="underline underline-offset-4"

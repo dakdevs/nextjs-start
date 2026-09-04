@@ -38,6 +38,7 @@ Every authored Markdown file stays under 150 lines.
 - [UI and state](technologies/ui-and-state.md)
 - [Type flow and tooling](technologies/type-flow-tooling.md)
 - [Design system](design-system/README.md)
+- [Typography](design-system/typography.md)
 - [Design-system evolution](design-system/evolution.md)
 - [Testing strategy](reference/testing-strategy.md)
 - [Change impact](reference/change-impact.md)
@@ -50,3 +51,4 @@ Every authored Markdown file stays under 150 lines.
 - [Initial architecture](decisions/0001-initial-architecture.md)
 - [Purpose-built BFF and browser WebMCP](decisions/0002-purpose-built-bff-and-webmcp.md)
 - [Direct queue delivery by default](decisions/0003-async-delivery-default.md)
+- [Restrained four-role typography scale](decisions/0004-restrained-typography-scale.md)

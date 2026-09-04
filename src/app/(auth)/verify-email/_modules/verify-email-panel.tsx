@@ -41,7 +41,7 @@ export function VerifyEmailPanel({ email }: { readonly email: string | undefined
         </AlertDescription>
       </Alert>
       {email === undefined ? null : (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-ui text-muted-foreground">
           We sent it to <span className="font-medium text-foreground">{email}</span>.
         </p>
       )}

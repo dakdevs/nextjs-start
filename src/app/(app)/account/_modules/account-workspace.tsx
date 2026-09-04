@@ -39,10 +39,8 @@ export function AccountWorkspace({
         }}
       />
       <header className="max-w-xl">
-        <p className="text-sm font-medium text-muted-foreground">Account</p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] text-foreground">
-          Your profile
-        </h1>
+        <p className="text-ui font-medium text-muted-foreground">Account</p>
+        <h1 className="mt-3 text-title font-semibold text-foreground">Your profile</h1>
         <p className="mt-3 text-pretty leading-7 text-muted-foreground">
           Keep the details people see about you current and clear.
         </p>
