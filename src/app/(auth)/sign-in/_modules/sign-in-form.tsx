@@ -35,7 +35,6 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
         return
       }
       router.replace('/account')
-      router.refresh()
     } catch {
       setMessage('Something went wrong. Please try again.')
     } finally {
@@ -53,7 +52,6 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
         return
       }
       router.replace('/account')
-      router.refresh()
     } catch {
       setMessage('The passkey sign-in did not complete.')
     } finally {

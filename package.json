@@ -19,7 +19,7 @@
     "format:check": "oxfmt --check .",
     "lint": "oxlint --deny-warnings .",
     "lint:config": "bun tooling/quality/assert-no-warning-severity.ts",
-    "typecheck": "tsc --noEmit && bun tooling/quality/check-effect-diagnostics.ts",
+    "typecheck": "varlock run -- bun run --bun next typegen && tsc --noEmit && bun tooling/quality/check-effect-diagnostics.ts",
     "knip": "bun tooling/quality/run-knip.ts",
     "docs:check": "bun tooling/docs/validate.ts",
     "architecture:check": "bun tooling/architecture/validate.ts",

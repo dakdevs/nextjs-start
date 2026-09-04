@@ -1,7 +1,6 @@
 'use client'
 
 import { useMutation } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { isInferableError } from '@orpc/client'
 import type { InferRouterContractOutputs } from '@orpc/contract'
@@ -32,7 +31,6 @@ export function AccountProfileEditor({
   onProfileUpdated,
   profile,
 }: AccountProfileEditorProps) {
-  const router = useRouter()
   const [message, setMessage] = useState<string | null>(null)
   const [previousProfile, setPreviousProfile] = useState(profile)
   const [draft, setDraft] = useState({ name: profile.name, bio: profile.bio })
@@ -47,7 +45,6 @@ export function AccountProfileEditor({
       onSuccess: (updated) => {
         onProfileUpdated({ ...profile, ...updated })
         setMessage('Changes saved.')
-        router.refresh()
       },
       onError: (error) => {
         setMessage(

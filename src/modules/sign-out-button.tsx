@@ -36,7 +36,6 @@ export function SignOutButton() {
         return
       }
       router.replace('/sign-in')
-      router.refresh()
     } catch {
       setMessage('Something went wrong. Please try again.')
     } finally {

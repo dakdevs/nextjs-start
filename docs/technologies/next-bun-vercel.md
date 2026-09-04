@@ -16,6 +16,8 @@ browser or domain model depend on Bun-specific APIs.
   and deployment; never scatter `process.env` access.
 - Check the installed Next documentation before changing Next APIs—the major
   version intentionally changes conventions quickly.
+- Keep `bun run typecheck` self-contained: run `next typegen` first so a fresh
+  clone has route-aware `PageProps`, `LayoutProps`, and typed-link definitions.
 
 ## Decision matrix
 
