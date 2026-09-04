@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "id": "2026-09-04-initial-template",
+  "status": "initial",
+  "summary": "Establishes nextjs-start's application, documentation, and agent-governance baseline.",
+  "impact": {
+    "features": ["authentication", "account-profile"],
+    "architecture": [
+      "bff-orpc",
+      "effect-services",
+      "webmcp",
+      "background-work",
+      "frontend-organization"
+    ],
+    "technology": ["preview-risk"],
+    "designSystem": true
+  },
+  "verification": ["bun run verify"],
+  "date": "2026-09-04"
+}

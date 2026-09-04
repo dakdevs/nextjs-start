@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "bunVersion": "1.x",
+  "framework": "nextjs",
+  "functions": {
+    "src/app/api/queues/account-profile-updated/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "account-profile-updated",
+          "retryAfterSeconds": 30
+        }
+      ]
+    }
+  }
+}

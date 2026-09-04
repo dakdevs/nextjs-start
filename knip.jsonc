@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "e2e/**/*.ts",
+    "src/app/**/{page,layout,route,error,global-error,not-found}.tsx",
+    "src/app/**/route.ts",
+    "tooling/**/*.ts",
+    "vitest*.config.ts",
+  ],
+  "project": ["src/**/*.{css,ts,tsx}", "test/**/*.ts", "tooling/**/*.ts"],
+  "ignore": ["src/components/shadcn/**"],
+  "ignoreDependencies": [
+    // Virtual TypeScript plugin built into @effect/tsgo, not a runtime package.
+    "@effect/language-service",
+  ],
+}
