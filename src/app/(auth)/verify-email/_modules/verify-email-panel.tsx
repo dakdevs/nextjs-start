@@ -1,9 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { useState } from 'react'
 
 import { authClient } from '~/auth/client'
+import { LinkButton } from '~/components/link-button'
 import { Alert, AlertDescription } from '~/components/shadcn/alert'
 import { Button } from '~/components/shadcn/button'
 
@@ -68,13 +68,13 @@ export function VerifyEmailPanel({ email }: { readonly email: string | undefined
                 : 'Resend verification email'}
           </Button>
         )}
-        <Button
-          render={<Link href="/sign-in" />}
+        <LinkButton
+          href="/sign-in"
           className="w-full"
           size="lg"
         >
           Continue to sign in
-        </Button>
+        </LinkButton>
       </div>
     </div>
   )

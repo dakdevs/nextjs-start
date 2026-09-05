@@ -23,5 +23,11 @@ implementation’s branching logic.
   where it changes meaningful behavior.
 - Use mutation testing as an available diagnostic, not a quota.
 - WCAG 2.2 AA failures are failures, never warnings.
+- A substantial feature is manually exercised on desktop and mobile in addition
+  to automated checks. Inputs use 16px-or-larger text to avoid mobile browser
+  focus zoom, and touch paths must be ergonomic at phone viewport sizes.
+- Test videos are opt-in evidence. Follow the explicit preference in the
+  [working agreement](working-agreement.md) and use `bun run test:e2e:video` only
+  when it calls for a recording.
 
 See the project-local [avoid tautological tests skill](../../.agents/skills/avoid-tautological-tests/SKILL.md).

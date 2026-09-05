@@ -6,12 +6,15 @@ import postgres from 'postgres'
 import { env } from '~/config/env'
 import {
   accountProfiles,
+  adminAuditEvents,
+  adminBootstrapClaims,
   accounts,
   failedQueueEvents,
   passkeys,
   profileUpdateAuditReceipts,
   processedQueueEvents,
   sessions,
+  serviceAccounts,
   transactionalOutboxMessages,
   userRelations,
   users,
@@ -28,12 +31,15 @@ const client = postgres(env.DATABASE_URL, {
 
 const schema = {
   accountProfiles,
+  adminAuditEvents,
+  adminBootstrapClaims,
   accounts,
   failedQueueEvents,
   passkeys,
   profileUpdateAuditReceipts,
   processedQueueEvents,
   sessions,
+  serviceAccounts,
   transactionalOutboxMessages,
   userRelations,
   users,

@@ -1,10 +1,14 @@
 import Link from 'next/link'
 
-import { Button } from '~/components/shadcn/button'
+import { accountRole, accountRoles } from '~/auth/roles'
+import { LinkButton } from '~/components/link-button'
 import { ThemeToggle } from '~/components/theme-toggle'
 import { SignOutButton } from '~/modules/sign-out-button'
 
-type SiteHeaderProps = { session: { user: { email: string } } | null }
+type AccountRole = (typeof accountRoles)[number]
+type SiteHeaderProps = {
+  session: { user: { email: string; role: AccountRole } } | null
+}
 
 export function SiteHeader({ session }: SiteHeaderProps) {
   return (
@@ -20,21 +24,32 @@ export function SiteHeader({ session }: SiteHeaderProps) {
         className="flex items-center gap-1"
       >
         {session ? (
-          <Button
-            render={<Link href="/account" />}
-            variant="ghost"
-            size="sm"
-          >
-            Account
-          </Button>
+          <>
+            {session.user.role === accountRole.admin ? (
+              <LinkButton
+                href="/admin"
+                variant="ghost"
+                size="sm"
+              >
+                Admin
+              </LinkButton>
+            ) : null}
+            <LinkButton
+              href="/account"
+              variant="ghost"
+              size="sm"
+            >
+              Account
+            </LinkButton>
+          </>
         ) : (
-          <Button
-            render={<Link href="/sign-in" />}
+          <LinkButton
+            href="/sign-in"
             variant="ghost"
             size="sm"
           >
             Sign in
-          </Button>
+          </LinkButton>
         )}
         {session ? <SignOutButton /> : null}
         <ThemeToggle />

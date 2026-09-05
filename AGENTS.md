@@ -27,6 +27,9 @@ silence warnings because this repository has no warning tier.
   safe errors may be actionable. See [error handling](docs/guides/error-handling.md).
 - Keep route-local UI in its adjacent `_modules`; promote only when every
   consumer benefits from shared evolution. See [frontend organization](docs/architecture/frontend-organization.md).
+- Follow [agent feature delivery](docs/guides/agent-feature-delivery.md): grill,
+  document, build, independently test, manually check desktop and mobile,
+  self-review with applicable local skills, and pass `bun run verify`.
 
 ## Map
 
@@ -34,3 +37,4 @@ silence warnings because this repository has no warning tier.
 - [Design system](docs/design-system/README.md) — starting visual language and evolution workflow.
 - [Testing strategy](docs/reference/testing-strategy.md) — independent-oracle and happy-path rules.
 - [Change impact](docs/reference/change-impact.md) — files and docs to update by change type.
+- [Let's Start](.agents/skills/lets-start/SKILL.md) — fresh-clone setup and first-product discovery.

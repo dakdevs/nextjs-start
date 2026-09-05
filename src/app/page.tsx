@@ -1,7 +1,5 @@
-import Link from 'next/link'
-
 import { getCurrentSession } from '~/auth/session'
-import { Button } from '~/components/shadcn/button'
+import { LinkButton } from '~/components/link-button'
 import { SiteHeader } from '~/modules/site-header'
 
 export default async function HomePage() {
@@ -24,20 +22,20 @@ export default async function HomePage() {
             the way.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <Button
-              render={<Link href={session ? '/account' : '/sign-up'} />}
+            <LinkButton
+              href={session ? '/account' : '/sign-up'}
               size="lg"
             >
               {session ? 'Open account' : 'Create account'}
-            </Button>
+            </LinkButton>
             {session ? null : (
-              <Button
-                render={<Link href="/sign-in" />}
+              <LinkButton
+                href="/sign-in"
                 variant="secondary"
                 size="lg"
               >
                 Sign in
-              </Button>
+              </LinkButton>
             )}
           </div>
         </section>

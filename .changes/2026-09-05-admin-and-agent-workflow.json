@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "id": "2026-09-05-admin-and-agent-workflow",
+  "status": "completed",
+  "summary": "Add a secure task-oriented admin console and the canonical agent onboarding and delivery workflow.",
+  "impact": {
+    "features": ["authentication", "admin-operations"],
+    "architecture": ["admin-security", "bff-orpc", "webmcp", "frontend-organization"],
+    "technology": [
+      "auth-email",
+      "browser-webmcp",
+      "ui-and-state",
+      "vercel-platform-services"
+    ],
+    "designSystem": true
+  },
+  "verification": ["bun run verify", "manual desktop and mobile browser pass"],
+  "date": "2026-09-05"
+}

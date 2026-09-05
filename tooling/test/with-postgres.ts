@@ -3,8 +3,11 @@ import { randomUUID } from 'node:crypto'
 import postgres from 'postgres'
 
 async function runChecked(command: string[], environment: NodeJS.ProcessEnv) {
+  const childEnvironment = { ...environment }
+  delete childEnvironment.NO_COLOR
+
   const child = Bun.spawn(command, {
-    env: environment,
+    env: childEnvironment,
     stderr: 'inherit',
     stdout: 'inherit',
   })

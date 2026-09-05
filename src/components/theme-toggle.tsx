@@ -1,6 +1,8 @@
 'use client'
 
-import { CheckIcon, MoonIcon, SunIcon } from 'lucide-react'
+import { Moon, Sun } from 'lucide'
+import { CheckIcon } from 'lucide-react'
+import { MorphIcon } from 'morphicons/react'
 import { useTheme } from 'next-themes'
 
 import { Button } from '~/components/shadcn/button'
@@ -17,7 +19,7 @@ const themeOptions = ['light', 'dark', 'system'] as const
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme, theme } = useTheme()
-  const Icon = resolvedTheme === 'dark' ? MoonIcon : SunIcon
+  const icon = resolvedTheme === 'dark' ? Moon : Sun
 
   return (
     <DropdownMenu>
@@ -30,7 +32,11 @@ export function ThemeToggle() {
           />
         }
       >
-        <Icon aria-hidden="true" />
+        <MorphIcon
+          icon={icon}
+          reducedMotion="user"
+          spring="snappy"
+        />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"

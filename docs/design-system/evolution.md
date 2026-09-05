@@ -8,6 +8,8 @@ visual decisions as product behavior, not one-off styling shortcuts.
 
 1. Read the current design truth and the feature’s value/happy path.
 2. Search ShadCN and user-named approved sources for a compatible primitive.
+   Use the [library selection matrix](../reference/ui-library-selection.md) for
+   icons, motion, dither assets, and the admin-only Chakra boundary.
 3. Prefer existing semantic tokens and tonal surface tiers. Do not reach for a
    border when a filled section, contrast, spacing, or type can express hierarchy.
 4. Preserve the three routine type sizes. Treat the fourth display size as an
@@ -15,6 +17,8 @@ visual decisions as product behavior, not one-off styling shortcuts.
 5. For a material visual direction, ask one question: state the recommended
    direction, user outcome, and tradeoff that requires a choice.
 6. Implement semantic tokens/primitives first, then feature composition.
+   Give each purposeful animation a reduced-motion variant and keep generated
+   placeholder imagery deterministic and brand-matched.
 7. Update this document and the feature doc in the same change; add an ADR when
    the choice is broad, durable, or reverses a prior rule.
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { MotionConfig } from 'motion/react'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { ThemeProvider } from 'next-themes'
 import { useState, type ReactNode } from 'react'
@@ -22,26 +23,28 @@ export function Providers({
   const [isWebMcpReady, setIsWebMcpReady] = useState(!enableWebMcpDevelopmentRuntime)
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <QueryClientProvider client={queryClient}>
-        <NuqsAdapter>
-          <WebMcpRuntimeProvider isReady={isWebMcpReady}>
-            <WebMcpDevelopmentRuntime
-              enabled={enableWebMcpDevelopmentRuntime}
-              onReady={() => {
-                setIsWebMcpReady(true)
-              }}
-            />
-            <GlobalWebMcpTools />
-            {children}
-          </WebMcpRuntimeProvider>
-        </NuqsAdapter>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <MotionConfig reducedMotion="user">
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <QueryClientProvider client={queryClient}>
+          <NuqsAdapter>
+            <WebMcpRuntimeProvider isReady={isWebMcpReady}>
+              <WebMcpDevelopmentRuntime
+                enabled={enableWebMcpDevelopmentRuntime}
+                onReady={() => {
+                  setIsWebMcpReady(true)
+                }}
+              />
+              <GlobalWebMcpTools />
+              {children}
+            </WebMcpRuntimeProvider>
+          </NuqsAdapter>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </MotionConfig>
   )
 }

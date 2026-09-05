@@ -35,6 +35,13 @@ filled controls, spacing, type hierarchy, and restrained elevation. Borders are
 sparse accents—not the only separator. Use semantic tokens, accessible focus,
 keyboard paths, WCAG 2.2 AA contrast, and reduced motion.
 
+## Source and interaction selection
+
+Public product UI starts with ShadCN; Chakra UI is deliberately scoped to the
+admin workspace. Use Lucide by default, Morphicons for a meaningful related icon
+state, and Motion only for purposeful interaction feedback. See the [library
+selection matrix](../reference/ui-library-selection.md) and [motion language](../design-system/motion.md).
+
 ## Links
 
-[Design system](../design-system/README.md) · [Frontend organization](../architecture/frontend-organization.md) · [Component sourcing](../reference/component-sourcing.md)
+[Design system](../design-system/README.md) · [Frontend organization](../architecture/frontend-organization.md) · [Component sourcing](../reference/component-sourcing.md) · [UI library selection](../reference/ui-library-selection.md)

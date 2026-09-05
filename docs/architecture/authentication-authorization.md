@@ -20,8 +20,16 @@ current session rather than interpreting session records itself.
   state after the reset completes and never copy it elsewhere.
 - Password sign-in is the baseline. After a successful login, invite the person
   to register a passkey; it is an optional alternative login method, not MFA.
+- The first successfully authenticated account receives the global `admin` role
+  through an atomic, server-side bootstrap. A client cannot nominate itself;
+  later elevation is a distinct admin-governed workflow.
 - Better Auth rate limits are always enabled and atomically stored in Postgres;
   per-process memory is not an enforcement boundary on Vercel.
+- Ban state is read fresh at session creation and current-session resolution.
+  `banned` with no expiry is permanent; a future expiry remains active; an
+  expired temporary ban is cleared with a conditional database update so it
+  cannot undo a concurrent renewed or permanent ban. If that update loses a
+  concurrent change, one fresh read determines the authoritative result.
 - An agent can navigate or explain auth. Credential creation, enrollment,
   recovery completion, and authorization changes always use normal human UI.
 
@@ -41,4 +49,4 @@ different account; unsafe authentication details cannot reach a browser agent.
 
 ## Links
 
-[Authentication feature](../features/authentication.md) · [BFF contracts](bff-orpc.md) · [WebMCP safety](webmcp.md) · [Auth and email technology](../technologies/auth-email.md)
+[Authentication feature](../features/authentication.md) · [Admin operations](../features/admin-operations.md) · [BFF contracts](bff-orpc.md) · [WebMCP safety](webmcp.md) · [Auth and email technology](../technologies/auth-email.md)

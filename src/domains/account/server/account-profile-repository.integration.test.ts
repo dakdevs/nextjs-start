@@ -14,7 +14,9 @@ import { QueueTransport } from '~/queues/queue-publisher'
 
 describe('account profile repository against PostgreSQL', () => {
   beforeEach(async () => {
-    await db.delete(users)
+    // Production audit records are immutable and therefore deliberately block
+    // row deletion. This disposable PostgreSQL fixture resets by DDL instead.
+    await db.execute(sql`truncate table "user" cascade`)
   })
 
   it('returns only the account-screen projection', async () => {
@@ -23,7 +25,7 @@ describe('account profile repository against PostgreSQL', () => {
       email: 'projection@example.test',
       emailVerified: true,
       name: 'Projection Person',
-      role: 'admin',
+      role: 'user',
     })
 
     await expect(

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
+import { useReducedMotion } from 'motion/react'
 import type { InferRouterContractOutputs } from '@orpc/contract'
 
 import { getAccountProfileForAccountScreenContract } from '~/domains/account/contracts/get-account-profile-for-account-screen'
@@ -24,6 +25,7 @@ export function AccountWebMcpTools({
   passkeysEnabled,
   profile,
 }: AccountWebMcpToolsProps) {
+  const shouldReduceMotion = useReducedMotion()
   const getProfile = useCallback(
     () => rpcClient.account.getAccountProfileForAccountScreen({}),
     [],
@@ -38,14 +40,15 @@ export function AccountWebMcpTools({
   )
   const beginPasskeyEnrollment = useCallback(() => {
     onPasskeyRequested()
-    document
-      .querySelector('#passkey-enrollment')
-      ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    document.querySelector('#passkey-enrollment')?.scrollIntoView({
+      behavior: shouldReduceMotion === true ? 'auto' : 'smooth',
+      block: 'center',
+    })
     return Promise.resolve({
       status:
         'Passkey enrollment is ready for the person to confirm in the account UI.',
     })
-  }, [onPasskeyRequested])
+  }, [onPasskeyRequested, shouldReduceMotion])
 
   useWebMcpCapability({
     capability: webMcpCapabilities.getAccountProfile,

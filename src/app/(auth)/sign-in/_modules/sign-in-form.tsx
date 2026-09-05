@@ -16,6 +16,12 @@ import {
 } from '~/components/shadcn/field'
 import { Input } from '~/components/shadcn/input'
 
+function emailSignInFailureMessage(status: number) {
+  return status === 429
+    ? 'Too many sign-in attempts. Wait a moment and try again.'
+    : 'Email or password is incorrect.'
+}
+
 export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: boolean }) {
   const router = useRouter()
   const [message, setMessage] = useState<string | null>(null)
@@ -31,7 +37,7 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
         callbackURL: '/account',
       })
       if (result.error) {
-        setMessage('Email or password is incorrect.')
+        setMessage(emailSignInFailureMessage(result.error.status))
         return
       }
       router.replace('/account')
@@ -99,7 +105,7 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
         </Field>
       </FieldGroup>
       {message === null ? null : (
-        <Alert className="border-0 bg-muted">
+        <Alert className="border-0 bg-transparent p-0 text-destructive">
           <AlertDescription>{message}</AlertDescription>
         </Alert>
       )}
@@ -112,7 +118,7 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
         {isPending ? 'Signing in…' : 'Sign in'}
       </Button>
       {passkeysEnabled ? (
-        <div className="space-y-4 rounded-xl bg-muted p-4">
+        <div className="space-y-4 pt-1">
           <div>
             <p className="text-ui font-medium">Use a passkey instead</p>
             <FieldDescription>
@@ -122,7 +128,7 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
           <Button
             className="w-full"
             type="button"
-            variant="secondary"
+            variant="ghost"
             disabled={isPending}
             onClick={() => {
               void signInWithPasskey()

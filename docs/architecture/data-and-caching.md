@@ -18,6 +18,9 @@ they do not return broad records for callers to trim later.
 Authenticated and user-specific data is uncached by default. Cache only public,
 stable reads with an explicit freshness period, tags, invalidation owner, and
 test isolation plan. Never introduce a blanket repository or Effect cache.
+Redis is not a default: use Upstash through Vercel Marketplace only for a
+documented shared cache, distributed rate limit, lock, or ephemeral counter;
+keep Postgres as durable truth. See [Vercel platform services](../technologies/vercel-platform-services.md).
 
 ## Decision matrix
 

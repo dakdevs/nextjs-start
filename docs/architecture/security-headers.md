@@ -12,6 +12,9 @@ Next.js compatibility baseline for applications that retain static rendering;
 it is not a complete XSS defense. Never weaken output escaping, URL validation,
 or trust-boundary parsing because this header exists.
 
+Local development additionally allows `unsafe-eval`, which React requires for
+its development diagnostics. The production build never includes that source.
+
 ## Nonce decision
 
 Use a fresh nonce and `strict-dynamic` when the application handles especially

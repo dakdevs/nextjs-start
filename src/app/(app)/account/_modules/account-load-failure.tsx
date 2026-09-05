@@ -1,6 +1,4 @@
-import Link from 'next/link'
-
-import { Button } from '~/components/shadcn/button'
+import { LinkButton } from '~/components/link-button'
 
 export function AccountLoadFailure({ errorId }: { readonly errorId: string }) {
   return (
@@ -14,12 +12,12 @@ export function AccountLoadFailure({ errorId }: { readonly errorId: string }) {
         <p className="mt-3 font-mono text-ui text-muted-foreground">
           Error ID: {errorId}
         </p>
-        <Button
-          render={<Link href="/account" />}
+        <LinkButton
+          href="/account"
           className="mt-6"
         >
           Try again
-        </Button>
+        </LinkButton>
       </section>
     </main>
   )

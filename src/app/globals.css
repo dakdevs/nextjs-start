@@ -95,8 +95,26 @@
   body {
     @apply bg-background text-body text-foreground antialiased;
   }
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not(
+      [type='color']
+    ),
+  select,
+  textarea {
+    font-size: max(16px, var(--text-body)) !important;
+  }
   button:not(:disabled),
   [role='button']:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+@media (pointer: coarse) {
+  button,
+  input,
+  select,
+  textarea,
+  [role='button'] {
+    min-block-size: 44px;
+    min-inline-size: 44px;
   }
 }

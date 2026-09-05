@@ -1,6 +1,6 @@
 # Feature: authentication
 
-**Status:** current · **Owner:** application team · **Last reviewed:** 2026-09-04
+**Status:** current · **Owner:** application team · **Last reviewed:** 2026-09-05
 
 ## Problem and value
 
@@ -13,6 +13,7 @@ passkeys reduce future password dependence.
 - Support email/password sign-up, verification, sign-in, sign-out, and reset.
 - Offer passkey enrollment after login and accept it as a secondary sign-in method.
 - Distinguish public, authenticated, and admin access in one authorization model.
+- Bootstrap exactly one initial admin when the first account successfully authenticates.
 - Keep known user-facing failures clear and unexpected failures traceable by ID.
 
 ## Non-goals and not valuable now
@@ -23,9 +24,10 @@ passkeys reduce future password dependence.
 
 ## Users and entry points
 
-Visitors use sign-up/sign-in/reset pages. Signed-in people see a calm passkey
-prompt after login and can manage passkeys in account settings. Admin-only
-operations require the global admin role.
+Visitors use sign-up/sign-in/reset pages. The first person to complete
+authentication becomes admin through a server-side atomic bootstrap. Signed-in
+people see a calm passkey prompt after login and can manage passkeys in account
+settings. Admin-only operations require the global admin role.
 
 ## Core happy path
 
@@ -39,8 +41,13 @@ operations require the global admin role.
 - Better Auth owns session and credential mechanics; Postgres is the durable store.
 - Resend is the production mail boundary and a development-safe adapter is used locally.
 - Authentication mutations use explicit input schemas and typed safe failures.
+- A permanent ban, or a temporary ban whose expiry is still in the future,
+  blocks new sessions and invalidates a current session. A completed temporary
+  ban is cleared atomically when either boundary next evaluates that account.
 - Authentication screens use the three routine typography roles; they do not
-  use the exceptional display role.
+  use the exceptional display role. They stay on one calm canvas: controls and
+  the primary action carry contrast while errors and passkey options add no
+  persistent container layer.
 - An agent may describe or navigate to auth flows, but enrollment and sign-in
   always use the browser’s normal human-confirmed security ceremony.
 

@@ -19,6 +19,7 @@ of truth for upgrade and rollback expectations.
 ## Focused operating guides
 
 - [Next.js, Bun, and Vercel](next-bun-vercel.md)
+- [Vercel platform services](vercel-platform-services.md)
 - [oRPC](orpc.md) · [Effect 4](effect-4.md) · [Postgres and Drizzle](postgres-drizzle.md)
 - [Better Auth, passkeys, and Resend](auth-email.md)
 - [Browser WebMCP](browser-webmcp.md) · [Queues, workflows, and outbox](async-platform.md)

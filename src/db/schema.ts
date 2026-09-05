@@ -9,7 +9,9 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  uuid,
 } from 'drizzle-orm/pg-core'
+import { z } from 'zod'
 
 import { accountRole, accountRoles } from '~/auth/roles'
 
@@ -130,6 +132,71 @@ export const accountProfiles = pgTable('account_profile', {
   bio: text('bio').notNull().default(''),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
+
+/** A singleton, database-enforced record of the first eligible administrator. */
+export const adminBootstrapClaims = pgTable(
+  'admin_bootstrap_claim',
+  {
+    singleton: boolean('singleton').primaryKey().default(true),
+    adminUserId: text('admin_user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'restrict' }),
+    claimedAt: timestamp('claimed_at').notNull().defaultNow(),
+  },
+  (table) => [
+    check('admin_bootstrap_claim_singleton_check', sql`${table.singleton} = true`),
+  ],
+)
+
+/** Append-only, safe operational history. Payloads never contain credentials. */
+export const adminAuditEvents = pgTable(
+  'admin_audit_event',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    action: text('action').notNull(),
+    actorUserId: text('actor_user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    subjectUserId: text('subject_user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    outcome: text('outcome').notNull(),
+    targetKind: text('target_kind').notNull(),
+    targetId: text('target_id').notNull(),
+    correlationId: uuid('correlation_id').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [index('admin_audit_event_created_at_idx').on(table.createdAt)],
+)
+
+export const serviceAccountScope = ['system:health:read'] as const
+export const serviceAccountScopeSchema = z.enum(serviceAccountScope)
+
+/** Machine credentials are distinct from people and retain only a token digest. */
+export const serviceAccounts = pgTable(
+  'service_account',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text('name').notNull(),
+    tokenPrefix: text('token_prefix').notNull().unique(),
+    tokenDigest: text('token_digest').notNull().unique(),
+    scopes: text('scopes').array().notNull(),
+    createdByUserId: text('created_by_user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'restrict' }),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    rotatedAt: timestamp('rotated_at'),
+    revokedAt: timestamp('revoked_at'),
+    lastUsedAt: timestamp('last_used_at'),
+  },
+  (table) => [
+    check(
+      'service_account_scope_check',
+      sql`cardinality(${table.scopes}) > 0 and ${table.scopes} <@ ARRAY['system:health:read']::text[]`,
+    ),
+    index('service_account_active_idx').on(table.revokedAt),
+  ],
+)
 
 export const userRelations = relations(users, ({ one, many }) => ({
   profile: one(accountProfiles, {

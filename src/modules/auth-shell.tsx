@@ -18,7 +18,7 @@ export function AuthShell({ children, description, title }: AuthShellProps) {
         <ThemeToggle />
       </div>
       <section className="mx-auto w-full max-w-md self-center py-12">
-        <div className="rounded-2xl bg-card px-6 py-8 sm:px-9 sm:py-10">
+        <div className="px-1 py-6 sm:px-4 sm:py-8">
           <p className="text-ui font-medium text-muted-foreground">Account</p>
           <h1 className="mt-3 text-title font-semibold text-foreground">{title}</h1>
           <p className="mt-3 text-pretty leading-6 text-muted-foreground">

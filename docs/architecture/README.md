@@ -15,6 +15,8 @@ business rules.
 - [Data and caching](data-and-caching.md) — exact Drizzle access and conservative cache rules.
 - [Authentication and authorization](authentication-authorization.md) — Better Auth's
   single-account session boundary and explicit role checks.
+- [Admin security](admin-security.md) — transactional bootstrap, safe data
+  visibility, human-confirmed credentials, and audit boundaries.
 - [Errors and observability](errors-observability.md) — safe user recovery and
   searchable, structured failure records.
 - [Security headers](security-headers.md) — the static-rendering CSP baseline

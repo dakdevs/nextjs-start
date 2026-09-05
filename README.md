@@ -11,7 +11,8 @@ Use this repository as a GitHub template, then make it your own.
 
 1. Select **Use this template** on GitHub and create a new repository.
 2. Clone it and install [Bun 1.4.0](https://bun.sh).
-3. Run a local Postgres instance (Docker is the simplest option):
+3. Ask an agent to use the repository-local [Let's Start skill](.agents/skills/lets-start/SKILL.md). It checks the local baseline, starts Docker Postgres only when needed, and runs a focused product-discovery session before the first feature.
+4. Or run a local Postgres instance yourself (Docker is the simplest option):
 
    ```bash
    docker run --name nextjs-start-db --rm \
@@ -22,14 +23,14 @@ Use this repository as a GitHub template, then make it your own.
      postgres:17-alpine
    ```
 
-4. Create local configuration and set a unique auth secret:
+5. Create local configuration and set a unique auth secret:
 
    ```bash
    cp .env.example .env
    # Replace BETTER_AUTH_SECRET with a random value of at least 32 characters.
    ```
 
-5. Install, migrate, and start the app:
+6. Install, migrate, and start the app:
 
    ```bash
    bun install --frozen-lockfile
@@ -61,6 +62,7 @@ oRPC operation per consumer contract, route-local UI in `_modules`, and shared
 code only when all consumers benefit from its future changes.
 
 - [Feature workflow](docs/guides/feature-workflow.md)
+- [Agent feature delivery](docs/guides/agent-feature-delivery.md)
 - [Documentation map](docs/README.md)
 - [BFF/oRPC contracts](docs/architecture/bff-orpc.md)
 - [Browser WebMCP policy](docs/architecture/webmcp.md)
@@ -70,11 +72,13 @@ code only when all consumers benefit from its future changes.
 
 ## Deploy to Vercel
 
-Import the generated repository into Vercel. Use the Bun runtime and add every
-required value from [`.env.schema`](.env.schema) to the matching Vercel
-environment. Production uses a provider’s pooled Postgres URL with `sslmode=require`
-(or stronger), `EMAIL_DELIVERY=resend`, `RESEND_API_KEY`, a real `EMAIL_FROM`, and
-a distinct `BETTER_AUTH_SECRET`.
+Use Vercel as the complete hosting target. After explicit confirmation, use the
+Vercel CLI to link the project and add Neon Postgres through Vercel Marketplace;
+pull environment values without printing them. Production uses Neon’s pooled
+Postgres URL with `sslmode=require` (or stronger), `EMAIL_DELIVERY=resend`,
+`RESEND_API_KEY`, a real `EMAIL_FROM`, and a distinct `BETTER_AUTH_SECRET`.
+See [Vercel platform services](docs/technologies/vercel-platform-services.md)
+for Neon, selective Upstash Redis, AI Gateway, and deployment approval rules.
 
 Set `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` to the canonical deployment
 origin. Vercel Git integration can handle preview and production deployments;

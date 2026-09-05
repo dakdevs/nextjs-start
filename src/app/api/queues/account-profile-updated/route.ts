@@ -20,7 +20,7 @@ import { vercelProfileUpdateWorkflowStarter } from '~/workflows/profile-update-a
  * application API. The Vercel callback signature and a durable event-ID claim
  * protect it against direct use and at-least-once delivery, respectively.
  */
-export const POST = vercelQueueClient.handleCallback(
+const queueCallback = vercelQueueClient.handleCallback(
   async (message, metadata) => {
     await runAppEffect(
       accountProfileUpdatedQueueHandler.handle(message, metadata).pipe(
@@ -42,3 +42,5 @@ export const POST = vercelQueueClient.handleCallback(
     retry: accountProfileUpdatedQueueHandler.retry,
   },
 )
+
+export const POST = (request: Request) => queueCallback(request)

@@ -2,10 +2,18 @@ import { varlockNextConfigPlugin } from '@varlock/nextjs-integration/plugin'
 import type { NextConfig } from 'next'
 import { withWorkflow } from 'workflow/next'
 
+const scriptPolicy =
+  process.env.NODE_ENV === 'development'
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline'"
+
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ['@chakra-ui/react'],
+  },
   poweredByHeader: false,
   typedRoutes: true,
-  serverExternalPackages: ['postgres'],
+  serverExternalPackages: ['@varlock/nextjs-integration', 'postgres'],
   headers: () =>
     Promise.resolve([
       {
@@ -22,7 +30,7 @@ const nextConfig: NextConfig = {
               "frame-ancestors 'none'",
               "img-src 'self' blob: data:",
               "object-src 'none'",
-              "script-src 'self' 'unsafe-inline'",
+              scriptPolicy,
               "style-src 'self' 'unsafe-inline'",
             ].join('; '),
           },

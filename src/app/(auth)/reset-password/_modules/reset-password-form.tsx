@@ -1,10 +1,10 @@
 'use client'
 
-import Link from 'next/link'
 import { useState } from 'react'
 
 import { authClient } from '~/auth/client'
 import { getFormText } from '~/components/form-data'
+import { LinkButton } from '~/components/link-button'
 import { Alert, AlertDescription } from '~/components/shadcn/alert'
 import { Button } from '~/components/shadcn/button'
 import { Field, FieldLabel } from '~/components/shadcn/field'
@@ -42,13 +42,13 @@ export function ResetPasswordForm({ token }: { readonly token: string }) {
         <Alert className="border-0 bg-accent">
           <AlertDescription>Your password has been reset.</AlertDescription>
         </Alert>
-        <Button
-          render={<Link href="/sign-in" />}
+        <LinkButton
+          href="/sign-in"
           className="w-full"
           size="lg"
         >
           Sign in
-        </Button>
+        </LinkButton>
       </div>
     )
   }

@@ -39,9 +39,44 @@ describe('account oRPC contracts against PostgreSQL', () => {
     ).rejects.toMatchObject({ code: 'UNAUTHORIZED' })
   })
 
+  it('rejects an authenticated non-administrator before an admin read reaches storage', async () => {
+    await expect(
+      clientFor(
+        sessionFor({
+          createdAt: new Date('2026-09-04T00:00:00.000Z'),
+          email: 'member@example.test',
+          emailVerified: true,
+          id: 'member_account',
+          image: null,
+          name: 'Member Person',
+          role: 'user',
+          updatedAt: new Date('2026-09-04T00:00:00.000Z'),
+        }),
+      ).admin.getAdminHomeSummaryForAdminHome({}),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+  })
+
+  it('rejects an authenticated non-administrator before an admin mutation reaches storage', async () => {
+    const member = sessionFor({
+      createdAt: new Date('2026-09-04T00:00:00.000Z'),
+      email: 'member-mutation@example.test',
+      emailVerified: true,
+      id: 'member_mutation_account',
+      image: null,
+      name: 'Member Mutation Person',
+      role: 'user',
+      updatedAt: new Date('2026-09-04T00:00:00.000Z'),
+    })
+
+    await expect(
+      clientFor(member).admin.requestPasswordResetForAdminUserSupport({
+        userId: member.user.id,
+      }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+  })
+
   it('returns the exact account-screen projection for the current user only', async () => {
     const currentUser = {
-      banned: false,
       createdAt: new Date('2026-09-04T00:00:00.000Z'),
       email: 'current@example.test',
       emailVerified: true,
@@ -94,7 +129,6 @@ describe('account oRPC contracts against PostgreSQL', () => {
     await expect(
       clientFor(
         sessionFor({
-          banned: false,
           createdAt: new Date('2026-09-04T00:00:00.000Z'),
           email: 'boundary@example.test',
           emailVerified: true,

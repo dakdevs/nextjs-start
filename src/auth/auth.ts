@@ -3,7 +3,6 @@ import 'server-only'
 import { drizzleAdapter } from '@better-auth/drizzle-adapter'
 import { passkey } from '@better-auth/passkey'
 import { betterAuth } from 'better-auth'
-import { admin } from 'better-auth/plugins'
 import { Effect } from 'effect'
 import { after } from 'next/server'
 
@@ -18,7 +17,7 @@ import {
   verifications,
 } from '~/db/schema'
 import { passkeysEnabled } from '~/auth/passkey-policy'
-import { accountRole } from '~/auth/roles'
+import { assertUserCanCreateSession } from '~/auth/user-access'
 import { EmailService } from '~/email/email-service'
 import { runEmailEffect } from '~/email/runtime'
 import { runAppEffect } from '~/effect/runtime'
@@ -102,19 +101,25 @@ export const createAuth = () =>
           to: user.email,
         }),
     },
-    plugins: [
-      admin({ defaultRole: accountRole.user, adminRoles: [accountRole.admin] }),
-      ...(passkeysEnabled
-        ? [
-            passkey({
-              rpID: new URL(env.BETTER_AUTH_URL).hostname,
-              rpName: 'nextjs-start',
-              origin: env.BETTER_AUTH_URL,
-              registration: { requireSession: true },
-            }),
-          ]
-        : []),
-    ],
+    databaseHooks: {
+      session: {
+        create: {
+          before: async (session) => {
+            await assertUserCanCreateSession(session.userId)
+          },
+        },
+      },
+    },
+    plugins: passkeysEnabled
+      ? [
+          passkey({
+            rpID: new URL(env.BETTER_AUTH_URL).hostname,
+            rpName: 'nextjs-start',
+            origin: env.BETTER_AUTH_URL,
+            registration: { requireSession: true },
+          }),
+        ]
+      : [],
     rateLimit: {
       enabled: true,
       storage: 'database',

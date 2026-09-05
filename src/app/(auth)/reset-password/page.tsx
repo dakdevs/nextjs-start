@@ -1,8 +1,6 @@
-import Link from 'next/link'
-
 import { ResetPasswordForm } from '~/app/(auth)/reset-password/_modules/reset-password-form'
+import { LinkButton } from '~/components/link-button'
 import { Alert, AlertDescription } from '~/components/shadcn/alert'
-import { Button } from '~/components/shadcn/button'
 import { AuthShell } from '~/modules/auth-shell'
 
 export default async function ResetPasswordPage({
@@ -36,13 +34,13 @@ export default async function ResetPasswordPage({
               continue.
             </AlertDescription>
           </Alert>
-          <Button
-            render={<Link href="/forgot-password" />}
+          <LinkButton
+            href="/forgot-password"
             className="w-full"
             size="lg"
           >
             Request reset link
-          </Button>
+          </LinkButton>
         </div>
       ) : (
         <ResetPasswordForm token={token} />

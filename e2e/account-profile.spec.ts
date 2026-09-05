@@ -29,6 +29,16 @@ const webMcpResultSchema = z
   .loose()
 
 const mailboxDirectory = join(process.cwd(), '.next', 'development-emails')
+const clientIpByProject = new Map([
+  ['chromium', '192.0.2.11'],
+  ['mobile-chromium', '192.0.2.21'],
+])
+
+function clientIpFor(projectName: string) {
+  const clientIp = clientIpByProject.get(projectName)
+  if (clientIp === undefined) throw new Error(`No E2E client IP for ${projectName}`)
+  return clientIp
+}
 
 async function findEmail(
   recipient: string,
@@ -123,15 +133,37 @@ async function installVirtualAuthenticator(page: Page) {
 
 test('a person can complete the account happy path through UI and WebMCP', async ({
   page,
-}) => {
+}, testInfo) => {
+  await page.setExtraHTTPHeaders({
+    'x-forwarded-for': clientIpFor(testInfo.project.name),
+  })
   const identity = crypto.randomUUID()
   const email = `account-${identity}@example.test`
   const originalPassword = `Start-${identity}!`
   const replacementPassword = `Changed-${identity}!`
 
   await page.goto('/sign-up')
+  const emailInput = page.getByLabel('Email')
+  const inputFontSize = await emailInput.evaluate((element) =>
+    Number(getComputedStyle(element).fontSize.replace('px', '')),
+  )
+  expect(inputFontSize).toBeGreaterThanOrEqual(16)
+
+  const createAccountButton = page.getByRole('button', {
+    name: 'Create account',
+  })
+  const buttonHeight = await createAccountButton.evaluate(
+    (element) => element.getBoundingClientRect().height,
+  )
+  expect(buttonHeight).toBeGreaterThanOrEqual(44)
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true)
+
   await page.getByLabel('Display name').fill('Starter Person')
-  await page.getByLabel('Email').fill(email)
+  await emailInput.fill(email)
   await page.getByLabel('Password').fill(originalPassword)
   await page.getByRole('button', { name: 'Create account' }).click()
   await expect(page).toHaveURL(/\/verify-email/u)

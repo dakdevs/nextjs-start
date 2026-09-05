@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import { authClient } from '~/auth/client'
 import { getFormText } from '~/components/form-data'
+import { LinkButton } from '~/components/link-button'
 import { Alert, AlertDescription } from '~/components/shadcn/alert'
 import { Button } from '~/components/shadcn/button'
 import { Field, FieldLabel } from '~/components/shadcn/field'
@@ -43,13 +44,13 @@ export function ForgotPasswordForm() {
         <Alert className="border-0 bg-accent">
           <AlertDescription>Check your inbox for a reset link.</AlertDescription>
         </Alert>
-        <Button
-          render={<Link href="/sign-in" />}
+        <LinkButton
+          href="/sign-in"
           className="w-full"
           variant="secondary"
         >
           Back to sign in
-        </Button>
+        </LinkButton>
       </div>
     )
   }

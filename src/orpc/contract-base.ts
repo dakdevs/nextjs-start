@@ -15,3 +15,13 @@ export const authenticatedContractBase = contractBase.errors({
     message: 'Sign in is required',
   },
 })
+
+/** Base for operations whose consumer is an authorized administrator. */
+export const adminContractBase = authenticatedContractBase.errors({
+  FORBIDDEN: {
+    message: 'Administrator access is required',
+  },
+  NOT_FOUND: {
+    message: 'The requested administrative record no longer exists',
+  },
+})
