@@ -10,6 +10,29 @@ built. It establishes a working local application, a durable product outline,
 and the working agreement that later feature delivery follows. It is not a
 shortcut around the [feature delivery workflow](../../../docs/guides/agent-feature-delivery.md).
 
+## Establish repository and tool ownership
+
+Before installing dependencies or changing code, ask one concise setup round for
+the product working name/purpose, GitHub owner and repository name, public/private/
+internal visibility, intended local directory, and Vercel account/team plus
+existing-or-new project. Recommend private visibility unless the user intends an
+open-source product. Do not infer an organization, visibility, or push target.
+
+1. Verify Git, Bun, GitHub CLI, and Vercel CLI availability. Use `gh auth status`
+   and `bunx vercel whoami` to verify authentication without exposing tokens.
+   If installation or login is missing, give the official command, wait for the
+   user's interactive completion, and verify again.
+2. If no destination repository exists, use `gh repo create` with `--template
+dakdevs/nextjs-start`, `--clone`, and the user's exact `--private`, `--public`,
+   or `--internal` choice. If already cloned, inspect `git remote -v` and
+   `gh repo view`.
+3. Never push, replace a remote, or change visibility until the user confirms the
+   exact destination. Verify `origin` resolves to that destination afterward.
+4. Update the package name, repository URL, README/app name, and metadata from
+   starter identity to confirmed product identity; keep technology credits.
+5. Resolve the Vercel scope and project up front. With explicit confirmation,
+   run `bunx vercel link`; linking is not permission to provision or deploy.
+
 ## Establish the local baseline
 
 1. Inspect `AGENTS.md`, `README.md`, `.env.example`, `docs/README.md`, and the
@@ -52,10 +75,9 @@ and design pages. Do not begin a generic backlog disguised as documentation.
 
 ## Hosting and platform defaults
 
-Vercel is the entire hosting target. Check Vercel authentication with the CLI;
-ask the user to complete `vercel login` only when it is not already authenticated.
-With the user's confirmation, link the repository to a Vercel project. Before
-any external provisioning, clearly ask for confirmation, then use Vercel
+Vercel is the entire hosting target. Authentication, scope, and project linkage
+are established during the opening handshake. Before any external provisioning,
+clearly ask for confirmation, then use Vercel
 Marketplace/CLI to add Neon for Postgres and pull environment values without
 printing them. Offer preview or production deployment separately; each requires
 its own confirmation.

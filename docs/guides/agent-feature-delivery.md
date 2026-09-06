@@ -23,7 +23,8 @@ After manual testing, ask whether the user wants a test video. Respect only an
 explicit response: record `always`, `ask`, or `never` in the
 [working agreement](../reference/working-agreement.md). The default is `ask`.
 When requested, run `bun run test:e2e:video`; Playwright emits recordings in its
-test-results output directory. Recordings are opt-in evidence, never a required
+ignored `.artifacts/playwright/` directory. Recordings are local-only, opt-in
+evidence: never commit, publish, or attach them to a PR. They are not a required
 quality gate or a reason to skip manual testing.
 
 ## Review matrix

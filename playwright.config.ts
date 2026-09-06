@@ -5,6 +5,7 @@ const shouldRecordVideo = process.env.PLAYWRIGHT_VIDEO === 'true'
 
 export default defineConfig({
   testDir: './e2e',
+  outputDir: shouldRecordVideo ? '.artifacts/playwright' : 'test-results',
   timeout: 60_000,
   fullyParallel: false,
   workers: 1,

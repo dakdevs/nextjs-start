@@ -7,6 +7,9 @@ It is not a substitute for feature documents or a place for inferred preferences
 
 **Current preference:** ask
 
+**Publication preference:** never. Every video stays below the ignored root
+`.artifacts/` directory and is never committed, published, or attached to a PR.
+
 After a feature has passed manual desktop and mobile testing, ask whether the
 user wants a Playwright recording. Record one of these explicit choices:
 
@@ -17,8 +20,8 @@ user wants a Playwright recording. Record one of these explicit choices:
 | `never`    | Do not offer or capture routine test videos.                  |
 
 Videos are produced only with `bun run test:e2e:video`, which sets Playwright's
-video flag and writes files below `test-results/`. They are optional evidence;
-manual testing and `bun run verify` remain required.
+video flag and writes files below `.artifacts/playwright/`. They are local-only
+optional evidence; manual testing and `bun run verify` remain required.
 
 ## Updating this agreement
 

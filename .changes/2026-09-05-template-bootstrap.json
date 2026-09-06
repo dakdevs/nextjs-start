@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "id": "2026-09-05-template-bootstrap",
+  "status": "completed",
+  "summary": "Make repository ownership, CLI authentication, Vercel linkage, and product discovery explicit first-run steps.",
+  "impact": {
+    "features": ["authentication", "admin-operations"],
+    "architecture": [],
+    "technology": ["vercel-platform-services"],
+    "designSystem": false
+  },
+  "verification": ["bun run verify"],
+  "date": "2026-09-05"
+}
