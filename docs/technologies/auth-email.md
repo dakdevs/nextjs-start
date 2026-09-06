@@ -18,6 +18,12 @@ security-sensitive ceremonies in normal browser UI with human confirmation.
 
 ## Email adapter rules
 
+Email is capability-driven, not baseline provisioning. When product discovery
+identifies a mail journey, use the linked project's Vercel CLI to discover and
+add the Resend Marketplace integration before implementing that journey. Pull
+its environment values into ignored files without printing secret values. If
+the CLI opens an account-claim step, pause for the user to complete it.
+
 | Situation                              | Behavior                                                                         |
 | -------------------------------------- | -------------------------------------------------------------------------------- |
 | Local development                      | Write to ignored `.next/development-emails`; log only an opaque message ID.      |
@@ -32,4 +38,4 @@ safe.
 
 ## Links
 
-[Authentication architecture](../architecture/authentication-authorization.md) · [Effect 4](effect-4.md) · [Authentication feature](../features/authentication.md)
+[Authentication architecture](../architecture/authentication-authorization.md) · [Vercel platform services](vercel-platform-services.md) · [Effect 4](effect-4.md) · [Authentication feature](../features/authentication.md)

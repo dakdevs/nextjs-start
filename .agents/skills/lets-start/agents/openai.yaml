@@ -1,0 +1,7 @@
+interface:
+  display_name: "Let's Start"
+  short_description: 'Bootstrap a fresh nextjs-start application'
+  default_prompt: 'Use $lets-start to bootstrap this cloned template and establish its product direction.'
+
+policy:
+  allow_implicit_invocation: false

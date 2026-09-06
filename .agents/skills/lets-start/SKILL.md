@@ -1,9 +1,13 @@
 ---
 name: lets-start
-description: Set up a fresh nextjs-start clone, establish its product direction, and prepare an agent-ready first delivery plan before implementation begins.
+description: Explicitly bootstrap a fresh nextjs-start clone and establish its product direction. Use only when the user or copied bootstrap prompt invokes it; never select it automatically.
 ---
 
 # Let's Start
+
+This skill is explicit-only. Run it only when the user invokes `$lets-start` or
+the copied README bootstrap prompt directs you to invoke it. Never select it
+autonomously merely because a repository is new.
 
 Use after this template has been cloned and before the first product feature is
 built. It establishes a working local application, a durable product outline,
@@ -22,10 +26,10 @@ open-source product. Do not infer an organization, visibility, or push target.
    and `bunx vercel whoami` to verify authentication without exposing tokens.
    If installation or login is missing, give the official command, wait for the
    user's interactive completion, and verify again.
-2. If no destination repository exists, use `gh repo create` with `--template
-dakdevs/nextjs-start`, `--clone`, and the user's exact `--private`, `--public`,
-   or `--internal` choice. If already cloned, inspect `git remote -v` and
-   `gh repo view`.
+2. If no destination repository exists, use `gh repo create` with the
+   `dakdevs/nextjs-start` template, `--clone`, and the user's exact `--private`,
+   `--public`, or `--internal` choice. If already cloned, inspect
+   `git remote -v` and `gh repo view`.
 3. Never push, replace a remote, or change visibility until the user confirms the
    exact destination. Verify `origin` resolves to that destination afterward.
 4. Update the package name, repository URL, README/app name, and metadata from
@@ -42,6 +46,8 @@ dakdevs/nextjs-start`, `--clone`, and the user's exact `--private`, `--public`,
 3. Check whether `DATABASE_URL` reaches a usable local Postgres instance. Start
    Docker Postgres only when it does not. Use the repository's documented local
    database parameters; do not stop, replace, or expose a working user database.
+   Follow the [local-service guide](../../../docs/guides/local-development-services.md)
+   when the product needs another containerized dependency.
 4. Create `.env` from `.env.example` only if it is absent. Generate required
    local secrets without printing them, and use `bun run env:check` to validate
    configuration. Never echo, commit, or paste secret values into chat or logs.
@@ -77,10 +83,12 @@ and design pages. Do not begin a generic backlog disguised as documentation.
 
 Vercel is the entire hosting target. Authentication, scope, and project linkage
 are established during the opening handshake. Before any external provisioning,
-clearly ask for confirmation, then use Vercel
-Marketplace/CLI to add Neon for Postgres and pull environment values without
-printing them. Offer preview or production deployment separately; each requires
-its own confirmation.
+clearly ask for confirmation, then use Vercel Marketplace/CLI to add Neon for
+Postgres and pull environment values without printing them. If product discovery
+establishes an email need, discover and add the Resend Marketplace integration
+before implementing email, then pull its environment values without printing
+them. Offer preview or production deployment separately; each requires its own
+confirmation.
 
 Read [Vercel platform services](../../../docs/technologies/vercel-platform-services.md)
 before choosing managed services. Do not add Redis by habit: prefer Upstash via

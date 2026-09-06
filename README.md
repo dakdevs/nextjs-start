@@ -19,41 +19,16 @@ Copy this prompt into an agent from the parent directory where the project
 should live, or from an existing clone. It handles both cases.
 
 ```text
-Bootstrap my application from the GitHub template dakdevs/nextjs-start.
-Do not write product code or push anything until the setup handshake is complete.
+Create my application from the GitHub template `dakdevs/nextjs-start`.
+If it is not already cloned, ask me for the GitHub owner, repository name,
+public/private/internal visibility, and local parent directory. Verify `gh` is
+installed and authenticated, then create and clone the repository with the
+template. Do not push until I confirm the destination.
 
-First ask me, in one concise setup round, for:
-- the product's working name and one-sentence purpose;
-- the GitHub owner and repository name that should receive pushes;
-- public, private, or internal visibility, with private recommended unless I intend open source;
-- the local parent directory, unless you are already inside the intended clone;
-- the Vercel account/team scope and whether to create or link an existing project.
-
-Then verify Git, Bun, GitHub CLI, and Vercel CLI are available. Check GitHub with
-`gh auth status` and Vercel with `bunx vercel whoami`. If a tool or login is
-missing, give me the exact official install/login step, let me complete it, and
-verify again. Never print or paste authentication tokens.
-
-If the destination repository does not exist, use `gh repo create` with
-`--template dakdevs/nextjs-start`, `--clone`, and exactly the `--private`,
-`--public`, or `--internal` visibility I chose. If a clone already exists,
-inspect `git remote -v` and `gh repo view`; do not change a remote, repository
-visibility, or push target without my confirmation. Verify `origin` is the
-confirmed destination before the first push, and update package/repository/app
-identity away from the starter.
-
-After cloning, read `AGENTS.md` and `.agents/skills/lets-start/SKILL.md` completely
-and follow the Let's Start skill. Authenticate and, with my confirmation, link
-the Vercel project up front, but do not provision paid services or deploy until
-you ask separately. Establish the local database and environment without
-revealing secrets, run the starter, claim the initial administrator safely, and
-pass `bun run verify`.
-
-Use the repository-local feature-grilling workflow to interview me about users,
-value, the first happy path, non-goals, permissions, admin needs, WebMCP parity,
-and design language. Record the agreed product direction and first feature in
-the living docs before implementing it. Ask only questions whose answers change
-product value or a durable decision; use documented defaults for the rest.
+Once inside the clone, read `AGENTS.md` and
+`.agents/skills/lets-start/SKILL.md` completely, then explicitly invoke and run
+`$lets-start`. Follow it through setup and product discovery before writing
+product code.
 ```
 
 The equivalent web flow is: select **Use this template** → **Create a new
@@ -120,16 +95,19 @@ code only when all consumers benefit from its future changes.
 - [BFF/oRPC contracts](docs/architecture/bff-orpc.md)
 - [Browser WebMCP policy](docs/architecture/webmcp.md)
 - [Effect services](docs/architecture/effect-services.md)
+- [Local development services](docs/guides/local-development-services.md)
 - [Design-system workflow](docs/design-system/evolution.md)
 - [Testing strategy](docs/reference/testing-strategy.md)
 
 ## Deploy to Vercel
 
 Use Vercel as the complete hosting target. After explicit confirmation, use the
-Vercel CLI to link the project and add Neon Postgres through Vercel Marketplace;
-pull environment values without printing them. Production uses Neon’s pooled
-Postgres URL with `sslmode=require` (or stronger), `EMAIL_DELIVERY=resend`,
-`RESEND_API_KEY`, a real `EMAIL_FROM`, and a distinct `BETTER_AUTH_SECRET`.
+Vercel CLI to link the project and add Neon Postgres through Vercel Marketplace.
+When the product needs email, add the Resend Marketplace integration before
+building its mail flow. Pull environment values without printing them.
+Production uses Neon’s pooled Postgres URL with `sslmode=require` (or stronger),
+`EMAIL_DELIVERY=resend`, `RESEND_API_KEY`, a real `EMAIL_FROM`, and a distinct
+`BETTER_AUTH_SECRET`.
 See [Vercel platform services](docs/technologies/vercel-platform-services.md)
 for Neon, selective Upstash Redis, AI Gateway, and deployment approval rules.
 

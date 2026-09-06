@@ -36,5 +36,6 @@ silence warnings because this repository has no warning tier.
 - [Documentation map](docs/README.md) — canonical product, architecture, technology, and decision records.
 - [Design system](docs/design-system/README.md) — starting visual language and evolution workflow.
 - [Testing strategy](docs/reference/testing-strategy.md) — independent-oracle and happy-path rules.
+- [Local development services](docs/guides/local-development-services.md) — Docker and test-container rules for new dependencies.
 - [Change impact](docs/reference/change-impact.md) — files and docs to update by change type.
 - [Let's Start](.agents/skills/lets-start/SKILL.md) — fresh-clone setup and first-product discovery.

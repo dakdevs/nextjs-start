@@ -24,6 +24,7 @@ do not retrofit unrelated documentation.
 | Tooling/verification command                                       | `AGENTS.md`, relevant nested router, and this table if workflow impact changes.                                                                      |
 | Agent workflow, onboarding, or delivery preference                 | [Agent feature delivery](../guides/agent-feature-delivery.md), [working agreement](working-agreement.md), `AGENTS.md`, and the relevant local skill. |
 | New managed Vercel service or deployment choice                    | [Vercel platform services](../technologies/vercel-platform-services.md), runtime configuration, feature doc, and deployment validation.              |
+| New local container or service dependency                          | [Local development services](../guides/local-development-services.md), environment configuration, integration-test harness, and owning feature.      |
 
 Every Markdown page links to its parent or relevant siblings so a fresh agent can
 navigate from the root guide to a focused rule.

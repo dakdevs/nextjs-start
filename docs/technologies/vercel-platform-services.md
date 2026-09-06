@@ -21,6 +21,7 @@ user confirmation.
 | Need                                                             | Default                                  | When to introduce it                                                                                       |
 | ---------------------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | Durable relational application data                              | Neon Postgres                            | Every production application in this template.                                                             |
+| Transactional or product email                                   | Resend through Vercel Marketplace        | Only after product discovery identifies an email journey; install before building the mail flow.           |
 | Shared cache / distributed rate limit / lock / ephemeral counter | Upstash Redis through Vercel Marketplace | Only after documenting the shared cross-instance need, ownership, TTL, invalidation, and failure behavior. |
 | Per-request local state or authenticated read                    | No Redis                                 | Keep it in request/process scope or Postgres as appropriate.                                               |
 | AI model routing, provider management, and observability         | Vercel AI Gateway                        | The first time a product feature needs an AI provider; keep provider calls server-side.                    |
@@ -30,6 +31,13 @@ Redis is not a default database, session store, or cache layer. It is a specific
 distributed coordination tool; retain Postgres as durable truth. Give every
 introduced service a focused feature/architecture decision and real integration
 test path.
+
+When email is required, run
+`bunx vercel integration discover --category messaging` and select Resend. After
+confirmation, add the discovered `resend/resend-email` integration with
+`bunx vercel integration add`, complete any account-claim step the CLI requests,
+then run `bunx vercel env pull --yes`. Do not install a local mail server as a
+substitute; the development mailbox remains the safe local adapter.
 
 ## Safe CLI workflow
 
@@ -44,4 +52,4 @@ test path.
 
 ## Links
 
-[Next.js, Bun, and Vercel](next-bun-vercel.md) · [Runtime configuration](runtime-configuration.md) · [Data and caching](../architecture/data-and-caching.md) · [Background work](../architecture/background-work.md)
+[Next.js, Bun, and Vercel](next-bun-vercel.md) · [Runtime configuration](runtime-configuration.md) · [Local development services](../guides/local-development-services.md) · [Data and caching](../architecture/data-and-caching.md) · [Background work](../architecture/background-work.md)

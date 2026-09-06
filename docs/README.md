@@ -47,6 +47,7 @@ Every authored Markdown file stays under 150 lines.
 - [Motion and interaction language](design-system/motion.md)
 - [Brand-matched dither imagery](design-system/dither-images.md)
 - [Testing strategy](reference/testing-strategy.md)
+- [Local development services](guides/local-development-services.md)
 - [Working agreement](reference/working-agreement.md)
 - [Change impact](reference/change-impact.md)
 - [Component sourcing](reference/component-sourcing.md)
