@@ -8,7 +8,7 @@ current truth when code changes.
 
 Use the headings in the existing feature pages: status/owner, problem and value,
 goals, non-goals/not valuable, users/entry points, core happy path, invariants,
-WebMCP parity, success/open questions, and links.
+agent-readable content, WebMCP parity, success/open questions, and links.
 
 ## How to write
 
@@ -17,6 +17,10 @@ WebMCP parity, success/open questions, and links.
 - Include what is explicitly not valuable so nearby scope creep can be rejected.
 - Make the happy path a short sequence a human can recognize and test.
 - Record an unresolved question only when its answer changes product behavior.
+- Classify every meaningful textual result separately as public Markdown plus
+  index, public Markdown without index, index-only overview, authenticated
+  scoped Markdown, or a specific exemption; link the
+  [agent-readable guide](../technologies/agent-readable-content.md).
 - Link parent architecture and sibling features that constrain the feature.
 
 ## Updating rules
@@ -72,6 +76,11 @@ non-goals, classify WebMCP access, and know which supporting docs to update.
 ## WebMCP parity
 
 <tool, shared/dedicated decision, safety annotation, or specific exemption>
+
+## Agent-readable content
+
+<Markdown/index classification, exact visibility and projection, or specific exemption;
+this is independent of WebMCP>
 
 ## Success and open questions
 

@@ -21,6 +21,10 @@ silence warnings because this repository has no warning tier.
   optional modes merely to reuse a procedure; see [BFF contracts](docs/architecture/bff-orpc.md).
 - Expose every meaningful user-facing read/action to browser WebMCP, or record a
   specific exemption in the feature document; see [WebMCP](docs/architecture/webmcp.md).
+- Give every meaningful textual result a useful Markdown page or bounded index,
+  or record a specific exemption. Classify it as Markdown plus index, Markdown
+  without index, index-only overview, authenticated scoped Markdown, or exempt;
+  see [agent-readable content](docs/technologies/agent-readable-content.md).
 - Validate at external entry points only; carry inferred types downstream. See
   [type-flow guidance](.agents/skills/preserve-type-flow/SKILL.md).
 - Unknown failures show “Something went wrong” plus a correlation ID. Typed,
@@ -38,4 +42,6 @@ silence warnings because this repository has no warning tier.
 - [Testing strategy](docs/reference/testing-strategy.md) — independent-oracle and happy-path rules.
 - [Local development services](docs/guides/local-development-services.md) — Docker and test-container rules for new dependencies.
 - [Change impact](docs/reference/change-impact.md) — files and docs to update by change type.
+- [Agent-readable content](docs/technologies/agent-readable-content.md) — negotiated
+  public Markdown, discovery indexes, authorization parity, and test rules.
 - [Let's Start](.agents/skills/lets-start/SKILL.md) — fresh-clone setup and first-product discovery.

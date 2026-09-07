@@ -58,6 +58,14 @@ feature that needs them. Passkey enrollment and sign-out tools only focus or
 open the normal human-confirmed UI. Sign-in, reset completion, and permission
 changes remain normal UI-confirmed flows.
 
+## Agent-readable content
+
+Credential forms and token-bearing verification/reset pages are exempt from
+HTTP Markdown and public indexes. Their useful agent surface is navigation or
+initiation of the normal human-confirmed browser ceremony. Future explanatory
+help content must have its own public Markdown page or index, following the
+[agent-readable guide](../technologies/agent-readable-content.md).
+
 ## Success and open questions
 
 Success is a verified user who can sign in with either password or passkey and

@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
+import { testAppOrigin, testAppPort } from './tooling/test/app-origin'
+
 const isCi = process.env.CI !== undefined && process.env.CI !== ''
 const shouldRecordVideo = process.env.PLAYWRIGHT_VIDEO === 'true'
 
@@ -13,7 +15,7 @@ export default defineConfig({
   retries: isCi ? 1 : 0,
   reporter: isCi ? 'github' : 'list',
   use: {
-    baseURL: 'http://localhost:3100',
+    baseURL: testAppOrigin,
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
     video: shouldRecordVideo ? 'on' : 'off',
@@ -29,9 +31,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'bun run start -- -p 3100',
+    command: `bun run start -- -p ${testAppPort}`,
     reuseExistingServer: false,
     timeout: 120_000,
-    url: 'http://localhost:3100/sign-in',
+    url: `${testAppOrigin}/sign-in`,
   },
 })

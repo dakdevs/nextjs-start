@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { createAuth } from '~/auth/auth'
+import { env } from '~/config/env'
 import { db } from '~/db/client'
 import { authRateLimits } from '~/db/schema'
 
@@ -21,11 +22,11 @@ const rateLimitCases = [
 ] as const
 
 const requestFor = (input: (typeof rateLimitCases)[number], ipAddress: string) =>
-  new Request(`http://localhost:3100/api/auth${input.path}`, {
+  new Request(`${env.BETTER_AUTH_URL}/api/auth${input.path}`, {
     body: JSON.stringify(input.body),
     headers: {
       'content-type': 'application/json',
-      origin: 'http://localhost:3100',
+      origin: env.BETTER_AUTH_URL,
       'x-forwarded-for': ipAddress,
     },
     method: 'POST',

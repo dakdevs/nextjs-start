@@ -99,6 +99,14 @@ authorization changes, service-account create/rotate/revoke, or one-time
 secrets. Those tools may only open the focused, human-confirmed UI. Record any
 other specific exemption with the feature that owns it.
 
+## Agent-readable content
+
+The initial admin screens are exempt from HTTP Markdown: their privileged,
+interactive projections are already available through authorized browser
+WebMCP. They never enter a public index. Any future Markdown representation
+must use the same administrator checks and curated safe fields, following the
+[agent-readable guide](../technologies/agent-readable-content.md).
+
 ## Success and open questions
 
 Success is an initial administrator safely completing common operational work

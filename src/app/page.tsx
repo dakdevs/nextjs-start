@@ -2,6 +2,12 @@ import { getCurrentSession } from '~/auth/session'
 import { LinkButton } from '~/components/link-button'
 import { SiteHeader } from '~/modules/site-header'
 
+import { homeContent } from './_modules/home-content'
+
+export const metadata = {
+  alternates: { types: { 'text/markdown': '/index.md' } },
+}
+
 export default async function HomePage() {
   const session = await getCurrentSession()
 
@@ -11,15 +17,13 @@ export default async function HomePage() {
       <main className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-6xl items-center px-5 py-16 sm:px-8">
         <section className="max-w-2xl">
           <p className="text-ui font-medium tracking-wide text-muted-foreground">
-            A deliberate starting point
+            {homeContent.eyebrow}
           </p>
           <h1 className="mt-5 text-balance text-display font-semibold text-foreground">
-            Build the product, not the foundation again.
+            {homeContent.title}
           </h1>
           <p className="mt-6 max-w-xl text-pretty text-body text-muted-foreground">
-            A clean Next.js foundation for thoughtful applications: purpose-built
-            contracts, durable backend boundaries, and an interface that stays out of
-            the way.
+            {homeContent.description}
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <LinkButton

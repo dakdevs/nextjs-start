@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto'
 
 import postgres from 'postgres'
 
+import { testAppOrigin } from './app-origin'
+
 async function runChecked(command: string[], environment: NodeJS.ProcessEnv) {
   const childEnvironment = { ...environment }
   delete childEnvironment.NO_COLOR
@@ -84,11 +86,11 @@ export async function withTestPostgres(
       ...process.env,
       ALLOW_PREVIEW_PASSKEYS: 'true',
       BETTER_AUTH_SECRET: 'test-only-secret-that-is-longer-than-thirty-two-characters',
-      BETTER_AUTH_URL: 'http://localhost:3100',
+      BETTER_AUTH_URL: testAppOrigin,
       DATABASE_URL: databaseUrl,
       EMAIL_DELIVERY: 'development',
       EMAIL_FROM: 'Next.js Start <test@example.test>',
-      NEXT_PUBLIC_APP_URL: 'http://localhost:3100',
+      NEXT_PUBLIC_APP_URL: testAppOrigin,
       NODE_ENV: 'test',
       TEST_DATABASE_URL: databaseUrl,
       VERCEL_ENV: 'development',
