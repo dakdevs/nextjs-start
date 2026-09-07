@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "2026-09-07-agent-readable-content",
+  "status": "completed",
+  "summary": "Add negotiated public landing-page Markdown, bounded discovery, and mandatory feature-level Markdown/index classification.",
+  "impact": {
+    "features": [
+      "agent-readable-content",
+      "authentication",
+      "account-profile",
+      "admin-operations"
+    ],
+    "architecture": ["data-and-caching", "webmcp"],
+    "technology": ["agent-readable-content", "next-bun-vercel"],
+    "designSystem": false
+  },
+  "verification": [
+    "TEST_APP_PORT=3217 bun run verify",
+    "negotiation and public-boundary tests",
+    "manual desktop/mobile and unauthenticated HTTP checks"
+  ],
+  "date": "2026-09-07"
+}

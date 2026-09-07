@@ -14,11 +14,13 @@ of truth for upgrade and rollback expectations.
 | Postgres + Drizzle         | Durable storage and typed queries/migrations.               |
 | Vercel Queues + Workflows  | Background events and durable orchestration.                |
 | Browser WebMCP             | In-browser agent capability discovery and execution.        |
+| Agent-readable content     | Negotiated public Markdown and bounded discovery indexes.   |
 | Tailwind + ShadCN          | Token-based accessible UI primitives and styling.           |
 
 ## Focused operating guides
 
 - [Next.js, Bun, and Vercel](next-bun-vercel.md)
+- [Agent-readable content](agent-readable-content.md)
 - [Vercel platform services](vercel-platform-services.md)
 - [Local development services](../guides/local-development-services.md)
 - [oRPC](orpc.md) · [Effect 4](effect-4.md) · [Postgres and Drizzle](postgres-drizzle.md)

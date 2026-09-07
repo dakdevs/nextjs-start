@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { accountRole } from '~/auth/roles'
 import { auth } from '~/auth/auth'
+import { env } from '~/config/env'
 import { db } from '~/db/client'
 import {
   adminAuditEvents,
@@ -258,7 +259,7 @@ describe('admin reference PostgreSQL boundaries', () => {
     ).rejects.toMatchObject({ _tag: 'ServiceAccountUnauthorizedError' })
     await expect(
       serviceHealth(
-        new Request('http://localhost:3100/api/service/health', {
+        new Request(`${env.NEXT_PUBLIC_APP_URL}/api/service/health`, {
           headers: { authorization: `Bearer ${rotated.token}` },
         }),
       ),

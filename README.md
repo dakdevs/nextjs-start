@@ -92,6 +92,7 @@ code only when all consumers benefit from its future changes.
 - [Feature workflow](docs/guides/feature-workflow.md)
 - [Agent feature delivery](docs/guides/agent-feature-delivery.md)
 - [Documentation map](docs/README.md)
+- [Agent-readable content](docs/technologies/agent-readable-content.md)
 - [BFF/oRPC contracts](docs/architecture/bff-orpc.md)
 - [Browser WebMCP policy](docs/architecture/webmcp.md)
 - [Effect services](docs/architecture/effect-services.md)

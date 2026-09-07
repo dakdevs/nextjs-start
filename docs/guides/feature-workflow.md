@@ -2,15 +2,15 @@
 
 The agent performs this workflow; there is no generator command.
 
-| Step      | Action                                                                                                                  | Expected outcome / stop condition                                     |
-| --------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| 1. Frame  | Read related feature, architecture, design, and decision pages. Create or update the feature doc.                       | Value, happy path, non-goals, and WebMCP classification are explicit. |
-| 2. Decide | Use the matrices below. Ask one question only if the answer changes the product.                                        | A purpose-built contract and ownership boundary are selected.         |
-| 3. Design | Check ShadCN and user-named sources before custom UI. Use current design tokens and the library/motion matrices.        | The UI is accessible and fits the design language.                    |
-| 4. Build  | Add the smallest vertical slice: contract, domain behavior, UI, WebMCP classification, and errors.                      | No generic multipurpose endpoint or leaky boundary is introduced.     |
-| 5. Prove  | Add behavior tests and one happy-path E2E test when the feature is substantial; evaluate desktop and mobile ergonomics. | Tests use independent assertions and cover the public seam.           |
-| 6. Record | Update feature/design/architecture/ADR docs and `.changes` manifest as applicable.                                      | Docs describe the shipped truth, not intent.                          |
-| 7. Verify | Run `bun run verify`.                                                                                                   | All gates pass; fix failures rather than suppressing them.            |
+| Step      | Action                                                                                                                       | Expected outcome / stop condition                                                      |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 1. Frame  | Read related feature, architecture, design, and decision pages. Create or update the feature doc.                            | Value, happy path, non-goals, WebMCP, and Markdown/index classifications are explicit. |
+| 2. Decide | Use the matrices below. Ask one question only if the answer changes the product.                                             | A purpose-built contract and ownership boundary are selected.                          |
+| 3. Design | Check ShadCN and user-named sources before custom UI. Use current design tokens and the library/motion matrices.             | The UI is accessible and fits the design language.                                     |
+| 4. Build  | Add the smallest vertical slice: contract, domain behavior, UI, Markdown/index treatment, WebMCP classification, and errors. | No generic multipurpose endpoint or leaky boundary is introduced.                      |
+| 5. Prove  | Add behavior tests and one happy-path E2E test when the feature is substantial; evaluate desktop and mobile ergonomics.      | Tests use independent assertions and cover the public seam.                            |
+| 6. Record | Update feature/design/architecture/ADR docs and `.changes` manifest as applicable.                                           | Docs describe the shipped truth, not intent.                                           |
+| 7. Verify | Run `bun run verify`.                                                                                                        | All gates pass; fix failures rather than suppressing them.                             |
 
 The full agent operating sequence—including manual desktop/mobile proof,
 applicable-skill review, Lefthook, and optional test-video preferences—is in
@@ -44,3 +44,17 @@ valuable enough to justify policy, audit, and rollback.
 | Semantics or authorization differ                        | Create a dedicated capability/operation.                |
 | Destructive, financial, permission, or credential action | Initiate and open normal human confirmation UI only.    |
 | Not agent-accessible                                     | Record a specific exemption in the feature document.    |
+
+## Agent-readable content decision matrix
+
+| Meaningful textual result                                   | Choose                                                                    |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Public page that agents should find                         | Markdown plus a bounded public index.                                     |
+| Public page useful only by direct link                      | Markdown without an index; record why.                                    |
+| Public overview where a full page is inappropriate          | A bounded index only; record why.                                         |
+| Authenticated text with an agent use case                   | Auth-scoped, purpose-built Markdown with identical permission/projection. |
+| Credential ceremony, unsafe/private text, or no agent value | Record a specific Markdown exemption.                                     |
+
+This decision is independent of WebMCP. Follow the
+[agent-readable guide](../technologies/agent-readable-content.md): no
+user-agent sniffing, whole-site exporters, Markdown mutations, or broad indexes.

@@ -15,6 +15,15 @@ implementation’s branching logic.
 
 ## Rules
 
+The test app uses port 3100 by default. If another project owns it, run
+`TEST_APP_PORT=3217 bun run verify` with an available port. The test harness,
+auth URLs, production build, and Playwright share this validated override;
+never stop another project's server to run this starter's tests.
+
+`test:e2e:direct` skips the harness and build. When using it, prepare the database
+and build yourself with matching `NEXT_PUBLIC_APP_URL`, `BETTER_AUTH_URL`, and
+`TEST_APP_PORT`; prefer the canonical gate for automatic setup.
+
 - Tests describe intended outcome and choose fixtures that could expose a wrong implementation.
 - Integration files run serially because they share one disposable PostgreSQL
   database. Keep fixture identifiers unique and cleanup scoped as well.

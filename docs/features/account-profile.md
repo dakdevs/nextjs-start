@@ -55,6 +55,14 @@ but is not marked idempotent because every accepted call creates a new event and
 audit outcome. Any future destructive or permission-changing account action
 only initiates a normal human confirmation UI.
 
+## Agent-readable content
+
+The initial account view is exempt from HTTP Markdown: it is a session-scoped
+editing workflow already exposed through authenticated browser WebMCP. Its
+profile fields never enter the public content index. A future Markdown view
+must preserve the same owner-only projection and authorization, following the
+[agent-readable guide](../technologies/agent-readable-content.md).
+
 ## Success and open questions
 
 Success is a person reliably viewing and updating their own profile with no
