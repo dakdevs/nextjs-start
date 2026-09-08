@@ -24,6 +24,7 @@ describe('profile update audit workflow', () => {
       start(profileUpdateAuditWorkflow, [event]),
       start(profileUpdateAuditWorkflow, [event]),
     ])
+
     const receipts = await Promise.all([first.returnValue, second.returnValue])
 
     expect(receipts).toEqual([
@@ -53,6 +54,7 @@ describe('profile update audit workflow', () => {
 
   it('rejects reuse of an event ID for a different audit outcome', async () => {
     const first = await start(profileUpdateAuditWorkflow, [event])
+
     await first.returnValue
 
     const conflicting = await start(profileUpdateAuditWorkflow, [
@@ -62,6 +64,7 @@ describe('profile update audit workflow', () => {
     await expect(conflicting.returnValue).rejects.toThrow(
       `Conflicting audit receipt for event ${event.eventId}`,
     )
+
     await expect(db.select().from(profileUpdateAuditReceipts)).resolves.toEqual([
       expect.objectContaining({
         eventId: event.eventId,

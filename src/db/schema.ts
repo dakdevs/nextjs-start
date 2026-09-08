@@ -30,7 +30,9 @@ export const users = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [check('user_role_check', sql`${table.role} in ('user', 'admin')`)],
+  (table) => {
+    return [check('user_role_check', sql`${table.role} in ('user', 'admin')`)]
+  },
 )
 
 export const sessions = pgTable(
@@ -45,10 +47,17 @@ export const sessions = pgTable(
     userAgent: text('user_agent'),
     userId: text('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(
+        () => {
+          return users.id
+        },
+        { onDelete: 'cascade' },
+      ),
     impersonatedBy: text('impersonated_by'),
   },
-  (table) => [index('session_user_id_idx').on(table.userId)],
+  (table) => {
+    return [index('session_user_id_idx').on(table.userId)]
+  },
 )
 
 export const accounts = pgTable(
@@ -60,7 +69,12 @@ export const accounts = pgTable(
     providerId: text('provider_id').notNull(),
     userId: text('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(
+        () => {
+          return users.id
+        },
+        { onDelete: 'cascade' },
+      ),
     accessToken: text('access_token'),
     refreshToken: text('refresh_token'),
     idToken: text('id_token'),
@@ -71,10 +85,12 @@ export const accounts = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [
-    uniqueIndex('account_issuer_account_id_unique').on(table.issuer, table.accountId),
-    index('account_user_id_idx').on(table.userId),
-  ],
+  (table) => {
+    return [
+      uniqueIndex('account_issuer_account_id_unique').on(table.issuer, table.accountId),
+      index('account_user_id_idx').on(table.userId),
+    ]
+  },
 )
 
 export const verifications = pgTable(
@@ -87,7 +103,9 @@ export const verifications = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [index('verification_identifier_idx').on(table.identifier)],
+  (table) => {
+    return [index('verification_identifier_idx').on(table.identifier)]
+  },
 )
 
 export const passkeys = pgTable(
@@ -98,7 +116,12 @@ export const passkeys = pgTable(
     publicKey: text('public_key').notNull(),
     userId: text('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+      .references(
+        () => {
+          return users.id
+        },
+        { onDelete: 'cascade' },
+      ),
     credentialID: text('credential_id').notNull().unique(),
     counter: integer('counter').notNull(),
     deviceType: text('device_type').notNull(),
@@ -107,7 +130,9 @@ export const passkeys = pgTable(
     aaguid: text('aaguid'),
     createdAt: timestamp('created_at').defaultNow(),
   },
-  (table) => [index('passkey_user_id_idx').on(table.userId)],
+  (table) => {
+    return [index('passkey_user_id_idx').on(table.userId)]
+  },
 )
 
 /**
@@ -122,13 +147,20 @@ export const authRateLimits = pgTable(
     count: integer('count').notNull(),
     lastRequest: bigint('last_request', { mode: 'number' }).notNull(),
   },
-  (table) => [index('rate_limit_last_request_idx').on(table.lastRequest)],
+  (table) => {
+    return [index('rate_limit_last_request_idx').on(table.lastRequest)]
+  },
 )
 
 export const accountProfiles = pgTable('account_profile', {
   accountId: text('account_id')
     .primaryKey()
-    .references(() => users.id, { onDelete: 'cascade' }),
+    .references(
+      () => {
+        return users.id
+      },
+      { onDelete: 'cascade' },
+    ),
   bio: text('bio').notNull().default(''),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
@@ -140,12 +172,19 @@ export const adminBootstrapClaims = pgTable(
     singleton: boolean('singleton').primaryKey().default(true),
     adminUserId: text('admin_user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'restrict' }),
+      .references(
+        () => {
+          return users.id
+        },
+        { onDelete: 'restrict' },
+      ),
     claimedAt: timestamp('claimed_at').notNull().defaultNow(),
   },
-  (table) => [
-    check('admin_bootstrap_claim_singleton_check', sql`${table.singleton} = true`),
-  ],
+  (table) => {
+    return [
+      check('admin_bootstrap_claim_singleton_check', sql`${table.singleton} = true`),
+    ]
+  },
 )
 
 /** Append-only, safe operational history. Payloads never contain credentials. */
@@ -154,19 +193,31 @@ export const adminAuditEvents = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     action: text('action').notNull(),
-    actorUserId: text('actor_user_id').references(() => users.id, {
-      onDelete: 'set null',
-    }),
-    subjectUserId: text('subject_user_id').references(() => users.id, {
-      onDelete: 'set null',
-    }),
+    actorUserId: text('actor_user_id').references(
+      () => {
+        return users.id
+      },
+      {
+        onDelete: 'set null',
+      },
+    ),
+    subjectUserId: text('subject_user_id').references(
+      () => {
+        return users.id
+      },
+      {
+        onDelete: 'set null',
+      },
+    ),
     outcome: text('outcome').notNull(),
     targetKind: text('target_kind').notNull(),
     targetId: text('target_id').notNull(),
     correlationId: uuid('correlation_id').notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
-  (table) => [index('admin_audit_event_created_at_idx').on(table.createdAt)],
+  (table) => {
+    return [index('admin_audit_event_created_at_idx').on(table.createdAt)]
+  },
 )
 
 export const serviceAccountScope = ['system:health:read'] as const
@@ -183,29 +234,38 @@ export const serviceAccounts = pgTable(
     scopes: text('scopes').array().notNull(),
     createdByUserId: text('created_by_user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'restrict' }),
+      .references(
+        () => {
+          return users.id
+        },
+        { onDelete: 'restrict' },
+      ),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     rotatedAt: timestamp('rotated_at'),
     revokedAt: timestamp('revoked_at'),
     lastUsedAt: timestamp('last_used_at'),
   },
-  (table) => [
-    check(
-      'service_account_scope_check',
-      sql`cardinality(${table.scopes}) > 0 and ${table.scopes} <@ ARRAY['system:health:read']::text[]`,
-    ),
-    index('service_account_active_idx').on(table.revokedAt),
-  ],
+  (table) => {
+    return [
+      check(
+        'service_account_scope_check',
+        sql`cardinality(${table.scopes}) > 0 and ${table.scopes} <@ ARRAY['system:health:read']::text[]`,
+      ),
+      index('service_account_active_idx').on(table.revokedAt),
+    ]
+  },
 )
 
-export const userRelations = relations(users, ({ one, many }) => ({
-  profile: one(accountProfiles, {
-    fields: [users.id],
-    references: [accountProfiles.accountId],
-  }),
-  sessions: many(sessions),
-  passkeys: many(passkeys),
-}))
+export const userRelations = relations(users, ({ one, many }) => {
+  return {
+    profile: one(accountProfiles, {
+      fields: [users.id],
+      references: [accountProfiles.accountId],
+    }),
+    sessions: many(sessions),
+    passkeys: many(passkeys),
+  }
+})
 
 export { transactionalOutboxMessages } from '~/queues/outbox/schema'
 export { failedQueueEvents, processedQueueEvents } from '~/queues/schema'

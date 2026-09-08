@@ -57,7 +57,9 @@ export class AccountProfileUpdateWorkflow extends Context.Service<
     policy: WorkflowStartPolicy = workflowStartDefaultPolicy,
   ) {
     return AccountProfileUpdateWorkflow.of({
-      start: (event) => startWorkflowWithResilience(starter, event, policy),
+      start: (event) => {
+        return startWorkflowWithResilience(starter, event, policy)
+      },
     })
   }
 }
@@ -65,6 +67,7 @@ export class AccountProfileUpdateWorkflow extends Context.Service<
 const workflowStartError = (cause: unknown) => {
   if (WorkflowWorldError.is(cause)) {
     const status = cause.status ?? 0
+
     return new QueueConsumerError({
       cause,
       retryAfterMilliseconds:
@@ -90,65 +93,77 @@ const startWorkflowOnce = (
   starter: WorkflowStarter,
   event: AccountProfileUpdatedEvent,
   timeoutMilliseconds: number,
-) =>
-  Effect.tryPromise({
+) => {
+  return Effect.tryPromise({
     // Workflow start does not expose AbortSignal support. This deadline bounds
     // the consumer wait; the idempotent audit sink makes late acceptance safe.
-    try: () => starter.start(event),
+    try: () => {
+      return starter.start(event)
+    },
     catch: workflowStartError,
   }).pipe(
     Effect.timeout(`${timeoutMilliseconds} millis`),
-    Effect.mapError((error) =>
-      error._tag === 'TimeoutError'
+    Effect.mapError((error) => {
+      return error._tag === 'TimeoutError'
         ? workflowStartError(new TypeError('timeout'))
-        : error,
-    ),
+        : error
+    }),
   )
+}
 
 const startWorkflowWithResilience = (
   starter: WorkflowStarter,
   event: AccountProfileUpdatedEvent,
   policy: WorkflowStartPolicy,
   attempt = 1,
-): Effect.Effect<{ readonly runId: string }, QueueConsumerFailure> =>
-  startWorkflowOnce(starter, event, policy.timeoutMilliseconds).pipe(
+): Effect.Effect<{ readonly runId: string }, QueueConsumerFailure> => {
+  return startWorkflowOnce(starter, event, policy.timeoutMilliseconds).pipe(
     Effect.catchTag('QueueConsumerError', (error) => {
-      if (!error.retryable || attempt >= policy.maxAttempts) return Effect.fail(error)
+      if (!error.retryable || attempt >= policy.maxAttempts) {
+        return Effect.fail(error)
+      }
 
       return Random.next.pipe(
-        Effect.map((random) =>
-          Math.round(
+        Effect.map((random) => {
+          return Math.round(
             error.retryAfterMilliseconds ??
               policy.baseDelayMilliseconds * 2 ** (attempt - 1) * (0.5 + random),
-          ),
-        ),
-        Effect.flatMap((delay) => Effect.sleep(`${delay} millis`)),
+          )
+        }),
+        Effect.flatMap((delay) => {
+          return Effect.sleep(`${delay} millis`)
+        }),
         Effect.andThen(
           startWorkflowWithResilience(starter, event, policy, attempt + 1),
         ),
       )
     }),
   )
+}
 
 /** The transport parses first; this consumer accepts only a trusted event. */
 export const processAccountProfileUpdatedMessage = (
   event: AccountProfileUpdatedEvent,
-) =>
-  Effect.gen(function* () {
+) => {
+  return Effect.gen(function* () {
     const store = yield* ProcessedQueueEventStore
+
     const key = { consumerName, eventId: event.eventId }
+
     const claim = yield* store.claim(key).pipe(
-      Effect.mapError(
-        (cause) =>
-          new QueueConsumerError({
-            cause,
-            retryAfterMilliseconds: null,
-            retryable: true,
-          }),
-      ),
+      Effect.mapError((cause) => {
+        return new QueueConsumerError({
+          cause,
+          retryAfterMilliseconds: null,
+          retryable: true,
+        })
+      }),
     )
 
-    if (claim.status === 'completed') return { status: 'completed' as const }
+    if (claim.status === 'completed') {
+      return { status: 'completed' as const }
+    }
+
     if (claim.status === 'in-progress') {
       return yield* new QueueMessageInProgressError({
         consumerName,
@@ -159,29 +174,32 @@ export const processAccountProfileUpdatedMessage = (
     const lease = { ...key, claimId: claim.claimId }
 
     const workflow = yield* AccountProfileUpdateWorkflow
+
     const run = yield* workflow.start(event).pipe(
-      Effect.tapError(() => store.release(lease)),
-      Effect.mapError((cause) =>
-        cause instanceof QueueConsumerError
+      Effect.tapError(() => {
+        return store.release(lease)
+      }),
+      Effect.mapError((cause) => {
+        return cause instanceof QueueConsumerError
           ? cause
           : new QueueConsumerError({
               cause,
               retryAfterMilliseconds: null,
               retryable: true,
-            }),
-      ),
+            })
+      }),
     )
 
     yield* store.complete(lease).pipe(
-      Effect.mapError(
-        (cause) =>
-          new QueueConsumerError({
-            cause,
-            retryAfterMilliseconds: null,
-            retryable: true,
-          }),
-      ),
+      Effect.mapError((cause) => {
+        return new QueueConsumerError({
+          cause,
+          retryAfterMilliseconds: null,
+          retryable: true,
+        })
+      }),
     )
 
     return { status: 'started' as const, runId: run.runId }
   })
+}

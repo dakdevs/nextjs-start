@@ -3,18 +3,13 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { z } from 'zod'
 
 import { authClient } from '~/auth/client'
-import { getFormText } from '~/components/form-data'
-import { Alert, AlertDescription } from '~/components/shadcn/alert'
 import { Button } from '~/components/shadcn/button'
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from '~/components/shadcn/field'
-import { Input } from '~/components/shadcn/input'
+import { FieldDescription } from '~/components/shadcn/field'
+import { ReportedSubmissionError } from '~/modules/forms/reported-submission-error'
+import { useAppForm } from '~/modules/forms/use-app-form'
 
 function emailSignInFailureMessage(status: number) {
   return status === 429
@@ -22,101 +17,155 @@ function emailSignInFailureMessage(status: number) {
     : 'Email or password is incorrect.'
 }
 
-export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: boolean }) {
-  const router = useRouter()
-  const [message, setMessage] = useState<string | null>(null)
-  const [isPending, setIsPending] = useState(false)
+const emailSchema = z.string().trim().pipe(z.email('Enter a valid email address.'))
+const passwordSchema = z.string().min(1, 'Enter your password.')
 
-  const signIn = async (formData: FormData) => {
-    setIsPending(true)
-    setMessage(null)
-    try {
-      const result = await authClient.signIn.email({
-        email: getFormText(formData, 'email'),
-        password: getFormText(formData, 'password'),
-        callbackURL: '/account',
-      })
-      if (result.error) {
-        setMessage(emailSignInFailureMessage(result.error.status))
-        return
-      }
-      router.replace('/account')
-    } catch {
-      setMessage('Something went wrong. Please try again.')
-    } finally {
-      setIsPending(false)
-    }
-  }
+function PasskeySignInButton({
+  onFailure,
+  onStart,
+  onSuccess,
+}: {
+  readonly onFailure: (message: string) => void
+  readonly onStart: () => void
+  readonly onSuccess: () => void
+}) {
+  const [isPending, setIsPending] = useState(false)
 
   const signInWithPasskey = async () => {
     setIsPending(true)
-    setMessage(null)
+
+    onStart()
+
     try {
       const result = await authClient.signIn.passkey()
-      if (result.error) {
-        setMessage('The passkey sign-in did not complete.')
+
+      if (result.error !== null) {
+        onFailure('The passkey sign-in did not complete.')
+
         return
       }
-      router.replace('/account')
+
+      onSuccess()
     } catch {
-      setMessage('The passkey sign-in did not complete.')
+      onFailure('The passkey sign-in did not complete.')
     } finally {
       setIsPending(false)
     }
   }
 
   return (
-    <form
-      className="space-y-6"
-      method="post"
-      onSubmit={(event) => {
-        event.preventDefault()
-        void signIn(new FormData(event.currentTarget))
+    <Button
+      className="w-full"
+      type="button"
+      variant="ghost"
+      disabled={isPending}
+      onClick={() => {
+        void signInWithPasskey()
       }}
     >
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input
-            id="email"
+      {isPending ? 'Signing in…' : 'Use passkey'}
+    </Button>
+  )
+}
+
+export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: boolean }) {
+  const router = useRouter()
+
+  const [message, setMessage] = useState<string | null>(null)
+
+  const form = useAppForm({
+    defaultValues: { email: '', password: '' },
+    onSubmit: async ({ value }) => {
+      setMessage(null)
+
+      try {
+        const result = await authClient.signIn.email({
+          email: value.email,
+          password: value.password,
+          callbackURL: '/account',
+        })
+
+        if (result.error !== null) {
+          setMessage(emailSignInFailureMessage(result.error.status))
+
+          throw new ReportedSubmissionError()
+        }
+
+        router.replace('/account')
+      } catch (error) {
+        if (error instanceof ReportedSubmissionError) {
+          throw error
+        }
+
+        setMessage('Something went wrong. Please try again.')
+
+        throw new ReportedSubmissionError()
+      }
+    },
+  })
+
+  return (
+    <form.AppForm>
+      <form.Form className="space-y-6">
+        <div className="grid gap-6">
+          <form.AppField
             name="email"
-            type="email"
-            autoComplete="email"
-            required
-          />
-        </Field>
-        <Field>
-          <div className="flex items-baseline justify-between gap-3">
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <Link
-              className="text-ui text-muted-foreground underline underline-offset-4 hover:text-foreground"
-              href="/forgot-password"
-            >
-              Forgot password?
-            </Link>
-          </div>
-          <Input
-            id="password"
+            validators={{
+              onChange: emailSchema,
+              onBlur: emailSchema,
+              onSubmit: emailSchema,
+            }}
+          >
+            {(field) => {
+              return (
+                <field.TextField
+                  label="Email"
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                />
+              )
+            }}
+          </form.AppField>
+          <form.AppField
             name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-          />
-        </Field>
-      </FieldGroup>
-      {message === null ? null : (
-        <Alert className="border-0 bg-transparent p-0 text-destructive">
-          <AlertDescription>{message}</AlertDescription>
-        </Alert>
-      )}
-      <Button
-        className="w-full"
-        type="submit"
-        size="lg"
-        disabled={isPending}
-      >
-        {isPending ? 'Signing in…' : 'Sign in'}
-      </Button>
+            validators={{
+              onChange: passwordSchema,
+              onBlur: passwordSchema,
+              onSubmit: passwordSchema,
+            }}
+          >
+            {(field) => {
+              return (
+                <field.TextField
+                  label="Password"
+                  labelAction={
+                    <Link
+                      className="text-ui text-muted-foreground underline underline-offset-4 hover:text-foreground"
+                      href="/forgot-password"
+                    >
+                      Forgot password?
+                    </Link>
+                  }
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                />
+              )
+            }}
+          </form.AppField>
+        </div>
+        <form.Feedback message={message} />
+        <form.SubmitButton
+          className="w-full"
+          size="lg"
+          pendingLabel="Signing in…"
+        >
+          Sign in
+        </form.SubmitButton>
+      </form.Form>
       {passkeysEnabled ? (
         <div className="space-y-4 pt-1">
           <div>
@@ -125,17 +174,17 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
               A passkey is an alternative sign-in method, not a second step.
             </FieldDescription>
           </div>
-          <Button
-            className="w-full"
-            type="button"
-            variant="ghost"
-            disabled={isPending}
-            onClick={() => {
-              void signInWithPasskey()
+          <PasskeySignInButton
+            onFailure={(failureMessage) => {
+              setMessage(failureMessage)
             }}
-          >
-            Use passkey
-          </Button>
+            onStart={() => {
+              setMessage(null)
+            }}
+            onSuccess={() => {
+              router.replace('/account')
+            }}
+          />
         </div>
       ) : null}
       <p className="text-center text-ui text-muted-foreground">
@@ -148,6 +197,6 @@ export function SignInForm({ passkeysEnabled }: { readonly passkeysEnabled: bool
         </Link>
         .
       </p>
-    </form>
+    </form.AppForm>
   )
 }

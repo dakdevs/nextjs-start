@@ -13,6 +13,9 @@ Sparse borders are accents, never the primary way to separate the page.
 - Establish hierarchy with tonal surfaces, filled controls, spacing, and clear
   type before adding a border. Use restrained shadows only for real elevation.
 - Keep corners and visual density calm; avoid decorative cards and heavy chrome.
+- Do not make an eyebrow or subtitle habitual section furniture. Start with a
+  clear title and useful blurb; retain or add supporting copy only when it gives
+  real orientation, status, or context.
 - Keep narrow authentication flows on one calm canvas. Use fill for controls
   and the primary action, not nested page, card, alert, and secondary-action layers.
 - Use one primary action per local context; secondary actions stay visually quiet.
@@ -20,6 +23,8 @@ Sparse borders are accents, never the primary way to separate the page.
   fourth `display` size is a rare exception for a principal hero statement.
 - Keep font family, loading, role selection, and hierarchy consistent with the
   [typography directive](typography.md); raw or route-local sizes are prohibited.
+- Always retain `text-wrap: balance` for content text, including paragraphs and
+  sentences; the shared global default applies across every product surface.
 - Preserve visible focus, semantic HTML, keyboard access, contrast, and reduced motion.
 - Treat mobile as first-class: inputs, selects, and textareas are at least 16px
   at every breakpoint; all actionable touch targets are at least 44×44 CSS px.
@@ -29,7 +34,8 @@ Sparse borders are accents, never the primary way to separate the page.
 - Use Lucide by default; Morphicons are reserved for a related semantic icon
   state transition. Chakra UI is scoped to the admin workspace.
 - Use purposeful Motion according to the [motion language](motion.md), and
-  generate brand-matched dither imagery for placeholders.
+  automatically run the read-only animation-opportunity scout after UI work.
+  Generate brand-matched dither imagery for placeholders.
 
 ## Ownership
 
@@ -41,4 +47,4 @@ changes this document and follows [the evolution workflow](evolution.md).
 
 [Frontend organization](../architecture/frontend-organization.md) · [UI and state](../technologies/ui-and-state.md) · [Feature workflow](../guides/feature-workflow.md) · [Change impact](../reference/change-impact.md)
 
-[Typography](typography.md) · [Motion language](motion.md) · [Dither imagery](dither-images.md) · [Evolution workflow](evolution.md)
+[Typography](typography.md) · [Motion language](motion.md) · [Dither imagery](dither-images.md) · [Social-image design](social-images.md) · [Evolution workflow](evolution.md)

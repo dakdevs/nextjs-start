@@ -8,14 +8,14 @@ import { useWebMcpCapability } from '~/webmcp/use-webmcp-capability'
 
 /** Browser-only read capability for the purpose-built admin workflow home. */
 export function AdminHomeWebMcpTools() {
-  const getSummary = useCallback(
-    () => rpcClient.admin.getAdminHomeSummaryForAdminHome({}),
-    [],
-  )
+  const getSummary = useCallback(() => {
+    return rpcClient.admin.getAdminHomeSummaryForAdminHome({})
+  }, [])
 
   useWebMcpCapability({
     capability: webMcpCapabilities.getAdminHomeSummary,
     execute: getSummary,
   })
+
   return null
 }

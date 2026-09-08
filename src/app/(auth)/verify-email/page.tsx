@@ -7,6 +7,7 @@ export default async function VerifyEmailPage({
   readonly searchParams: Promise<{ readonly email?: string | string[] }>
 }) {
   const { email: emailParameter } = await searchParams
+
   const email = Array.isArray(emailParameter) ? emailParameter[0] : emailParameter
 
   return (

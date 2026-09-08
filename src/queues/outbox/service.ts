@@ -27,20 +27,31 @@ export class TransactionalOutbox extends Context.Service<
   }
 >()('nextjs-start/queues/outbox/service/TransactionalOutbox') {}
 
-export const stageAccountProfileUpdatedInOutbox = (event: AccountProfileUpdatedEvent) =>
-  Effect.gen(function* () {
+export const stageAccountProfileUpdatedInOutbox = (
+  event: AccountProfileUpdatedEvent,
+) => {
+  return Effect.gen(function* () {
     const outbox = yield* TransactionalOutbox
+
     yield* outbox.stageAccountProfileUpdated(event)
   })
+}
 
 /** Publish then mark: a failed send leaves the claimed message retryable. */
 export const publishNextOutboxMessage = Effect.gen(function* () {
   const outbox = yield* TransactionalOutbox
+
   const claimed = yield* outbox.claimNext
-  if (Option.isNone(claimed)) return { status: 'empty' as const }
+
+  if (Option.isNone(claimed)) {
+    return { status: 'empty' as const }
+  }
 
   const event = claimed.value
+
   yield* publishAccountProfileUpdated(event)
+
   yield* outbox.markPublished(event.eventId)
+
   return { status: 'published' as const, eventId: event.eventId }
 })

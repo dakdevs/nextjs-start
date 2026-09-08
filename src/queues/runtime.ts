@@ -10,4 +10,6 @@ const queueRuntime = ManagedRuntime.make(
 /** Runs queue-producing Effects without loading queue code into unrelated edges. */
 export const runQueueEffect = <Value, Failure>(
   effect: Effect.Effect<Value, Failure, QueueTransport>,
-) => queueRuntime.runPromise(effect)
+) => {
+  return queueRuntime.runPromise(effect)
+}

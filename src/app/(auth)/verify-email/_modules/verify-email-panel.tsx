@@ -9,22 +9,32 @@ import { Button } from '~/components/shadcn/button'
 
 export function VerifyEmailPanel({ email }: { readonly email: string | undefined }) {
   const [status, setStatus] = useState<'idle' | 'sent'>('idle')
+
   const [isPending, setIsPending] = useState(false)
+
   const [message, setMessage] = useState<string | null>(null)
 
   const resend = async () => {
-    if (email === undefined) return
+    if (email === undefined) {
+      return
+    }
+
     setIsPending(true)
+
     setMessage(null)
+
     try {
       const result = await authClient.sendVerificationEmail({
         email,
         callbackURL: '/sign-in',
       })
-      if (result.error) {
+
+      if (result.error !== null) {
         setMessage('Something went wrong. Please try again.')
+
         return
       }
+
       setStatus('sent')
     } catch {
       setMessage('Something went wrong. Please try again.')

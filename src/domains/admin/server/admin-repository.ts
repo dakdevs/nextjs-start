@@ -60,20 +60,26 @@ type ServiceAccountRecord = {
   readonly tokenPrefix: string
 }
 
-const safeServiceAccount = (record: ServiceAccountRecord) => ({
-  ...record,
-  scopes: serviceAccountScopeSchema.array().parse(record.scopes),
-})
+const safeServiceAccount = (record: ServiceAccountRecord) => {
+  return {
+    ...record,
+    scopes: serviceAccountScopeSchema.array().parse(record.scopes),
+  }
+}
 
 const hasSystemHealthReadScope = (scopes: readonly string[]) => {
   const parsed = serviceAccountScopeSchema.array().safeParse(scopes)
+
   return parsed.success && parsed.data.includes('system:health:read')
 }
 
-const tokenDigest = (token: string) => createHash('sha256').update(token).digest('hex')
+const tokenDigest = (token: string) => {
+  return createHash('sha256').update(token).digest('hex')
+}
 
 const createServiceAccountToken = () => {
   const token = `njsa_${randomBytes(32).toString('base64url')}`
+
   return { token, tokenDigest: tokenDigest(token), tokenPrefix: token.slice(0, 13) }
 }
 
@@ -82,15 +88,21 @@ const requireReturnedRow = <Record>(
   message: string,
 ): Record => {
   const row = rows[0]
-  if (row === undefined) throw new Error(message)
+
+  if (row === undefined) {
+    throw new Error(message)
+  }
+
   return row
 }
 
-const countValue = (rows: readonly { readonly value: number }[]) => rows[0]?.value ?? 0
+const countValue = (rows: readonly { readonly value: number }[]) => {
+  return rows[0]?.value ?? 0
+}
 
 export const getAdminHomeSummaryForAdminHomeFromDatabase = Effect.tryPromise({
-  try: () =>
-    Promise.all([
+  try: () => {
+    return Promise.all([
       db.select({ value: count() }).from(users),
       db
         .select({ value: count() })
@@ -100,22 +112,28 @@ export const getAdminHomeSummaryForAdminHomeFromDatabase = Effect.tryPromise({
         .select({ value: count() })
         .from(serviceAccounts)
         .where(isNull(serviceAccounts.revokedAt)),
-    ]),
-  catch: (cause) => new AdminReadError({ cause }),
+    ])
+  },
+  catch: (cause) => {
+    return new AdminReadError({ cause })
+  },
 }).pipe(
-  Effect.map(([[userTotal], [adminTotal], [activeServiceAccountTotal]]) => ({
-    activeServiceAccountCount: activeServiceAccountTotal?.value ?? 0,
-    administratorCount: adminTotal?.value ?? 0,
-    userCount: userTotal?.value ?? 0,
-  })),
+  Effect.map(([[userTotal], [adminTotal], [activeServiceAccountTotal]]) => {
+    return {
+      activeServiceAccountCount: activeServiceAccountTotal?.value ?? 0,
+      administratorCount: adminTotal?.value ?? 0,
+      userCount: userTotal?.value ?? 0,
+    }
+  }),
 )
 
 export const listUsersForAdminUserSupportFromDatabase = (
   input: AdminPaginatedSearchInput,
-) =>
-  Effect.tryPromise({
+) => {
+  return Effect.tryPromise({
     try: () => {
       const { cursor } = input
+
       return db
         .select({
           createdAt: users.createdAt,
@@ -145,38 +163,47 @@ export const listUsersForAdminUserSupportFromDatabase = (
         .orderBy(desc(users.createdAt), desc(users.id))
         .limit(51)
     },
-    catch: (cause) => new AdminReadError({ cause }),
+    catch: (cause) => {
+      return new AdminReadError({ cause })
+    },
   }).pipe(
-    Effect.map((rows) => ({
-      nextCursor:
-        rows.length === 51 && rows[49] !== undefined
-          ? { createdAt: rows[49].createdAt, id: rows[49].id }
-          : null,
-      users: rows.slice(0, 50),
-    })),
+    Effect.map((rows) => {
+      return {
+        nextCursor:
+          rows.length === 51 && rows[49] !== undefined
+            ? { createdAt: rows[49].createdAt, id: rows[49].id }
+            : null,
+        users: rows.slice(0, 50),
+      }
+    }),
   )
+}
 
-export const findAdminPasswordResetTarget = (userId: string) =>
-  Effect.tryPromise({
-    try: () =>
-      db.select({ email: users.email }).from(users).where(eq(users.id, userId)),
-    catch: (cause) => new AdminReadError({ cause }),
+export const findAdminPasswordResetTarget = (userId: string) => {
+  return Effect.tryPromise({
+    try: () => {
+      return db.select({ email: users.email }).from(users).where(eq(users.id, userId))
+    },
+    catch: (cause) => {
+      return new AdminReadError({ cause })
+    },
   }).pipe(
-    Effect.flatMap(([user]) =>
-      user === undefined
+    Effect.flatMap(([user]) => {
+      return user === undefined
         ? Effect.fail(new AdminUserNotFoundError())
-        : Effect.succeed(user),
-    ),
+        : Effect.succeed(user)
+    }),
   )
+}
 
 export const recordAdminPasswordResetRequest = (input: {
   readonly actorUserId: string
   readonly correlationId: string
   readonly subjectUserId: string
-}) =>
-  Effect.tryPromise({
-    try: () =>
-      db
+}) => {
+  return Effect.tryPromise({
+    try: () => {
+      return db
         .insert(adminAuditEvents)
         .values({
           action: 'admin.user.password-reset.requested',
@@ -187,29 +214,39 @@ export const recordAdminPasswordResetRequest = (input: {
           targetId: input.subjectUserId,
           targetKind: 'user',
         })
-        .returning(auditReferenceProjection),
-    catch: (cause) => new AdminWriteError({ cause }),
+        .returning(auditReferenceProjection)
+    },
+    catch: (cause) => {
+      return new AdminWriteError({ cause })
+    },
   }).pipe(
-    Effect.flatMap(([audit]) =>
-      audit === undefined
+    Effect.flatMap(([audit]) => {
+      return audit === undefined
         ? Effect.fail(
             new AdminWriteError({
               cause: new Error('Audit insert returned no row'),
             }),
           )
-        : Effect.succeed(audit),
-    ),
+        : Effect.succeed(audit)
+    }),
   )
+}
 
 export const listServiceAccountsForAdminServiceAccountsFromDatabase = Effect.tryPromise(
   {
-    try: () => db.select(serviceAccountProjection).from(serviceAccounts),
-    catch: (cause) => new AdminReadError({ cause }),
+    try: () => {
+      return db.select(serviceAccountProjection).from(serviceAccounts)
+    },
+    catch: (cause) => {
+      return new AdminReadError({ cause })
+    },
   },
 ).pipe(
-  Effect.map((serviceAccounts) => ({
-    serviceAccounts: serviceAccounts.map(safeServiceAccount),
-  })),
+  Effect.map((serviceAccounts) => {
+    return {
+      serviceAccounts: serviceAccounts.map(safeServiceAccount),
+    }
+  }),
 )
 
 export const createServiceAccountForAdminServiceAccountsInDatabase = (input: {
@@ -217,13 +254,14 @@ export const createServiceAccountForAdminServiceAccountsInDatabase = (input: {
   readonly correlationId: string
   readonly name: string
   readonly scopes: readonly 'system:health:read'[]
-}) =>
-  Effect.gen(function* () {
+}) => {
+  return Effect.gen(function* () {
     const credential = yield* Effect.sync(createServiceAccountToken)
+
     const result = yield* Effect.tryPromise({
-      try: () =>
-        db.transaction((transaction) =>
-          transaction
+      try: () => {
+        return db.transaction((transaction) => {
+          return transaction
             .insert(serviceAccounts)
             .values({
               createdByUserId: input.actorUserId,
@@ -233,11 +271,11 @@ export const createServiceAccountForAdminServiceAccountsInDatabase = (input: {
               tokenPrefix: credential.tokenPrefix,
             })
             .returning(serviceAccountProjection)
-            .then((rows) =>
-              requireReturnedRow(rows, 'Service account insert returned no row'),
-            )
-            .then((created) =>
-              transaction
+            .then((rows) => {
+              return requireReturnedRow(rows, 'Service account insert returned no row')
+            })
+            .then((created) => {
+              return transaction
                 .insert(adminAuditEvents)
                 .values({
                   action: 'admin.service-account.created',
@@ -248,33 +286,42 @@ export const createServiceAccountForAdminServiceAccountsInDatabase = (input: {
                   targetKind: 'service-account',
                 })
                 .returning(auditReferenceProjection)
-                .then((rows) => ({
-                  audit: requireReturnedRow(rows, 'Audit insert returned no row'),
-                  created,
-                })),
-            ),
-        ),
-      catch: (cause) => new AdminWriteError({ cause }),
+                .then((rows) => {
+                  return {
+                    audit: requireReturnedRow(rows, 'Audit insert returned no row'),
+                    created,
+                  }
+                })
+            })
+        })
+      },
+      catch: (cause) => {
+        return new AdminWriteError({ cause })
+      },
     })
+
     return {
       audit: result.audit,
       serviceAccount: safeServiceAccount(result.created),
       token: credential.token,
     }
   })
+}
 
 export const rotateServiceAccountForAdminServiceAccountsInDatabase = (input: {
   readonly actorUserId: string
   readonly correlationId: string
   readonly serviceAccountId: string
-}) =>
-  Effect.gen(function* () {
+}) => {
+  return Effect.gen(function* () {
     const credential = yield* Effect.sync(createServiceAccountToken)
+
     const now = yield* DateTime.nowAsDate
+
     const result = yield* Effect.tryPromise({
-      try: () =>
-        db.transaction((transaction) =>
-          transaction
+      try: () => {
+        return db.transaction((transaction) => {
+          return transaction
             .update(serviceAccounts)
             .set({
               rotatedAt: now,
@@ -289,7 +336,10 @@ export const rotateServiceAccountForAdminServiceAccountsInDatabase = (input: {
             )
             .returning(serviceAccountProjection)
             .then(([updated]) => {
-              if (updated === undefined) return null
+              if (updated === undefined) {
+                return null
+              }
+
               return transaction
                 .insert(adminAuditEvents)
                 .values({
@@ -301,33 +351,44 @@ export const rotateServiceAccountForAdminServiceAccountsInDatabase = (input: {
                   targetKind: 'service-account',
                 })
                 .returning(auditReferenceProjection)
-                .then((rows) => ({
-                  audit: requireReturnedRow(rows, 'Audit insert returned no row'),
-                  updated,
-                }))
-            }),
-        ),
-      catch: (cause) => new AdminWriteError({ cause }),
+                .then((rows) => {
+                  return {
+                    audit: requireReturnedRow(rows, 'Audit insert returned no row'),
+                    updated,
+                  }
+                })
+            })
+        })
+      },
+      catch: (cause) => {
+        return new AdminWriteError({ cause })
+      },
     })
-    if (result === null) return yield* new ServiceAccountNotFoundError()
+
+    if (result === null) {
+      return yield* new ServiceAccountNotFoundError()
+    }
+
     return {
       audit: result.audit,
       serviceAccount: safeServiceAccount(result.updated),
       token: credential.token,
     }
   })
+}
 
 export const revokeServiceAccountForAdminServiceAccountsInDatabase = (input: {
   readonly actorUserId: string
   readonly correlationId: string
   readonly serviceAccountId: string
-}) =>
-  Effect.gen(function* () {
+}) => {
+  return Effect.gen(function* () {
     const now = yield* DateTime.nowAsDate
+
     const result = yield* Effect.tryPromise({
-      try: () =>
-        db.transaction((transaction) =>
-          transaction
+      try: () => {
+        return db.transaction((transaction) => {
+          return transaction
             .update(serviceAccounts)
             .set({ revokedAt: now })
             .where(
@@ -338,7 +399,10 @@ export const revokeServiceAccountForAdminServiceAccountsInDatabase = (input: {
             )
             .returning({ id: serviceAccounts.id })
             .then(([revoked]) => {
-              if (revoked === undefined) return null
+              if (revoked === undefined) {
+                return null
+              }
+
               return transaction
                 .insert(adminAuditEvents)
                 .values({
@@ -350,27 +414,35 @@ export const revokeServiceAccountForAdminServiceAccountsInDatabase = (input: {
                   targetKind: 'service-account',
                 })
                 .returning(auditReferenceProjection)
-                .then((rows) =>
-                  requireReturnedRow(rows, 'Audit insert returned no row'),
-                )
-            }),
-        ),
-      catch: (cause) => new AdminWriteError({ cause }),
+                .then((rows) => {
+                  return requireReturnedRow(rows, 'Audit insert returned no row')
+                })
+            })
+        })
+      },
+      catch: (cause) => {
+        return new AdminWriteError({ cause })
+      },
     })
-    if (result === null) return yield* new ServiceAccountNotFoundError()
+
+    if (result === null) {
+      return yield* new ServiceAccountNotFoundError()
+    }
+
     return { audit: result, revoked: true as const }
   })
+}
 
 export const authenticateServiceAccountForSystemHealth = (
   token: string,
 ): Effect.Effect<
   void,
   AdminReadFailure | AdminWriteFailure | ServiceAccountUnauthorizedFailure
-> =>
-  Effect.gen(function* () {
+> => {
+  return Effect.gen(function* () {
     const serviceAccount = yield* Effect.tryPromise({
-      try: () =>
-        db
+      try: () => {
+        return db
           .select({ id: serviceAccounts.id, scopes: serviceAccounts.scopes })
           .from(serviceAccounts)
           .where(
@@ -378,35 +450,50 @@ export const authenticateServiceAccountForSystemHealth = (
               eq(serviceAccounts.tokenDigest, tokenDigest(token)),
               isNull(serviceAccounts.revokedAt),
             ),
-          ),
-      catch: (cause) => new AdminReadError({ cause }),
+          )
+      },
+      catch: (cause) => {
+        return new AdminReadError({ cause })
+      },
     }).pipe(
-      Effect.map(([record]) => record),
+      Effect.map(([record]) => {
+        return record
+      }),
       Effect.filterOrFail(
-        (record) => record !== undefined,
-        () => new ServiceAccountUnauthorizedError(),
+        (record) => {
+          return record !== undefined
+        },
+        () => {
+          return new ServiceAccountUnauthorizedError()
+        },
       ),
     )
+
     yield* Effect.succeed(serviceAccount.scopes).pipe(
-      Effect.filterOrFail(
-        hasSystemHealthReadScope,
-        () => new ServiceAccountUnauthorizedError(),
-      ),
+      Effect.filterOrFail(hasSystemHealthReadScope, () => {
+        return new ServiceAccountUnauthorizedError()
+      }),
     )
+
     const now = yield* DateTime.nowAsDate
+
     yield* Effect.tryPromise({
-      try: () =>
-        db
+      try: () => {
+        return db
           .update(serviceAccounts)
           .set({ lastUsedAt: now })
-          .where(eq(serviceAccounts.id, serviceAccount.id)),
-      catch: (cause) => new AdminWriteError({ cause }),
+          .where(eq(serviceAccounts.id, serviceAccount.id))
+      },
+      catch: (cause) => {
+        return new AdminWriteError({ cause })
+      },
     })
   })
+}
 
 export const getDataCatalogForAdminDataCatalogFromDatabase = Effect.tryPromise({
-  try: () =>
-    Promise.all([
+  try: () => {
+    return Promise.all([
       db.select({ value: count() }).from(accountProfiles),
       db.select({ value: count() }).from(users),
       db.select({ value: count() }).from(failedQueueEvents),
@@ -415,8 +502,11 @@ export const getDataCatalogForAdminDataCatalogFromDatabase = Effect.tryPromise({
       db.select({ value: count() }).from(transactionalOutboxMessages),
       db.select({ value: count() }).from(adminBootstrapClaims),
       db.select({ value: count() }).from(adminAuditEvents),
-    ]),
-  catch: (cause) => new AdminReadError({ cause }),
+    ])
+  },
+  catch: (cause) => {
+    return new AdminReadError({ cause })
+  },
 }).pipe(
   Effect.map(
     ([
@@ -428,132 +518,134 @@ export const getDataCatalogForAdminDataCatalogFromDatabase = Effect.tryPromise({
       outboxRows,
       bootstrapClaimRows,
       auditRows,
-    ]) => ({
-      domains: [
-        {
-          category: 'account' as const,
-          displayName: 'Account profiles',
-          reason: 'Optional profile information owned by people.',
-          rowCount: countValue(profileRows),
-          tableName: 'account_profile',
-          visibility: 'safe-count' as const,
-        },
-        {
-          category: 'authentication' as const,
-          displayName: 'Accounts',
-          reason: 'Authentication provider records can contain credential material.',
-          rowCount: null,
-          tableName: 'account',
-          visibility: 'security-hidden' as const,
-        },
-        {
-          category: 'security' as const,
-          displayName: 'Authentication rate limits',
-          reason: 'Rate-limit state is hidden to avoid aiding abuse analysis.',
-          rowCount: null,
-          tableName: 'rate_limit',
-          visibility: 'security-hidden' as const,
-        },
-        {
-          category: 'authentication' as const,
-          displayName: 'Passkeys',
-          reason: 'WebAuthn credential identifiers and keys are security-sensitive.',
-          rowCount: null,
-          tableName: 'passkey',
-          visibility: 'security-hidden' as const,
-        },
-        {
-          category: 'authentication' as const,
-          displayName: 'People',
-          reason:
-            'Application user records, shown only through purpose-built support views.',
-          rowCount: countValue(userRows),
-          tableName: 'user',
-          visibility: 'safe-count' as const,
-        },
-        {
-          category: 'authentication' as const,
-          displayName: 'Sessions',
-          reason: 'Session tokens and device metadata are security-sensitive.',
-          rowCount: null,
-          tableName: 'session',
-          visibility: 'security-hidden' as const,
-        },
-        {
-          category: 'authentication' as const,
-          displayName: 'Verification records',
-          reason: 'Verification values include one-time security tokens.',
-          rowCount: null,
-          tableName: 'verification',
-          visibility: 'security-hidden' as const,
-        },
-        {
-          category: 'delivery' as const,
-          displayName: 'Failed queue events',
-          reason: 'Operational failures awaiting investigation.',
-          rowCount: countValue(failedQueueRows),
-          tableName: 'failed_queue_event',
-          visibility: 'safe-count' as const,
-        },
-        {
-          category: 'delivery' as const,
-          displayName: 'Processed queue events',
-          reason: 'Idempotency receipts for completed queue work.',
-          rowCount: countValue(processedQueueRows),
-          tableName: 'processed_queue_events',
-          visibility: 'safe-count' as const,
-        },
-        {
-          category: 'delivery' as const,
-          displayName: 'Transactional outbox messages',
-          reason:
-            'Durable records for workflows that require transactional event delivery.',
-          rowCount: countValue(outboxRows),
-          tableName: 'transactional_outbox_messages',
-          visibility: 'safe-count' as const,
-        },
-        {
-          category: 'delivery' as const,
-          displayName: 'Workflow audit receipts',
-          reason: 'Confirmation receipts for completed workflow side effects.',
-          rowCount: countValue(workflowReceiptRows),
-          tableName: 'profile_update_audit_receipt',
-          visibility: 'safe-count' as const,
-        },
-        {
-          category: 'security' as const,
-          displayName: 'Administrator bootstrap claim',
-          reason:
-            'The singleton record that secures the first administrator assignment.',
-          rowCount: countValue(bootstrapClaimRows),
-          tableName: 'admin_bootstrap_claim',
-          visibility: 'safe-count' as const,
-        },
-        {
-          category: 'operations' as const,
-          displayName: 'Administrator activity',
-          reason: 'Immutable records of safe administrative outcomes.',
-          rowCount: countValue(auditRows),
-          tableName: 'admin_audit_event',
-          visibility: 'safe-count' as const,
-        },
-        {
-          category: 'security' as const,
-          displayName: 'Service accounts',
-          reason:
-            'Machine credential digests and lifecycle state are security-sensitive.',
-          rowCount: null,
-          tableName: 'service_account',
-          visibility: 'security-hidden' as const,
-        },
-      ],
-    }),
+    ]) => {
+      return {
+        domains: [
+          {
+            category: 'account' as const,
+            displayName: 'Account profiles',
+            reason: 'Optional profile information owned by people.',
+            rowCount: countValue(profileRows),
+            tableName: 'account_profile',
+            visibility: 'safe-count' as const,
+          },
+          {
+            category: 'authentication' as const,
+            displayName: 'Accounts',
+            reason: 'Authentication provider records can contain credential material.',
+            rowCount: null,
+            tableName: 'account',
+            visibility: 'security-hidden' as const,
+          },
+          {
+            category: 'security' as const,
+            displayName: 'Authentication rate limits',
+            reason: 'Rate-limit state is hidden to avoid aiding abuse analysis.',
+            rowCount: null,
+            tableName: 'rate_limit',
+            visibility: 'security-hidden' as const,
+          },
+          {
+            category: 'authentication' as const,
+            displayName: 'Passkeys',
+            reason: 'WebAuthn credential identifiers and keys are security-sensitive.',
+            rowCount: null,
+            tableName: 'passkey',
+            visibility: 'security-hidden' as const,
+          },
+          {
+            category: 'authentication' as const,
+            displayName: 'People',
+            reason:
+              'Application user records, shown only through purpose-built support views.',
+            rowCount: countValue(userRows),
+            tableName: 'user',
+            visibility: 'safe-count' as const,
+          },
+          {
+            category: 'authentication' as const,
+            displayName: 'Sessions',
+            reason: 'Session tokens and device metadata are security-sensitive.',
+            rowCount: null,
+            tableName: 'session',
+            visibility: 'security-hidden' as const,
+          },
+          {
+            category: 'authentication' as const,
+            displayName: 'Verification records',
+            reason: 'Verification values include one-time security tokens.',
+            rowCount: null,
+            tableName: 'verification',
+            visibility: 'security-hidden' as const,
+          },
+          {
+            category: 'delivery' as const,
+            displayName: 'Failed queue events',
+            reason: 'Operational failures awaiting investigation.',
+            rowCount: countValue(failedQueueRows),
+            tableName: 'failed_queue_event',
+            visibility: 'safe-count' as const,
+          },
+          {
+            category: 'delivery' as const,
+            displayName: 'Processed queue events',
+            reason: 'Idempotency receipts for completed queue work.',
+            rowCount: countValue(processedQueueRows),
+            tableName: 'processed_queue_events',
+            visibility: 'safe-count' as const,
+          },
+          {
+            category: 'delivery' as const,
+            displayName: 'Transactional outbox messages',
+            reason:
+              'Durable records for workflows that require transactional event delivery.',
+            rowCount: countValue(outboxRows),
+            tableName: 'transactional_outbox_messages',
+            visibility: 'safe-count' as const,
+          },
+          {
+            category: 'delivery' as const,
+            displayName: 'Workflow audit receipts',
+            reason: 'Confirmation receipts for completed workflow side effects.',
+            rowCount: countValue(workflowReceiptRows),
+            tableName: 'profile_update_audit_receipt',
+            visibility: 'safe-count' as const,
+          },
+          {
+            category: 'security' as const,
+            displayName: 'Administrator bootstrap claim',
+            reason:
+              'The singleton record that secures the first administrator assignment.',
+            rowCount: countValue(bootstrapClaimRows),
+            tableName: 'admin_bootstrap_claim',
+            visibility: 'safe-count' as const,
+          },
+          {
+            category: 'operations' as const,
+            displayName: 'Administrator activity',
+            reason: 'Immutable records of safe administrative outcomes.',
+            rowCount: countValue(auditRows),
+            tableName: 'admin_audit_event',
+            visibility: 'safe-count' as const,
+          },
+          {
+            category: 'security' as const,
+            displayName: 'Service accounts',
+            reason:
+              'Machine credential digests and lifecycle state are security-sensitive.',
+            rowCount: null,
+            tableName: 'service_account',
+            visibility: 'security-hidden' as const,
+          },
+        ],
+      }
+    },
   ),
 )
 
 export const listAccountProfilesForAdminDataCatalogFromDatabase = Effect.tryPromise({
-  try: () =>
-    db
+  try: () => {
+    return db
       .select({
         accountId: accountProfiles.accountId,
         bio: accountProfiles.bio,
@@ -561,13 +653,20 @@ export const listAccountProfilesForAdminDataCatalogFromDatabase = Effect.tryProm
       })
       .from(accountProfiles)
       .orderBy(desc(accountProfiles.updatedAt))
-      .limit(50),
-  catch: (cause) => new AdminReadError({ cause }),
-}).pipe(Effect.map((recentProfiles) => ({ recentProfiles })))
+      .limit(50)
+  },
+  catch: (cause) => {
+    return new AdminReadError({ cause })
+  },
+}).pipe(
+  Effect.map((recentProfiles) => {
+    return { recentProfiles }
+  }),
+)
 
 export const listFailedQueueEventsForAdminDataCatalogFromDatabase = Effect.tryPromise({
-  try: () =>
-    db
+  try: () => {
+    return db
       .select({
         consumerName: failedQueueEvents.consumerName,
         deliveryCount: failedQueueEvents.deliveryCount,
@@ -577,13 +676,20 @@ export const listFailedQueueEventsForAdminDataCatalogFromDatabase = Effect.tryPr
       })
       .from(failedQueueEvents)
       .orderBy(desc(failedQueueEvents.failedAt))
-      .limit(50),
-  catch: (cause) => new AdminReadError({ cause }),
-}).pipe(Effect.map((recentEvents) => ({ recentEvents })))
+      .limit(50)
+  },
+  catch: (cause) => {
+    return new AdminReadError({ cause })
+  },
+}).pipe(
+  Effect.map((recentEvents) => {
+    return { recentEvents }
+  }),
+)
 
 export const listWorkflowReceiptsForAdminDataCatalogFromDatabase = Effect.tryPromise({
-  try: () =>
-    db
+  try: () => {
+    return db
       .select({
         correlationId: profileUpdateAuditReceipts.correlationId,
         eventId: profileUpdateAuditReceipts.eventId,
@@ -592,16 +698,24 @@ export const listWorkflowReceiptsForAdminDataCatalogFromDatabase = Effect.tryPro
       })
       .from(profileUpdateAuditReceipts)
       .orderBy(desc(profileUpdateAuditReceipts.recordedAt))
-      .limit(50),
-  catch: (cause) => new AdminReadError({ cause }),
-}).pipe(Effect.map((recentReceipts) => ({ recentReceipts })))
+      .limit(50)
+  },
+  catch: (cause) => {
+    return new AdminReadError({ cause })
+  },
+}).pipe(
+  Effect.map((recentReceipts) => {
+    return { recentReceipts }
+  }),
+)
 
 export const listAdminActivityForAdminActivityScreenFromDatabase = (
   input: AdminPaginatedSearchInput,
-) =>
-  Effect.tryPromise({
+) => {
+  return Effect.tryPromise({
     try: () => {
       const { cursor } = input
+
       return db
         .select({
           action: adminAuditEvents.action,
@@ -634,13 +748,18 @@ export const listAdminActivityForAdminActivityScreenFromDatabase = (
         .orderBy(desc(adminAuditEvents.createdAt), desc(adminAuditEvents.id))
         .limit(51)
     },
-    catch: (cause) => new AdminReadError({ cause }),
+    catch: (cause) => {
+      return new AdminReadError({ cause })
+    },
   }).pipe(
-    Effect.map((rows) => ({
-      events: rows.slice(0, 50),
-      nextCursor:
-        rows.length === 51 && rows[49] !== undefined
-          ? { createdAt: rows[49].createdAt, id: rows[49].id }
-          : null,
-    })),
+    Effect.map((rows) => {
+      return {
+        events: rows.slice(0, 50),
+        nextCursor:
+          rows.length === 51 && rows[49] !== undefined
+            ? { createdAt: rows[49].createdAt, id: rows[49].id }
+            : null,
+      }
+    }),
   )
+}

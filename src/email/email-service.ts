@@ -37,15 +37,19 @@ const ResendResponseError = Data.TaggedError('ResendResponseError')<{
 }>
 
 const retryAfterMilliseconds = (header: string | undefined) => {
-  if (header === undefined) return null
+  if (header === undefined) {
+    return null
+  }
+
   const seconds = Number(header)
+
   return Number.isFinite(seconds) && seconds >= 0 ? seconds * 1_000 : null
 }
 
-const sendOnce = (resend: Resend, email: TransactionalEmail) =>
-  Effect.tryPromise({
-    try: () =>
-      resend.emails
+const sendOnce = (resend: Resend, email: TransactionalEmail) => {
+  return Effect.tryPromise({
+    try: () => {
+      return resend.emails
         .send(
           {
             from: env.EMAIL_FROM,
@@ -56,9 +60,12 @@ const sendOnce = (resend: Resend, email: TransactionalEmail) =>
           { idempotencyKey: email.idempotencyKey },
         )
         .then((response) => {
-          if (response.error === null) return
+          if (response.error === null) {
+            return
+          }
 
           const status = response.error.statusCode
+
           throw new ResendResponseError({
             message: response.error.message,
             retryAfterMilliseconds: retryAfterMilliseconds(
@@ -66,9 +73,10 @@ const sendOnce = (resend: Resend, email: TransactionalEmail) =>
             ),
             retryable: status === 408 || status === 429 || (status ?? 0) >= 500,
           })
-        }),
-    catch: (cause) =>
-      cause instanceof ResendResponseError
+        })
+    },
+    catch: (cause) => {
+      return cause instanceof ResendResponseError
         ? new EmailDeliveryError({
             cause,
             retryAfterMilliseconds: cause.retryAfterMilliseconds,
@@ -78,53 +86,68 @@ const sendOnce = (resend: Resend, email: TransactionalEmail) =>
             cause,
             retryAfterMilliseconds: null,
             retryable: cause instanceof TypeError,
-          }),
+          })
+    },
   }).pipe(
     Effect.timeout('10 seconds'),
-    Effect.mapError((error) =>
-      error._tag === 'TimeoutError'
+    Effect.mapError((error) => {
+      return error._tag === 'TimeoutError'
         ? new EmailDeliveryError({
             cause: error,
             retryAfterMilliseconds: null,
             retryable: true,
           })
-        : error,
-    ),
+        : error
+    }),
   )
+}
 
 const sendWithResilience = (
   resend: Resend,
   email: TransactionalEmail,
   attempt = 1,
-): Effect.Effect<void, EmailDeliveryFailure> =>
-  sendOnce(resend, email).pipe(
+): Effect.Effect<void, EmailDeliveryFailure> => {
+  return sendOnce(resend, email).pipe(
     Effect.catchTag('EmailDeliveryError', (error) => {
-      if (!error.retryable || attempt >= 3) return Effect.fail(error)
+      if (!error.retryable || attempt >= 3) {
+        return Effect.fail(error)
+      }
 
       return Random.next.pipe(
-        Effect.map((random) =>
-          Math.round(
+        Effect.map((random) => {
+          return Math.round(
             error.retryAfterMilliseconds ?? 250 * 2 ** (attempt - 1) * (0.5 + random),
-          ),
-        ),
-        Effect.flatMap((delay) => Effect.sleep(`${delay} millis`)),
+          )
+        }),
+        Effect.flatMap((delay) => {
+          return Effect.sleep(`${delay} millis`)
+        }),
         Effect.andThen(sendWithResilience(resend, email, attempt + 1)),
       )
     }),
   )
+}
 
-const writeDevelopmentMailboxMessageEffect = (email: TransactionalEmail) =>
-  Effect.tryPromise({
-    try: () => writeDevelopmentMailboxMessage(email),
-    catch: (cause) =>
-      new EmailDeliveryError({ cause, retryAfterMilliseconds: null, retryable: false }),
+const writeDevelopmentMailboxMessageEffect = (email: TransactionalEmail) => {
+  return Effect.tryPromise({
+    try: () => {
+      return writeDevelopmentMailboxMessage(email)
+    },
+    catch: (cause) => {
+      return new EmailDeliveryError({
+        cause,
+        retryAfterMilliseconds: null,
+        retryable: false,
+      })
+    },
   }).pipe(
-    Effect.flatMap((messageId) =>
-      Effect.logInfo('Development email written').pipe(
+    Effect.flatMap((messageId) => {
+      return Effect.logInfo('Development email written').pipe(
         Effect.annotateLogs(developmentEmailLogEntry({ email, messageId })),
-      ),
-    ),
+      )
+    }),
   )
+}
 
 const developmentEmailService = EmailService.of({
   sendTransactional: writeDevelopmentMailboxMessageEffect,
@@ -132,8 +155,11 @@ const developmentEmailService = EmailService.of({
 
 const makeResendEmailService = (apiKey: string) => {
   const resend = new Resend(apiKey)
+
   return EmailService.of({
-    sendTransactional: (email) => sendWithResilience(resend, email),
+    sendTransactional: (email) => {
+      return sendWithResilience(resend, email)
+    },
   })
 }
 
@@ -160,6 +186,7 @@ const emailServiceLayer = () => {
         ),
       )
     }
+
     return Layer.succeed(EmailService, makeResendEmailService(env.RESEND_API_KEY))
   }
 

@@ -23,40 +23,50 @@ const event = {
   subjectId: 'user_123',
 }
 
-const sendAfterTwoTransientFailures = (attempts: Array<string>) =>
-  QueueTransport.of({
+const sendAfterTwoTransientFailures = (attempts: Array<string>) => {
+  return QueueTransport.of({
     send: (_topic, _payload, options) => {
       attempts.push(options.idempotencyKey)
+
       if (attempts.length < 3) {
         return Promise.reject(new TooManyRequestsError('busy', 0))
       }
+
       return Promise.resolve({ messageId: 'message_after_retry' })
     },
   })
+}
 
-const startAfterTwoTransientFailures = (attempts: Array<string>) => ({
-  start: (input: typeof event) => {
-    attempts.push(input.eventId)
-    return attempts.length < 3
-      ? Promise.reject(new TypeError('temporary transport failure'))
-      : Promise.resolve({ runId: 'workflow_after_retry' })
-  },
-})
+const startAfterTwoTransientFailures = (attempts: Array<string>) => {
+  return {
+    start: (input: typeof event) => {
+      attempts.push(input.eventId)
 
-const alwaysRateLimited = (attempts: Array<string>) =>
-  QueueTransport.of({
+      return attempts.length < 3
+        ? Promise.reject(new TypeError('temporary transport failure'))
+        : Promise.resolve({ runId: 'workflow_after_retry' })
+    },
+  }
+}
+
+const alwaysRateLimited = (attempts: Array<string>) => {
+  return QueueTransport.of({
     send: (_topic, _payload, options) => {
       attempts.push(options.idempotencyKey)
+
       return Promise.reject(new TooManyRequestsError('busy', 0))
     },
   })
+}
 
 describe('account profile update queue', () => {
   it('uses the event ID as the queue idempotency key', async () => {
     const deliveries: Array<{ readonly key: string; readonly topic: string }> = []
+
     const transport = QueueTransport.of({
       send: (topic, _payload, options) => {
         deliveries.push({ key: options.idempotencyKey, topic })
+
         return Promise.resolve({ messageId: 'message_123' })
       },
     })
@@ -76,14 +86,19 @@ describe('account profile update queue', () => {
 
   it('acknowledges a redelivery only after the first delivery completed', async () => {
     const started: Array<string> = []
+
     const store = makeInMemoryProcessedQueueEventStore()
+
     const workflow = AccountProfileUpdateWorkflow.of({
-      start: (input) =>
-        Effect.sync(() => {
+      start: (input) => {
+        return Effect.sync(() => {
           started.push(input.eventId)
+
           return { runId: 'run_123' }
-        }),
+        })
+      },
     })
+
     const program = processAccountProfileUpdatedMessage(event).pipe(
       Effect.provideService(ProcessedQueueEventStore, store),
       Effect.provideService(AccountProfileUpdateWorkflow, workflow),
@@ -93,24 +108,29 @@ describe('account profile update queue', () => {
       status: 'started',
       runId: 'run_123',
     })
+
     await expect(Effect.runPromise(program)).resolves.toEqual({
       status: 'completed',
     })
+
     expect(started).toEqual([event.eventId])
   })
 
   it('releases a claim when workflow startup fails', async () => {
     const store = makeInMemoryProcessedQueueEventStore()
+
     const failingWorkflow = AccountProfileUpdateWorkflow.of({
-      start: () =>
-        Effect.fail(
+      start: () => {
+        return Effect.fail(
           new QueueConsumerError({
             cause: 'temporary outage',
             retryAfterMilliseconds: null,
             retryable: true,
           }),
-        ),
+        )
+      },
     })
+
     const failedAttempt = processAccountProfileUpdatedMessage(event).pipe(
       Effect.provideService(ProcessedQueueEventStore, store),
       Effect.provideService(AccountProfileUpdateWorkflow, failingWorkflow),
@@ -125,10 +145,13 @@ describe('account profile update queue', () => {
       Effect.provideService(
         AccountProfileUpdateWorkflow,
         AccountProfileUpdateWorkflow.of({
-          start: () => Effect.succeed({ runId: 'run_recovered' }),
+          start: () => {
+            return Effect.succeed({ runId: 'run_recovered' })
+          },
         }),
       ),
     )
+
     await expect(Effect.runPromise(recoveredAttempt)).resolves.toEqual({
       status: 'started',
       runId: 'run_recovered',
@@ -137,27 +160,43 @@ describe('account profile update queue', () => {
 
   it('rejects a concurrent redelivery while the first delivery owns the claim', async () => {
     let finishStart: ((runId: string) => void) | undefined
+
     let markStartEntered: (() => void) | undefined
+
     const started = new Promise<string>((resolve) => {
       finishStart = resolve
     })
+
     const startEntered = new Promise<void>((resolve) => {
       markStartEntered = resolve
     })
+
     const store = makeInMemoryProcessedQueueEventStore()
+
     const workflow = AccountProfileUpdateWorkflow.of({
-      start: () =>
-        Effect.sync(() => markStartEntered?.()).pipe(
-          Effect.andThen(Effect.promise(() => started)),
-          Effect.map((runId) => ({ runId })),
-        ),
+      start: () => {
+        return Effect.sync(() => {
+          return markStartEntered?.()
+        }).pipe(
+          Effect.andThen(
+            Effect.promise(() => {
+              return started
+            }),
+          ),
+          Effect.map((runId) => {
+            return { runId }
+          }),
+        )
+      },
     })
+
     const program = processAccountProfileUpdatedMessage(event).pipe(
       Effect.provideService(ProcessedQueueEventStore, store),
       Effect.provideService(AccountProfileUpdateWorkflow, workflow),
     )
 
     const firstDelivery = Effect.runPromise(program)
+
     await startEntered
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
@@ -166,6 +205,7 @@ describe('account profile update queue', () => {
     })
 
     finishStart?.('run_concurrent')
+
     await expect(firstDelivery).resolves.toEqual({
       status: 'started',
       runId: 'run_concurrent',
@@ -174,6 +214,7 @@ describe('account profile update queue', () => {
 
   it('retries a transient queue publish three total times with the same key', async () => {
     const keys: Array<string> = []
+
     const transport = sendAfterTwoTransientFailures(keys)
 
     await expect(
@@ -183,6 +224,7 @@ describe('account profile update queue', () => {
         ),
       ),
     ).resolves.toEqual({ messageId: 'message_after_retry' })
+
     expect(keys).toEqual([event.eventId, event.eventId, event.eventId])
   })
 
@@ -202,11 +244,13 @@ describe('account profile update queue', () => {
       providerStatus: 429,
       retryable: true,
     })
+
     expect(keys).toEqual([event.eventId, event.eventId, event.eventId])
   })
 
   it('retries transient workflow start failures with bounded attempts', async () => {
     const attemptedEventIds: Array<string> = []
+
     const workflow = AccountProfileUpdateWorkflow.fromStarter(
       startAfterTwoTransientFailures(attemptedEventIds),
       {
@@ -219,12 +263,17 @@ describe('account profile update queue', () => {
     await expect(Effect.runPromise(workflow.start(event))).resolves.toEqual({
       runId: 'workflow_after_retry',
     })
+
     expect(attemptedEventIds).toEqual([event.eventId, event.eventId, event.eventId])
   })
 
   it('bounds the workflow starter wait when the SDK cannot be cancelled', async () => {
     const workflow = AccountProfileUpdateWorkflow.fromStarter(
-      { start: () => Effect.runPromise(Effect.never) },
+      {
+        start: () => {
+          return Effect.runPromise(Effect.never)
+        },
+      },
       {
         baseDelayMilliseconds: 1,
         maxAttempts: 1,

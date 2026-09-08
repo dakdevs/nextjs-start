@@ -31,69 +31,87 @@ export const router = implementation.router({
     getAccountProfileForAccountScreen:
       implementation.account.getAccountProfileForAccountScreen
         .use(authenticatedMiddleware)
-        .handler(({ context }) => handleGetAccountProfileForAccountScreen(context)),
+        .handler(({ context }) => {
+          return handleGetAccountProfileForAccountScreen(context)
+        }),
     updateAccountProfileForAccountScreen:
       implementation.account.updateAccountProfileForAccountScreen
         .use(authenticatedMiddleware)
-        .handler(({ context, input }) =>
-          handleUpdateAccountProfileForAccountScreen({ context, input }),
-        ),
+        .handler(({ context, input }) => {
+          return handleUpdateAccountProfileForAccountScreen({ context, input })
+        }),
   },
   admin: {
     getAdminHomeSummaryForAdminHome:
       implementation.admin.getAdminHomeSummaryForAdminHome
         .use(adminMiddleware)
-        .handler(() => handleGetAdminHomeSummaryForAdminHome()),
+        .handler(() => {
+          return handleGetAdminHomeSummaryForAdminHome()
+        }),
     listUsersForAdminUserSupport: implementation.admin.listUsersForAdminUserSupport
       .use(adminMiddleware)
-      .handler(({ input }) => handleListUsersForAdminUserSupport(input)),
+      .handler(({ input }) => {
+        return handleListUsersForAdminUserSupport(input)
+      }),
     requestPasswordResetForAdminUserSupport:
       implementation.admin.requestPasswordResetForAdminUserSupport
         .use(adminMiddleware)
-        .handler(({ context, input }) =>
-          handleRequestPasswordResetForAdminUserSupport({ context, input }),
-        ),
+        .handler(({ context, input }) => {
+          return handleRequestPasswordResetForAdminUserSupport({ context, input })
+        }),
     listServiceAccountsForAdminServiceAccounts:
       implementation.admin.listServiceAccountsForAdminServiceAccounts
         .use(adminMiddleware)
-        .handler(() => handleListServiceAccountsForAdminServiceAccounts()),
+        .handler(() => {
+          return handleListServiceAccountsForAdminServiceAccounts()
+        }),
     createServiceAccountForAdminServiceAccounts:
       implementation.admin.createServiceAccountForAdminServiceAccounts
         .use(adminMiddleware)
-        .handler(({ context, input }) =>
-          handleCreateServiceAccountForAdminServiceAccounts({ context, input }),
-        ),
+        .handler(({ context, input }) => {
+          return handleCreateServiceAccountForAdminServiceAccounts({ context, input })
+        }),
     rotateServiceAccountForAdminServiceAccounts:
       implementation.admin.rotateServiceAccountForAdminServiceAccounts
         .use(adminMiddleware)
-        .handler(({ context, input }) =>
-          handleRotateServiceAccountForAdminServiceAccounts({ context, input }),
-        ),
+        .handler(({ context, input }) => {
+          return handleRotateServiceAccountForAdminServiceAccounts({ context, input })
+        }),
     revokeServiceAccountForAdminServiceAccounts:
       implementation.admin.revokeServiceAccountForAdminServiceAccounts
         .use(adminMiddleware)
-        .handler(({ context, input }) =>
-          handleRevokeServiceAccountForAdminServiceAccounts({ context, input }),
-        ),
+        .handler(({ context, input }) => {
+          return handleRevokeServiceAccountForAdminServiceAccounts({ context, input })
+        }),
     getDataCatalogForAdminDataCatalog:
       implementation.admin.getDataCatalogForAdminDataCatalog
         .use(adminMiddleware)
-        .handler(() => handleGetDataCatalogForAdminDataCatalog()),
+        .handler(() => {
+          return handleGetDataCatalogForAdminDataCatalog()
+        }),
     listAccountProfilesForAdminDataCatalog:
       implementation.admin.listAccountProfilesForAdminDataCatalog
         .use(adminMiddleware)
-        .handler(() => handleListAccountProfilesForAdminDataCatalog()),
+        .handler(() => {
+          return handleListAccountProfilesForAdminDataCatalog()
+        }),
     listFailedQueueEventsForAdminDataCatalog:
       implementation.admin.listFailedQueueEventsForAdminDataCatalog
         .use(adminMiddleware)
-        .handler(() => handleListFailedQueueEventsForAdminDataCatalog()),
+        .handler(() => {
+          return handleListFailedQueueEventsForAdminDataCatalog()
+        }),
     listWorkflowReceiptsForAdminDataCatalog:
       implementation.admin.listWorkflowReceiptsForAdminDataCatalog
         .use(adminMiddleware)
-        .handler(() => handleListWorkflowReceiptsForAdminDataCatalog()),
+        .handler(() => {
+          return handleListWorkflowReceiptsForAdminDataCatalog()
+        }),
     listAdminActivityForAdminActivityScreen:
       implementation.admin.listAdminActivityForAdminActivityScreen
         .use(adminMiddleware)
-        .handler(({ input }) => handleListAdminActivityForAdminActivityScreen(input)),
+        .handler(({ input }) => {
+          return handleListAdminActivityForAdminActivityScreen(input)
+        }),
   },
 })

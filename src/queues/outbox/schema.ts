@@ -24,5 +24,7 @@ export const transactionalOutboxMessages = pgTable(
     failedAt: timestamp('failed_at', { withTimezone: true }),
     isPublished: boolean('is_published').notNull().default(false),
   },
-  (table) => [index('transactional_outbox_unpublished_idx').on(table.isPublished)],
+  (table) => {
+    return [index('transactional_outbox_unpublished_idx').on(table.isPublished)]
+  },
 )

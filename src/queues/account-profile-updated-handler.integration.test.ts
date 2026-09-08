@@ -39,7 +39,9 @@ describe('account profile queue quarantine against PostgreSQL', () => {
           Effect.provideService(
             AccountProfileUpdateWorkflow,
             AccountProfileUpdateWorkflow.of({
-              start: () => Effect.succeed({ runId: 'unused' }),
+              start: () => {
+                return Effect.succeed({ runId: 'unused' })
+              },
             }),
           ),
           Effect.provideService(FailedQueueEventStore, postgresFailedQueueEventStore),
@@ -59,6 +61,7 @@ describe('account profile queue quarantine against PostgreSQL', () => {
       failureCode: 'InvalidAccountProfileUpdatedMessageError',
       messageId: 'invalid_message_123',
     })
+
     expect(stored).not.toHaveProperty('payload')
   })
 })

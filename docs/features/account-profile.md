@@ -42,6 +42,8 @@ server read for its initial data and an interactive client mutation for saving.
 - Repository queries select only account-screen fields, never a broad user record.
 - The authenticated account owner is implicit from session, never client input.
 - Shared code remains shared only while every consumer benefits from every change.
+- The profile editor is the canonical simple `useAppForm` example; its fields,
+  validation, reset, and pending state remain owned by the shared form layer.
 - The account screen uses only the three routine semantic typography roles.
 - Queue notification is deliberately non-critical: an exhausted publish logs its
   event/correlation identifiers but does not reverse an already committed edit.

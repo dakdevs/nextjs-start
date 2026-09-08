@@ -21,7 +21,9 @@ const [stdout, stderr, exitCode] = await Promise.all([
 process.stdout.write(stdout)
 process.stderr.write(stderr)
 
-if (exitCode !== 0) throw new Error(`Effect diagnostics failed (${exitCode})`)
+if (exitCode !== 0) {
+  throw new Error(`Effect diagnostics failed (${exitCode})`)
+}
 
 const summary = /Checked (\d+) files out of (\d+) files\./u.exec(`${stdout}\n${stderr}`)
 const checkedFiles = Number(summary?.[1] ?? 0)

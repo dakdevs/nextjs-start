@@ -14,8 +14,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   typedRoutes: true,
   serverExternalPackages: ['@varlock/nextjs-integration', 'postgres'],
-  headers: () =>
-    Promise.resolve([
+  headers: () => {
+    return Promise.resolve([
       {
         source: '/(.*)',
         headers: [
@@ -40,7 +40,8 @@ const nextConfig: NextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
         ],
       },
-    ]),
+    ])
+  },
 }
 
 const withVarlock = varlockNextConfigPlugin()

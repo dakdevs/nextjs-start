@@ -42,16 +42,17 @@ const sendAccountProfileUpdatedOnce = (
   transport: QueueTransportService,
   event: AccountProfileUpdatedEvent,
   attempt: number,
-) =>
-  Effect.tryPromise({
+) => {
+  return Effect.tryPromise({
     // The Vercel Queue SDK does not accept an AbortSignal. The Effect deadline
     // bounds this caller only; event-id deduplication makes late acceptance safe.
-    try: () =>
-      transport.send(accountProfileUpdatedTopic, event, {
+    try: () => {
+      return transport.send(accountProfileUpdatedTopic, event, {
         idempotencyKey: event.eventId,
-      }),
-    catch: (cause) =>
-      new QueuePublishError({
+      })
+    },
+    catch: (cause) => {
+      return new QueuePublishError({
         attempt,
         cause,
         causeName: cause instanceof Error ? cause.name : 'UnknownFailure',
@@ -70,11 +71,12 @@ const sendAccountProfileUpdatedOnce = (
           cause instanceof TooManyRequestsError ||
           cause instanceof InternalServerError ||
           cause instanceof TypeError,
-      }),
+      })
+    },
   }).pipe(
     Effect.timeout('5 seconds'),
-    Effect.mapError((error) =>
-      error._tag === 'TimeoutError'
+    Effect.mapError((error) => {
+      return error._tag === 'TimeoutError'
         ? new QueuePublishError({
             attempt,
             cause: error,
@@ -84,35 +86,43 @@ const sendAccountProfileUpdatedOnce = (
             retryAfterMilliseconds: null,
             retryable: true,
           })
-        : error,
-    ),
+        : error
+    }),
   )
+}
 
 const sendAccountProfileUpdatedWithResilience = (
   transport: QueueTransportService,
   event: AccountProfileUpdatedEvent,
   attempt = 1,
-): Effect.Effect<SendResult, InstanceType<typeof QueuePublishError>> =>
-  sendAccountProfileUpdatedOnce(transport, event, attempt).pipe(
+): Effect.Effect<SendResult, InstanceType<typeof QueuePublishError>> => {
+  return sendAccountProfileUpdatedOnce(transport, event, attempt).pipe(
     Effect.catchTag('QueuePublishError', (error) => {
-      if (!error.retryable || attempt >= 3) return Effect.fail(error)
+      if (!error.retryable || attempt >= 3) {
+        return Effect.fail(error)
+      }
 
       return Random.next.pipe(
-        Effect.map((random) =>
-          Math.round(
+        Effect.map((random) => {
+          return Math.round(
             error.retryAfterMilliseconds ?? 250 * 2 ** (attempt - 1) * (0.5 + random),
-          ),
-        ),
-        Effect.flatMap((delay) => Effect.sleep(`${delay} millis`)),
+          )
+        }),
+        Effect.flatMap((delay) => {
+          return Effect.sleep(`${delay} millis`)
+        }),
         Effect.andThen(
           sendAccountProfileUpdatedWithResilience(transport, event, attempt + 1),
         ),
       )
     }),
   )
+}
 
-export const publishAccountProfileUpdated = (event: AccountProfileUpdatedEvent) =>
-  Effect.gen(function* () {
+export const publishAccountProfileUpdated = (event: AccountProfileUpdatedEvent) => {
+  return Effect.gen(function* () {
     const transport = yield* QueueTransport
+
     return yield* sendAccountProfileUpdatedWithResilience(transport, event)
   })
+}

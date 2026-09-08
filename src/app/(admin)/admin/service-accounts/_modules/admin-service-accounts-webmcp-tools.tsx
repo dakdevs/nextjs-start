@@ -10,6 +10,12 @@ import {
 import { rpcClient } from '~/orpc/client'
 import { webMcpCapabilities } from '~/webmcp/capability-registry'
 import { useWebMcpCapability } from '~/webmcp/use-webmcp-capability'
+import type { useServiceAccountWorkflow } from './use-service-account-workflow'
+
+type ServiceAccountWorkflow = ReturnType<typeof useServiceAccountWorkflow>
+type PreparationResult = ReturnType<
+  ServiceAccountWorkflow['prepareCreate' | 'prepareRevoke' | 'prepareRotate']
+>
 
 type CreateServiceAccountInput = z.output<
   typeof createServiceAccountForAdminServiceAccountsInputSchema
@@ -19,9 +25,9 @@ type ServiceAccountIdInput = z.output<
 >
 
 type AdminServiceAccountsWebMcpToolsProps = {
-  readonly onCreatePrepared: (input: CreateServiceAccountInput) => void
-  readonly onRevokePrepared: (input: ServiceAccountIdInput) => void
-  readonly onRotatePrepared: (input: ServiceAccountIdInput) => void
+  readonly onCreatePrepared: (input: CreateServiceAccountInput) => PreparationResult
+  readonly onRevokePrepared: (input: ServiceAccountIdInput) => PreparationResult
+  readonly onRotatePrepared: (input: ServiceAccountIdInput) => PreparationResult
 }
 
 /** Lists safe account metadata; credential changes always stop at human confirmation. */
@@ -30,37 +36,27 @@ export function AdminServiceAccountsWebMcpTools({
   onRevokePrepared,
   onRotatePrepared,
 }: AdminServiceAccountsWebMcpToolsProps) {
-  const listServiceAccounts = useCallback(
-    () => rpcClient.admin.listServiceAccountsForAdminServiceAccounts({}),
-    [],
-  )
+  const listServiceAccounts = useCallback(() => {
+    return rpcClient.admin.listServiceAccountsForAdminServiceAccounts({})
+  }, [])
+
   const prepareCreate = useCallback(
     (input: CreateServiceAccountInput) => {
-      onCreatePrepared(input)
-      return {
-        status:
-          'The service-account form is ready for a person to review and confirm in the admin UI.',
-      }
+      return onCreatePrepared(input)
     },
     [onCreatePrepared],
   )
+
   const prepareRotate = useCallback(
     (input: ServiceAccountIdInput) => {
-      onRotatePrepared(input)
-      return {
-        status:
-          'The service-account rotation is ready for a person to review and confirm in the admin UI.',
-      }
+      return onRotatePrepared(input)
     },
     [onRotatePrepared],
   )
+
   const prepareRevoke = useCallback(
     (input: ServiceAccountIdInput) => {
-      onRevokePrepared(input)
-      return {
-        status:
-          'The service-account revocation is ready for a person to review and confirm in the admin UI.',
-      }
+      return onRevokePrepared(input)
     },
     [onRevokePrepared],
   )
@@ -69,17 +65,21 @@ export function AdminServiceAccountsWebMcpTools({
     capability: webMcpCapabilities.listAdminServiceAccounts,
     execute: listServiceAccounts,
   })
+
   useWebMcpCapability({
     capability: webMcpCapabilities.prepareCreateServiceAccount,
     execute: prepareCreate,
   })
+
   useWebMcpCapability({
     capability: webMcpCapabilities.prepareRotateServiceAccount,
     execute: prepareRotate,
   })
+
   useWebMcpCapability({
     capability: webMcpCapabilities.prepareRevokeServiceAccount,
     execute: prepareRevoke,
   })
+
   return null
 }

@@ -10,27 +10,30 @@ import { router } from '~/orpc/router'
 
 type AuthenticatedSession = Exclude<Awaited<ReturnType<typeof getCurrentSession>>, null>
 
-const sessionFor = (user: AuthenticatedSession['user']): AuthenticatedSession => ({
-  session: {
-    createdAt: new Date('2026-09-04T00:00:00.000Z'),
-    expiresAt: new Date('2026-10-04T00:00:00.000Z'),
-    id: `session_${user.id}`,
-    ipAddress: null,
-    token: `token_${user.id}`,
-    updatedAt: new Date('2026-09-04T00:00:00.000Z'),
-    userAgent: null,
-    userId: user.id,
-  },
-  user,
-})
+const sessionFor = (user: AuthenticatedSession['user']): AuthenticatedSession => {
+  return {
+    session: {
+      createdAt: new Date('2026-09-04T00:00:00.000Z'),
+      expiresAt: new Date('2026-10-04T00:00:00.000Z'),
+      id: `session_${user.id}`,
+      ipAddress: null,
+      token: `token_${user.id}`,
+      updatedAt: new Date('2026-09-04T00:00:00.000Z'),
+      userAgent: null,
+      userId: user.id,
+    },
+    user,
+  }
+}
 
-const clientFor = (session: AuthenticatedSession | null) =>
-  createRouterClient(router, {
+const clientFor = (session: AuthenticatedSession | null) => {
+  return createRouterClient(router, {
     context: makeRpcContext({
       requestId: crypto.randomUUID(),
       session,
     }),
   })
+}
 
 describe('account oRPC contracts against PostgreSQL', () => {
   it('rejects a protected account read without a signed-in session', async () => {
@@ -97,6 +100,7 @@ describe('account oRPC contracts against PostgreSQL', () => {
         role: 'admin',
       },
     ])
+
     await db.insert(accountProfiles).values([
       { accountId: 'current_account', bio: 'Current bio.' },
       { accountId: 'other_account', bio: 'Other bio.' },

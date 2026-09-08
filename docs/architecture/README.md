@@ -12,6 +12,7 @@ business rules.
 - [Browser WebMCP](webmcp.md) — capabilities are route-scoped, manifest-backed, and human-safe.
 - [Background work](background-work.md) — direct queue publishing, idempotent consumers, and durable workflows.
 - [Frontend organization](frontend-organization.md) — local-first components and deliberate promotion.
+- [Application forms](forms.md) — one typed TanStack Form composition layer with configured controls.
 - [Data and caching](data-and-caching.md) — exact Drizzle access and conservative cache rules.
 - [Authentication and authorization](authentication-authorization.md) — Better Auth's
   single-account session boundary and explicit role checks.

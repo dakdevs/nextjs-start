@@ -11,6 +11,7 @@ export function proxy(request: NextRequest) {
     !request.nextUrl.searchParams.has('_rsc')
 
   const destination = request.nextUrl.clone()
+
   destination.pathname = '/index.md'
 
   const response =
@@ -19,11 +20,14 @@ export function proxy(request: NextRequest) {
       : NextResponse.next()
 
   response.headers.append('Vary', 'Accept')
+
   response.headers.set('Cache-Control', 'private, no-store')
+
   response.headers.append(
     'Link',
     '</index.md>; rel="alternate"; type="text/markdown", </sitemap.md>; rel="describedby"; type="text/markdown"',
   )
+
   return response
 }
 

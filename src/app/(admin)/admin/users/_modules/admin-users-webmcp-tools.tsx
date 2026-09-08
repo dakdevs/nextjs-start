@@ -20,13 +20,14 @@ type AdminUsersWebMcpToolsProps = {
 export function AdminUsersWebMcpTools({
   onPasswordResetPrepared,
 }: AdminUsersWebMcpToolsProps) {
-  const listUsers = useCallback(
-    () => rpcClient.admin.listUsersForAdminUserSupport({}),
-    [],
-  )
+  const listUsers = useCallback(() => {
+    return rpcClient.admin.listUsersForAdminUserSupport({})
+  }, [])
+
   const preparePasswordReset = useCallback(
     (input: PasswordResetInput) => {
       onPasswordResetPrepared(input)
+
       return {
         status:
           'The password-reset request is ready for a person to review and confirm in the admin UI.',
@@ -39,9 +40,11 @@ export function AdminUsersWebMcpTools({
     capability: webMcpCapabilities.listAdminUsers,
     execute: listUsers,
   })
+
   useWebMcpCapability({
     capability: webMcpCapabilities.prepareAdminPasswordReset,
     execute: preparePasswordReset,
   })
+
   return null
 }

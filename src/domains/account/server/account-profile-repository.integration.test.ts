@@ -90,10 +90,13 @@ describe('account profile repository against PostgreSQL', () => {
       emailVerified: true,
       name: 'Before event',
     })
+
     const delivered: Array<unknown> = []
+
     const transport = QueueTransport.of({
       send: (_topic, payload) => {
         delivered.push(payload)
+
         return Promise.resolve({ messageId: 'profile_event_message' })
       },
     })
@@ -109,12 +112,14 @@ describe('account profile repository against PostgreSQL', () => {
     )
 
     expect(delivered).toHaveLength(1)
+
     expect(accountProfileUpdatedEventSchema.parse(delivered[0])).toMatchObject({
       correlationId: '07d14c8b-31a9-41ac-8db6-a088254a97a2',
       eventId: 'eced7f25-ad0c-4a85-a6e1-d240e28c3426',
       subjectId: 'account_event',
       type: 'account.profile-updated',
     })
+
     await expect(
       Effect.runPromise(getAccountProfileForAccountScreenFromDatabase('account_event')),
     ).resolves.toMatchObject({ bio: 'Published after commit.', name: 'After event' })

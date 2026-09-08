@@ -3,7 +3,8 @@
 import { Box, Flex, Link as ChakraLink, Text } from '@chakra-ui/react'
 import type { LucideIcon } from 'lucide-react'
 import { ArrowUpRightIcon } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
+import { domAnimation, LazyMotion, useReducedMotion } from 'motion/react'
+import { div as MotionDiv } from 'motion/react-m'
 import Link from 'next/link'
 
 import { DitherWorkflowBackground } from '~/components/dither-workflow-background'
@@ -28,88 +29,90 @@ export function AdminWorkflowCard({
   const shouldReduceMotion = useReducedMotion()
 
   return (
-    <motion.div
-      whileTap={shouldReduceMotion === true ? {} : { scale: 0.995 }}
-      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <ChakraLink
-        asChild
-        unstyled
+    <LazyMotion features={domAnimation}>
+      <MotionDiv
+        whileTap={shouldReduceMotion === true ? {} : { scale: 0.995 }}
+        transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
       >
-        <Link href={href}>
-          <Box
-            position="relative"
-            aspectRatio="1 / 1"
-            bg="var(--card)"
-            borderRadius="2xl"
-            minH="15rem"
-            overflow="hidden"
-            p={{ base: '5', sm: '6' }}
-            transition="background-color 180ms ease-out, box-shadow 180ms ease-out"
-            _hover={{
-              bg: 'color-mix(in oklab, var(--card) 94%, var(--foreground))',
-              boxShadow:
-                '0 16px 40px color-mix(in oklab, var(--foreground) 8%, transparent)',
-            }}
-            _focusVisible={{
-              outline: '3px solid var(--ring)',
-              outlineOffset: '3px',
-            }}
-          >
-            <DitherWorkflowBackground seed={title} />
-            <Flex
+        <ChakraLink
+          asChild
+          unstyled
+        >
+          <Link href={href}>
+            <Box
               position="relative"
-              zIndex="1"
-              direction="column"
-              justify="space-between"
-              h="full"
-              gap="8"
+              aspectRatio="1 / 1"
+              bg="var(--card)"
+              borderRadius="2xl"
+              minH="15rem"
+              overflow="hidden"
+              p={{ base: '5', sm: '6' }}
+              transition="background-color 180ms ease-out, box-shadow 180ms ease-out"
+              _hover={{
+                bg: 'color-mix(in oklab, var(--card) 94%, var(--foreground))',
+                boxShadow:
+                  '0 16px 40px color-mix(in oklab, var(--foreground) 8%, transparent)',
+              }}
+              _focusVisible={{
+                outline: '3px solid var(--ring)',
+                outlineOffset: '3px',
+              }}
             >
+              <DitherWorkflowBackground seed={title} />
               <Flex
+                position="relative"
+                zIndex="1"
+                direction="column"
                 justify="space-between"
-                align="start"
-                gap="4"
+                h="full"
+                gap="8"
               >
                 <Flex
-                  align="center"
-                  justify="center"
-                  bg="color-mix(in oklab, var(--background) 76%, transparent)"
-                  borderRadius="xl"
-                  boxSize="44px"
+                  justify="space-between"
+                  align="start"
+                  gap="4"
                 >
-                  <Icon aria-hidden="true" />
+                  <Flex
+                    align="center"
+                    justify="center"
+                    bg="color-mix(in oklab, var(--background) 76%, transparent)"
+                    borderRadius="xl"
+                    boxSize="44px"
+                  >
+                    <Icon aria-hidden="true" />
+                  </Flex>
+                  <ArrowUpRightIcon aria-hidden="true" />
                 </Flex>
-                <ArrowUpRightIcon aria-hidden="true" />
-              </Flex>
-              <Box>
-                {metric === undefined ? null : (
+                <Box>
+                  {metric === undefined ? null : (
+                    <Text
+                      className="text-ui"
+                      color="var(--muted-foreground)"
+                      mb="2"
+                    >
+                      {metric}
+                    </Text>
+                  )}
+                  <Text
+                    className="text-body"
+                    fontWeight="semibold"
+                  >
+                    {title}
+                  </Text>
                   <Text
                     className="text-ui"
                     color="var(--muted-foreground)"
-                    mb="2"
+                    lineHeight="tall"
+                    mt="2"
                   >
-                    {metric}
+                    {description}
                   </Text>
-                )}
-                <Text
-                  className="text-body"
-                  fontWeight="semibold"
-                >
-                  {title}
-                </Text>
-                <Text
-                  className="text-ui"
-                  color="var(--muted-foreground)"
-                  lineHeight="tall"
-                  mt="2"
-                >
-                  {description}
-                </Text>
-              </Box>
-            </Flex>
-          </Box>
-        </Link>
-      </ChakraLink>
-    </motion.div>
+                </Box>
+              </Flex>
+            </Box>
+          </Link>
+        </ChakraLink>
+      </MotionDiv>
+    </LazyMotion>
   )
 }

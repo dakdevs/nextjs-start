@@ -23,7 +23,15 @@ export function SiteHeader({ session }: SiteHeaderProps) {
         aria-label="Primary navigation"
         className="flex items-center gap-1"
       >
-        {session ? (
+        {session === null ? (
+          <LinkButton
+            href="/sign-in"
+            variant="ghost"
+            size="sm"
+          >
+            Sign in
+          </LinkButton>
+        ) : (
           <>
             {session.user.role === accountRole.admin ? (
               <LinkButton
@@ -42,16 +50,8 @@ export function SiteHeader({ session }: SiteHeaderProps) {
               Account
             </LinkButton>
           </>
-        ) : (
-          <LinkButton
-            href="/sign-in"
-            variant="ghost"
-            size="sm"
-          >
-            Sign in
-          </LinkButton>
         )}
-        {session ? <SignOutButton /> : null}
+        {session === null ? null : <SignOutButton />}
         <ThemeToggle />
       </nav>
     </header>

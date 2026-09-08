@@ -22,11 +22,15 @@ import { requireAuthenticatedSession, type makeRpcContext } from '~/orpc/context
 type RpcContext = ReturnType<typeof makeRpcContext>
 type AdminPaginatedSearchInput = Parameters<typeof listUsersForAdminUserSupport>[0]
 
-export const handleGetAdminHomeSummaryForAdminHome = () =>
-  runAppEffect(getAdminHomeSummaryForAdminHome)
+export const handleGetAdminHomeSummaryForAdminHome = () => {
+  return runAppEffect(getAdminHomeSummaryForAdminHome)
+}
 
-export const handleListUsersForAdminUserSupport = (input: AdminPaginatedSearchInput) =>
-  runAppEffect(listUsersForAdminUserSupport(input))
+export const handleListUsersForAdminUserSupport = (
+  input: AdminPaginatedSearchInput,
+) => {
+  return runAppEffect(listUsersForAdminUserSupport(input))
+}
 
 export const handleRequestPasswordResetForAdminUserSupport = ({
   context,
@@ -34,8 +38,8 @@ export const handleRequestPasswordResetForAdminUserSupport = ({
 }: {
   readonly context: RpcContext
   readonly input: { readonly userId: string }
-}) =>
-  runAppEffect(
+}) => {
+  return runAppEffect(
     requestPasswordResetForAdminUserSupport({
       actorUserId: requireAuthenticatedSession(context).user.id,
       correlationId: context.requestId,
@@ -43,16 +47,18 @@ export const handleRequestPasswordResetForAdminUserSupport = ({
     }).pipe(
       // A support workflow can say the selected person no longer exists.
       // Infrastructure failures remain at the common unexpected-error boundary.
-      Effect.catchTag('AdminUserNotFoundError', () =>
-        Effect.sync(() => {
+      Effect.catchTag('AdminUserNotFoundError', () => {
+        return Effect.sync(() => {
           throw new ORPCError('NOT_FOUND')
-        }),
-      ),
+        })
+      }),
     ),
   )
+}
 
-export const handleListServiceAccountsForAdminServiceAccounts = () =>
-  runAppEffect(listServiceAccountsForAdminServiceAccounts)
+export const handleListServiceAccountsForAdminServiceAccounts = () => {
+  return runAppEffect(listServiceAccountsForAdminServiceAccounts)
+}
 
 export const handleCreateServiceAccountForAdminServiceAccounts = ({
   context,
@@ -63,14 +69,15 @@ export const handleCreateServiceAccountForAdminServiceAccounts = ({
     readonly name: string
     readonly scopes: readonly 'system:health:read'[]
   }
-}) =>
-  runAppEffect(
+}) => {
+  return runAppEffect(
     createServiceAccountForAdminServiceAccounts({
       actorUserId: requireAuthenticatedSession(context).user.id,
       correlationId: context.requestId,
       ...input,
     }),
   )
+}
 
 export const handleRotateServiceAccountForAdminServiceAccounts = ({
   context,
@@ -78,17 +85,21 @@ export const handleRotateServiceAccountForAdminServiceAccounts = ({
 }: {
   readonly context: RpcContext
   readonly input: { readonly serviceAccountId: string }
-}) =>
-  runAppEffect(
+}) => {
+  return runAppEffect(
     rotateServiceAccountForAdminServiceAccounts({
       actorUserId: requireAuthenticatedSession(context).user.id,
       correlationId: context.requestId,
       serviceAccountId: input.serviceAccountId,
     }),
   ).catch((cause: unknown) => {
-    if (cause instanceof ServiceAccountNotFoundError) throw new ORPCError('NOT_FOUND')
+    if (cause instanceof ServiceAccountNotFoundError) {
+      throw new ORPCError('NOT_FOUND')
+    }
+
     throw cause
   })
+}
 
 export const handleRevokeServiceAccountForAdminServiceAccounts = ({
   context,
@@ -96,27 +107,37 @@ export const handleRevokeServiceAccountForAdminServiceAccounts = ({
 }: {
   readonly context: RpcContext
   readonly input: { readonly serviceAccountId: string }
-}) =>
-  runAppEffect(
+}) => {
+  return runAppEffect(
     revokeServiceAccountForAdminServiceAccounts({
       actorUserId: requireAuthenticatedSession(context).user.id,
       correlationId: context.requestId,
       serviceAccountId: input.serviceAccountId,
     }),
   ).catch((cause: unknown) => {
-    if (cause instanceof ServiceAccountNotFoundError) throw new ORPCError('NOT_FOUND')
+    if (cause instanceof ServiceAccountNotFoundError) {
+      throw new ORPCError('NOT_FOUND')
+    }
+
     throw cause
   })
+}
 
-export const handleGetDataCatalogForAdminDataCatalog = () =>
-  runAppEffect(getDataCatalogForAdminDataCatalog)
-export const handleListAccountProfilesForAdminDataCatalog = () =>
-  runAppEffect(listAccountProfilesForAdminDataCatalog)
-export const handleListFailedQueueEventsForAdminDataCatalog = () =>
-  runAppEffect(listFailedQueueEventsForAdminDataCatalog)
-export const handleListWorkflowReceiptsForAdminDataCatalog = () =>
-  runAppEffect(listWorkflowReceiptsForAdminDataCatalog)
+export const handleGetDataCatalogForAdminDataCatalog = () => {
+  return runAppEffect(getDataCatalogForAdminDataCatalog)
+}
+export const handleListAccountProfilesForAdminDataCatalog = () => {
+  return runAppEffect(listAccountProfilesForAdminDataCatalog)
+}
+export const handleListFailedQueueEventsForAdminDataCatalog = () => {
+  return runAppEffect(listFailedQueueEventsForAdminDataCatalog)
+}
+export const handleListWorkflowReceiptsForAdminDataCatalog = () => {
+  return runAppEffect(listWorkflowReceiptsForAdminDataCatalog)
+}
 
 export const handleListAdminActivityForAdminActivityScreen = (
   input: AdminPaginatedSearchInput,
-) => runAppEffect(listAdminActivityForAdminActivityScreen(input))
+) => {
+  return runAppEffect(listAdminActivityForAdminActivityScreen(input))
+}

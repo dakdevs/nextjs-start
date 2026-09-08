@@ -23,9 +23,13 @@ const findCurrentUserAccess = async (userId: string) => {
 
 export const getCurrentUserAccess = async (userId: string, now = new Date()) => {
   const user = await findCurrentUserAccess(userId)
-  if (user === undefined) return null
+
+  if (user === undefined) {
+    return null
+  }
 
   const banActive = isUserBanActive(user, now)
+
   if (user.banned && user.banExpires !== null && !banActive) {
     // The conditional update keeps a concurrent permanent or renewed ban intact.
     const cleared = await db
@@ -40,7 +44,11 @@ export const getCurrentUserAccess = async (userId: string, now = new Date()) => 
       // A concurrent write changed the ban after our first read. One fresh read
       // is authoritative and avoids retrying or clearing a renewed ban.
       const authoritativeUser = await findCurrentUserAccess(userId)
-      if (authoritativeUser === undefined) return null
+
+      if (authoritativeUser === undefined) {
+        return null
+      }
+
       return {
         ...authoritativeUser,
         banActive: isUserBanActive(authoritativeUser, now),
@@ -55,6 +63,7 @@ export const getCurrentUserAccess = async (userId: string, now = new Date()) => 
 
 export const assertUserCanCreateSession = async (userId: string) => {
   const user = await getCurrentUserAccess(userId)
+
   if (user?.banActive === true) {
     throw APIError.from('FORBIDDEN', {
       code: 'BANNED_USER',

@@ -9,18 +9,22 @@ export class UnexpectedRpcError extends ORPCError<
 > {}
 
 /** Gives HTTP and direct server callers the same safe, searchable failure boundary. */
-export const unexpectedRpcErrorInterceptor =
-  (requestId: string) =>
-  async <Result>(options: { next: () => Promise<Result> }) => {
+export const unexpectedRpcErrorInterceptor = (requestId: string) => {
+  return async <Result>(options: { next: () => Promise<Result> }) => {
     try {
       return await options.next()
     } catch (cause) {
-      if (cause instanceof ORPCError) throw cause
+      if (cause instanceof ORPCError) {
+        throw cause
+      }
 
       const errorId = crypto.randomUUID()
+
       await runAppEffect(
         logUnexpectedError({ cause, errorId, operation: 'rpc', requestId }),
       )
+
       throw new UnexpectedRpcError('INTERNAL_SERVER_ERROR', { data: { errorId } })
     }
   }
+}

@@ -1,7 +1,10 @@
 import { relative, resolve } from 'node:path'
 
+import { dependencySectionsSchema, findFormBoundaryFailures } from './form-boundaries'
+
 const sourceFiles = new Bun.Glob('src/**/*.{css,ts,tsx}')
 const failures: string[] = []
+const formBoundarySources: { file: string; source: string }[] = []
 const rawFontSizeUtility = /\btext-(?:xs|sm|base|lg|xl|[2-9]xl|\[[^\]\s]+\])/u
 const allowedFormControlFontSize = 'font-size: max(16px, var(--text-body)) !important;'
 
@@ -11,6 +14,10 @@ function report(file: string, message: string) {
 
 for await (const file of sourceFiles.scan({ absolute: true })) {
   const source = await Bun.file(file).text()
+
+  if (file.endsWith('.ts') || file.endsWith('.tsx')) {
+    formBoundarySources.push({ file: relative(process.cwd(), file), source })
+  }
 
   if (source.includes('process.env') && !file.endsWith('/src/config/env.ts')) {
     report(file, 'read configuration through ~/config/env')
@@ -24,6 +31,7 @@ for await (const file of sourceFiles.scan({ absolute: true })) {
   }
 
   const isClientModule = /^['"]use client['"]/u.test(source.trimStart())
+
   if (isClientModule && /from ['"]~\/domains\/[^'"]+\/server\//u.test(source)) {
     report(file, 'Client Components cannot import domain server implementations')
   }
@@ -33,11 +41,9 @@ for await (const file of sourceFiles.scan({ absolute: true })) {
   }
 
   const isAdminUi = file.includes('/src/app/(admin)/admin/')
+
   if (source.includes("from '@chakra-ui/react'") && !isAdminUi) {
     report(file, 'Chakra UI is scoped to src/app/(admin)/admin')
-  }
-  if (isAdminUi && /from ['"]~\/components\/shadcn\//u.test(source)) {
-    report(file, 'admin UI uses its route-scoped Chakra system, not ShadCN')
   }
 
   if (
@@ -66,11 +72,17 @@ for await (const file of sourceFiles.scan({ absolute: true })) {
     report(file, 'transition only the properties that actually change')
   }
 
-  for (const formTag of source.matchAll(/<form\b[^>]*>/gsu)) {
+  for (const formTag of source.matchAll(/<form(?:\s|>)[^>]*>/gsu)) {
     if (!/\bmethod=/u.test(formTag[0])) {
       report(file, 'forms must declare an intentional HTTP method')
     }
   }
+}
+
+const rawPackageJson: unknown = await Bun.file('package.json').json()
+const packageJson = dependencySectionsSchema.parse(rawPackageJson)
+for (const failure of findFormBoundaryFailures(formBoundarySources, packageJson)) {
+  report(resolve(failure.file), failure.message)
 }
 
 const globalStylesPath = resolve('src/app/globals.css')
@@ -79,6 +91,7 @@ const expectedTypographyRoles = ['body', 'display', 'title', 'ui']
 const typographyRoles = new Set(
   [...globalStyles.matchAll(/--text-([a-z][a-z-]*):/gu)].flatMap((match) => {
     const role = match[1]
+
     return role === undefined || role.includes('--') ? [] : [role]
   }),
 )
@@ -86,7 +99,9 @@ const typographyRoles = new Set(
 if (
   !globalStyles.includes('--text-*: initial;') ||
   typographyRoles.size !== expectedTypographyRoles.length ||
-  expectedTypographyRoles.some((role) => !typographyRoles.has(role))
+  expectedTypographyRoles.some((role) => {
+    return !typographyRoles.has(role)
+  })
 ) {
   report(globalStylesPath, 'define exactly the ui, body, title, and display type roles')
 }

@@ -5,13 +5,14 @@ Assertions must use an independent oracle: known fixtures, real database state,
 observable contract output, or a user-visible result—not a duplicate of the
 implementation’s branching logic.
 
-| Layer                    | Required proof                                                      |
-| ------------------------ | ------------------------------------------------------------------- |
-| Pure domain rule         | Unit test only when a meaningful rule exists.                       |
-| Repository / integration | Disposable real Postgres, migrations, exact query behavior.         |
-| oRPC                     | Contract, validation, auth, authorization, and observable result.   |
-| WebMCP                   | Each exposed tool’s schema, classification, and execution behavior. |
-| Substantial feature      | One clean Playwright happy path, including Axe checks.              |
+| Layer                    | Required proof                                                                                       |
+| ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Pure domain rule         | Unit test only when a meaningful rule exists.                                                        |
+| Repository / integration | Disposable real Postgres, migrations, exact query behavior.                                          |
+| oRPC                     | Contract, validation, auth, authorization, and observable result.                                    |
+| WebMCP                   | Each exposed tool’s schema, classification, and execution behavior.                                  |
+| Substantial feature      | One clean Playwright happy path, including Axe checks.                                               |
+| Application form         | Type and browser evidence for composition, defaults, validation, reset, submit, and overlay selects. |
 
 ## Rules
 
@@ -35,6 +36,9 @@ and build yourself with matching `NEXT_PUBLIC_APP_URL`, `BETTER_AUTH_URL`, and
 - A substantial feature is manually exercised on desktop and mobile in addition
   to automated checks. Inputs use 16px-or-larger text to avoid mobile browser
   focus zoom, and touch paths must be ergonomic at phone viewport sizes.
+- Form browser coverage follows a clean happy path. Static architecture tests
+  separately prove that direct TanStack Form bypasses and competing libraries
+  cannot enter application code.
 - Test videos are opt-in evidence. Follow the explicit preference in the
   [working agreement](working-agreement.md) and use `bun run test:e2e:video` only
   when it calls for a recording. Keep every recording under the ignored root

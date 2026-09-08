@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { authenticatedContractBase } from '~/orpc/contract-base'
 
 export const getAccountProfileForAccountScreenContract = authenticatedContractBase
-  .input(z.object({}).strict())
+  .input(z.strictObject({}))
   .output(
     z.object({
       email: z.email(),

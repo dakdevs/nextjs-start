@@ -37,38 +37,61 @@ export class ProcessedQueueEventStore extends Context.Service<
 
 export const makeInMemoryProcessedQueueEventStore = () => {
   let nextClaimId = 0
+
   const states = new Map<
     string,
     Readonly<{ claimId: string; status: 'completed' | 'processing' }>
   >()
-  const compositeKey = (key: QueueEventKey) => `${key.consumerName}:${key.eventId}`
+
+  const compositeKey = (key: QueueEventKey) => {
+    return `${key.consumerName}:${key.eventId}`
+  }
 
   return ProcessedQueueEventStore.of({
-    claim: (key) =>
-      Effect.sync(() => {
+    claim: (key) => {
+      return Effect.sync(() => {
         const storedKey = compositeKey(key)
+
         const existing = states.get(storedKey)
-        if (existing?.status === 'completed') return { status: 'completed' as const }
+
+        if (existing?.status === 'completed') {
+          return { status: 'completed' as const }
+        }
+
         if (existing?.status === 'processing') {
           return { status: 'in-progress' as const }
         }
 
         nextClaimId += 1
+
         const claimId = `in-memory-claim-${nextClaimId}`
+
         states.set(storedKey, { claimId, status: 'processing' })
+
         return { claimId, status: 'claimed' as const }
-      }),
-    complete: (lease) =>
-      Effect.sync(() => {
+      })
+    },
+    complete: (lease) => {
+      return Effect.sync(() => {
         const storedKey = compositeKey(lease)
+
         const existing = states.get(storedKey)
-        if (existing?.claimId !== lease.claimId) return
+
+        if (existing?.claimId !== lease.claimId) {
+          return
+        }
+
         states.set(storedKey, { claimId: lease.claimId, status: 'completed' })
-      }),
-    release: (lease) =>
-      Effect.sync(() => {
+      })
+    },
+    release: (lease) => {
+      return Effect.sync(() => {
         const storedKey = compositeKey(lease)
-        if (states.get(storedKey)?.claimId === lease.claimId) states.delete(storedKey)
-      }),
+
+        if (states.get(storedKey)?.claimId === lease.claimId) {
+          states.delete(storedKey)
+        }
+      })
+    },
   })
 }

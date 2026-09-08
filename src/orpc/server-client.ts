@@ -10,6 +10,7 @@ import { unexpectedRpcErrorInterceptor } from '~/orpc/unexpected-error-intercept
 /** Direct server caller for React Server Components; it bypasses HTTP but not contracts. */
 export const createServerRpcClient = async () => {
   const requestId = crypto.randomUUID()
+
   return createRouterClient(router, {
     context: makeRpcContext({
       requestId,

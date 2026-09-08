@@ -12,7 +12,9 @@ export default async function ResetPasswordPage({
   }>
 }) {
   const { error: errorParameter, token: tokenParameter } = await searchParams
+
   const error = Array.isArray(errorParameter) ? errorParameter[0] : errorParameter
+
   const token = Array.isArray(tokenParameter) ? tokenParameter[0] : tokenParameter
 
   return (

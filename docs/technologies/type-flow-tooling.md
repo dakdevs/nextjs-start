@@ -18,9 +18,30 @@ re-declaring parallel object types.
 
 `bun run verify` is the canonical handoff gate. It runs format, lint with every
 warning denied, configuration linting, type checking, Knip, doc and architecture
-validation, unit/contract/workflow tests, real-Postgres integration, and
+validation, the full [React Doctor score-100 gate](react-doctor.md),
+unit/contract/workflow tests, real-Postgres integration, and
 happy-path Playwright/Axe E2E as configured. Fix failures; do not suppress or
 downgrade them to warnings.
+
+Use [dakdevs/oxlint-plugin](https://github.com/dakdevs/oxlint-plugin)'s default
+`defineConfig()` presets. Pin the verified current revision in `package.json`
+and the lockfile; updates must run the full gate. Promote upstream warning
+severities to errors; never silently disable defaults to make an update pass. Limit
+ignores to generated output. If defaults conflict with each other or a required
+framework contract, report the exact conflict and resolve it explicitly before
+claiming compliance; do not rewrite behavior merely to evade a detector.
+
+The shared preset requires explicit arrow-function blocks and disables
+`effecttsgo/unnecessary-arrow-block` to avoid contradictory advice. This is an
+[upstream policy fix](https://github.com/dakdevs/oxlint-plugin/pull/7), not a
+template-only suppression. Preserve the rest of the preset apart from the
+explicitly approved [host-boundary exceptions](effect-lint-boundaries.md).
+
+Braces are mandatory across the repository, including callbacks, tests, and
+framework entry points: `arrow-body-style: ["error", "always"]` and
+`curly: ["error", "all"]`. Do not add exceptions, concise arrow bodies, or
+single-line unbraced control flow. The brace-policy tests prevent overrides
+from weakening either rule or re-enabling the opposite Effect advice.
 
 ## Testing choice
 

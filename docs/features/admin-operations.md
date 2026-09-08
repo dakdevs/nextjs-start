@@ -61,6 +61,8 @@ workflow. Other signed-in people cannot discover or load admin data.
   consumer contract and one purpose.
 - Safe projections exclude password hashes, recovery/verification/session
   tokens, passkey material, raw credentials, and security-sensitive metadata.
+- Timestamps render deterministically in UTC and are labeled UTC, so operational
+  events do not shift between server rendering and the administrator's browser.
 - The data catalog classifies every persisted table. Purpose-built recent
   profile, failed-delivery, and workflow-receipt views are bounded to 50 safe
   rows; user and activity screens use server-side search and cursor pagination.
@@ -70,9 +72,15 @@ workflow. Other signed-in people cannot discover or load admin data.
   verifier, revealed once on create/rotate, omitted from logs and WebMCP, and
   revoked rather than edited in place. Scopes are explicit; there is no
   blanket database or administrator scope.
+- Within the service-account workspace, one credential mutation settles before
+  another workflow can be prepared or confirmed. Pending operations also block
+  closing the panel, so a late completion cannot replace a newer workflow.
 - Repository content is the default. Ask about runtime editing only when a
   non-developer must safely change it often enough to justify permissions,
   review, history, and a rollback story.
+- Admin forms use the same shared TanStack Form plus configured ShadCN/Base UI
+  control layer as other application forms; Chakra remains the workspace layout
+  system rather than a competing form boundary.
 
 ## Feature-to-admin interview
 

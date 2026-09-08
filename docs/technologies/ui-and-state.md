@@ -20,13 +20,14 @@ clients use and benefit from every present and expected change.
 
 ## State decision matrix
 
-| State                                     | First choice                                            |
-| ----------------------------------------- | ------------------------------------------------------- |
-| Shareable navigation/filter state         | `nuqs` URL state.                                       |
-| Server cache, loading, mutation lifecycle | oRPC + TanStack Query.                                  |
-| One component or close composition        | `useState` / `useReducer`.                              |
-| Complex shared state inside one module    | Jotai, scoped to that module.                           |
-| App-global atom                           | Exceptional; document why URL/server/local state fails. |
+| State                                       | First choice                                            |
+| ------------------------------------------- | ------------------------------------------------------- |
+| Shareable navigation/filter state           | `nuqs` URL state.                                       |
+| Server cache, loading, mutation lifecycle   | oRPC + TanStack Query.                                  |
+| One component or close composition          | `useState` / `useReducer`.                              |
+| Complex shared state inside one module      | Jotai, scoped to that module.                           |
+| App-global atom                             | Exceptional; document why URL/server/local state fails. |
+| Field values, validation, submission, reset | Shared TanStack Form layer; never duplicate locally.    |
 
 ## Baseline visual language
 
@@ -38,8 +39,10 @@ keyboard paths, WCAG 2.2 AA contrast, and reduced motion.
 ## Source and interaction selection
 
 Public product UI starts with ShadCN; Chakra UI is deliberately scoped to the
-admin workspace. Use Lucide by default, Morphicons for a meaningful related icon
-state, and Motion only for purposeful interaction feedback. See the [library
+admin workspace's layout. Every application form, including admin forms, pairs
+TanStack Form behavior with configured ShadCN/Base UI controls. Use Lucide by
+default, Morphicons for a meaningful related icon state, and Motion only for
+purposeful interaction feedback. See the [library
 selection matrix](../reference/ui-library-selection.md) and [motion language](../design-system/motion.md).
 
 ## Links

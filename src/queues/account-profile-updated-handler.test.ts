@@ -25,25 +25,28 @@ const event = {
   subjectId: 'user_123',
 }
 
-const metadata = (deliveryCount: number): MessageMetadata => ({
-  messageId: 'message_profile_update',
-  deliveryCount,
-  createdAt: new Date('2026-09-04T12:00:00.000Z'),
-  expiresAt: new Date('2026-09-05T12:00:00.000Z'),
-  topicName: 'account-profile-updated',
-  consumerGroup: 'profile-update-audit',
-  region: 'iad1',
-})
+const metadata = (deliveryCount: number): MessageMetadata => {
+  return {
+    messageId: 'message_profile_update',
+    deliveryCount,
+    createdAt: new Date('2026-09-04T12:00:00.000Z'),
+    expiresAt: new Date('2026-09-05T12:00:00.000Z'),
+    topicName: 'account-profile-updated',
+    consumerGroup: 'profile-update-audit',
+    region: 'iad1',
+  }
+}
 
 const retryableFailure = AccountProfileUpdateWorkflow.of({
-  start: () =>
-    Effect.fail(
+  start: () => {
+    return Effect.fail(
       new QueueConsumerError({
         cause: 'workflow unavailable',
         retryAfterMilliseconds: null,
         retryable: true,
       }),
-    ),
+    )
+  },
 })
 
 describe('account profile updated delivery policy', () => {
@@ -57,6 +60,7 @@ describe('account profile updated delivery policy', () => {
 
   it('throws a retryable failure before the bounded terminal attempt', async () => {
     const records: Parameters<typeof makeInMemoryFailedQueueEventStore>[0] = []
+
     const program = accountProfileUpdatedQueueHandler
       .handle(event, metadata(11))
       .pipe(
@@ -74,11 +78,13 @@ describe('account profile updated delivery policy', () => {
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
       _tag: 'QueueConsumerError',
     })
+
     expect(records).toEqual([])
   })
 
   it('persists sanitized correlation data before terminal acknowledgement', async () => {
     const records: Parameters<typeof makeInMemoryFailedQueueEventStore>[0] = []
+
     const program = accountProfileUpdatedQueueHandler
       .handle(event, metadata(12))
       .pipe(
@@ -96,6 +102,7 @@ describe('account profile updated delivery policy', () => {
     await expect(Effect.runPromise(program)).resolves.toEqual({
       status: 'quarantined',
     })
+
     expect(records).toEqual([
       {
         consumerName: 'profile-update-audit',
@@ -110,6 +117,7 @@ describe('account profile updated delivery policy', () => {
 
   it('quarantines an invalid payload without retaining its contents', async () => {
     const records: Parameters<typeof makeInMemoryFailedQueueEventStore>[0] = []
+
     const program = accountProfileUpdatedQueueHandler
       .handle(
         { email: 'must-not-be-stored@example.test', schemaVersion: 99 },
@@ -130,6 +138,7 @@ describe('account profile updated delivery policy', () => {
     await expect(Effect.runPromise(program)).resolves.toEqual({
       status: 'quarantined',
     })
+
     expect(records).toEqual([
       {
         consumerName: 'profile-update-audit',

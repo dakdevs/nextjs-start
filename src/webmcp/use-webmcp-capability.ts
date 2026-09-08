@@ -21,6 +21,7 @@ export function useWebMcpCapability<TInput extends z.ZodObject, TOutput>({
   execute,
 }: UseWebMcpCapabilityOptions<TInput, TOutput>) {
   const isRuntimeReady = useWebMcpRuntimeReady()
+
   return useWebMCP(
     {
       name: capability.name,
@@ -28,7 +29,9 @@ export function useWebMcpCapability<TInput extends z.ZodObject, TOutput>({
       enabled: isRuntimeReady && enabled,
       inputSchema: capability.input,
       annotations: capability.annotations,
-      execute: (input) => Promise.resolve(execute(capability.input.parse(input))),
+      execute: (input) => {
+        return Promise.resolve(execute(capability.input.parse(input)))
+      },
     },
     [capability, enabled, execute, isRuntimeReady],
   )

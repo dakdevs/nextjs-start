@@ -6,6 +6,7 @@ import { createServerRpcClient } from '~/orpc/server-client'
 export default async function AdminUsersPage() {
   const result = await loadAdminScreen(async () => {
     const client = await createServerRpcClient()
+
     return client.admin.listUsersForAdminUserSupport({})
   })
 

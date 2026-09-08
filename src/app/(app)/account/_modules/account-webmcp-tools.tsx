@@ -26,24 +26,32 @@ export function AccountWebMcpTools({
   profile,
 }: AccountWebMcpToolsProps) {
   const shouldReduceMotion = useReducedMotion()
-  const getProfile = useCallback(
-    () => rpcClient.account.getAccountProfileForAccountScreen({}),
-    [],
-  )
+
+  const getProfile = useCallback(() => {
+    return rpcClient.account.getAccountProfileForAccountScreen({})
+  }, [])
+
   const updateProfile = useCallback(
-    (input: { name: string; bio: string }) =>
-      rpcClient.account.updateAccountProfileForAccountScreen(input).then((updated) => {
-        onProfileUpdated({ ...profile, ...updated })
-        return updated
-      }),
+    (input: { name: string; bio: string }) => {
+      return rpcClient.account
+        .updateAccountProfileForAccountScreen(input)
+        .then((updated) => {
+          onProfileUpdated({ ...profile, ...updated })
+
+          return updated
+        })
+    },
     [onProfileUpdated, profile],
   )
+
   const beginPasskeyEnrollment = useCallback(() => {
     onPasskeyRequested()
+
     document.querySelector('#passkey-enrollment')?.scrollIntoView({
       behavior: shouldReduceMotion === true ? 'auto' : 'smooth',
       block: 'center',
     })
+
     return Promise.resolve({
       status:
         'Passkey enrollment is ready for the person to confirm in the account UI.',
@@ -54,14 +62,17 @@ export function AccountWebMcpTools({
     capability: webMcpCapabilities.getAccountProfile,
     execute: getProfile,
   })
+
   useWebMcpCapability({
     capability: webMcpCapabilities.updateAccountProfile,
     execute: updateProfile,
   })
+
   useWebMcpCapability({
     capability: webMcpCapabilities.beginPasskeyEnrollment,
     enabled: passkeysEnabled,
     execute: beginPasskeyEnrollment,
   })
+
   return null
 }

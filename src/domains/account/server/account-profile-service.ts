@@ -13,13 +13,16 @@ type AccountProfileUpdate = Parameters<
   readonly eventId: string
 }
 
-export const getAccountProfileForAccountScreen = (accountId: string) =>
-  getAccountProfileForAccountScreenFromDatabase(accountId)
+export const getAccountProfileForAccountScreen = (accountId: string) => {
+  return getAccountProfileForAccountScreenFromDatabase(accountId)
+}
 
-export const updateAccountProfileForAccountScreen = (input: AccountProfileUpdate) =>
-  Effect.gen(function* () {
+export const updateAccountProfileForAccountScreen = (input: AccountProfileUpdate) => {
+  return Effect.gen(function* () {
     const updated = yield* updateAccountProfileForAccountScreenInDatabase(input)
+
     const occurredAt = yield* DateTime.nowAsDate
+
     yield* publishAccountProfileUpdated({
       eventId: input.eventId,
       type: 'account.profile-updated',
@@ -28,8 +31,10 @@ export const updateAccountProfileForAccountScreen = (input: AccountProfileUpdate
       correlationId: input.correlationId,
       subjectId: input.accountId,
     }).pipe(
-      Effect.catchTag('QueuePublishError', (failure) =>
-        Effect.logError('Non-critical profile update event was not published').pipe(
+      Effect.catchTag('QueuePublishError', (failure) => {
+        return Effect.logError(
+          'Non-critical profile update event was not published',
+        ).pipe(
           Effect.annotateLogs({
             attempt: failure.attempt,
             causeName: failure.causeName,
@@ -39,9 +44,10 @@ export const updateAccountProfileForAccountScreen = (input: AccountProfileUpdate
             providerStatus: failure.providerStatus ?? 'unavailable',
             retryable: failure.retryable,
           }),
-        ),
-      ),
+        )
+      }),
     )
 
     return updated
   })
+}

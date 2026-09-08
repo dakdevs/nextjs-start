@@ -1,15 +1,13 @@
 import { createEnv } from '@t3-oss/env-nextjs'
 import { z } from 'zod'
 
-const canonicalOrigin = z
-  .url()
-  .refine(
-    (value) => new URL(value).origin === value,
-    'Use an origin without a path or trailing slash.',
-  )
+const canonicalOrigin = z.url().refine((value) => {
+  return new URL(value).origin === value
+}, 'Use an origin without a path or trailing slash.')
 
 const postgresUrl = z.url().refine((value) => {
   const protocol = new URL(value).protocol
+
   return protocol === 'postgres:' || protocol === 'postgresql:'
 }, 'Use a postgres:// or postgresql:// connection URL.')
 
@@ -23,10 +21,9 @@ const checkedInAuthSecretPlaceholders = new Set([
 const betterAuthSecret = z
   .string()
   .min(32)
-  .refine(
-    (value) => !checkedInAuthSecretPlaceholders.has(value),
-    'BETTER_AUTH_SECRET must be a generated secret, not a checked-in placeholder.',
-  )
+  .refine((value) => {
+    return !checkedInAuthSecretPlaceholders.has(value)
+  }, 'BETTER_AUTH_SECRET must be a generated secret, not a checked-in placeholder.')
 
 function isDeployedEnvironment(
   nodeEnvironment: 'development' | 'test' | 'production',
@@ -41,6 +38,7 @@ function isDeployedEnvironment(
 
 function databaseRequiresTls(databaseUrl: string) {
   const parameters = new URL(databaseUrl).searchParams
+
   return (
     databaseTlsModes.has(parameters.get('sslmode') ?? '') ||
     parameters.get('ssl') === 'true'
@@ -66,7 +64,10 @@ export const env = createEnv({
   emptyStringAsUndefined: true,
   createFinalSchema: (environmentSchemas, isServer) => {
     const schema = z.object(environmentSchemas)
-    if (!isServer) return schema
+
+    if (!isServer) {
+      return schema
+    }
 
     return schema.superRefine((value, context) => {
       if (value.BETTER_AUTH_URL !== value.NEXT_PUBLIC_APP_URL) {
@@ -102,6 +103,7 @@ export const env = createEnv({
           path: ['EMAIL_DELIVERY'],
         })
       }
+
       if (value.EMAIL_DELIVERY === 'resend' && value.RESEND_API_KEY === undefined) {
         context.addIssue({
           code: 'custom',

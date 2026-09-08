@@ -10,12 +10,16 @@ import { useWebMcpCapability } from '~/webmcp/use-webmcp-capability'
 
 export function SignOutButton() {
   const router = useRouter()
+
   const button = useRef<HTMLButtonElement>(null)
+
   const [isPending, setIsPending] = useState(false)
+
   const [message, setMessage] = useState<string | null>(null)
 
   const prepareSignOut = useCallback(() => {
     button.current?.focus()
+
     return {
       status: 'The sign-out control is focused for the person to confirm.',
     }
@@ -28,13 +32,18 @@ export function SignOutButton() {
 
   const signOut = async () => {
     setIsPending(true)
+
     setMessage(null)
+
     try {
       const result = await authClient.signOut()
-      if (result.error) {
+
+      if (result.error !== null) {
         setMessage('Something went wrong. Please try again.')
+
         return
       }
+
       router.replace('/sign-in')
     } catch {
       setMessage('Something went wrong. Please try again.')

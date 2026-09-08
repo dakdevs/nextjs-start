@@ -9,7 +9,10 @@ type RpcContext = ReturnType<typeof makeRpcContext>
 export const authenticatedMiddleware = os
   .$context<RpcContext>()
   .middleware(({ context, next }) => {
-    if (context.session === null) throw new ORPCError('UNAUTHORIZED')
+    if (context.session === null) {
+      throw new ORPCError('UNAUTHORIZED')
+    }
+
     return next({ context })
   })
 
@@ -17,8 +20,13 @@ export const authenticatedMiddleware = os
 export const adminMiddleware = os
   .$context<RpcContext>()
   .middleware(({ context, next }) => {
-    if (context.session === null) throw new ORPCError('UNAUTHORIZED')
-    if (context.session.user.role !== accountRole.admin)
+    if (context.session === null) {
+      throw new ORPCError('UNAUTHORIZED')
+    }
+
+    if (context.session.user.role !== accountRole.admin) {
       throw new ORPCError('FORBIDDEN')
+    }
+
     return next({ context })
   })

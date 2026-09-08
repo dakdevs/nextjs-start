@@ -15,8 +15,11 @@ const directions = ['up', 'right', 'down', 'left'] as const
 
 export function DitherWorkflowBackground({ seed }: { readonly seed: string }) {
   const normalizedSeed = seed.trim().toLocaleLowerCase('en-US')
+
   const hash = fnv1a(`admin-workflow:v1:${normalizedSeed}`)
+
   const hues = brandHuePairs[hash % brandHuePairs.length] ?? brandHuePairs[0]
+
   const direction = directions[(hash >>> 8) % directions.length] ?? directions[0]
 
   return (

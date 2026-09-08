@@ -22,6 +22,7 @@ export function AccountWorkspace({
   passkeysEnabled,
 }: AccountWorkspaceProps) {
   const [profile, setProfile] = useState(initialProfile)
+
   const [isPasskeyPaneOpen, setIsPasskeyPaneOpen] = useState(
     passkeysEnabled && !initialProfile.hasPasskey,
   )
@@ -41,7 +42,7 @@ export function AccountWorkspace({
       <header className="max-w-xl">
         <p className="text-ui font-medium text-muted-foreground">Account</p>
         <h1 className="mt-3 text-title font-semibold text-foreground">Your profile</h1>
-        <p className="mt-3 text-pretty leading-7 text-muted-foreground">
+        <p className="mt-3 text-balance leading-7 text-muted-foreground">
           Keep the details people see about you current and clear.
         </p>
       </header>
@@ -57,7 +58,10 @@ export function AccountWorkspace({
             setIsPasskeyPaneOpen(false)
           }}
           onAdded={() => {
-            setProfile((current) => ({ ...current, hasPasskey: true }))
+            setProfile((current) => {
+              return { ...current, hasPasskey: true }
+            })
+
             setIsPasskeyPaneOpen(false)
           }}
         />

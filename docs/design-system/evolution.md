@@ -14,25 +14,29 @@ visual decisions as product behavior, not one-off styling shortcuts.
    border when a filled section, contrast, spacing, or type can express hierarchy.
 4. Preserve the three routine type sizes. Treat the fourth display size as an
    exceptional hero role, not another step in a page-local scale.
-5. For a material visual direction, ask one question: state the recommended
+5. Start a section with a meaningful title and useful blurb. Add an eyebrow or
+   subtitle only when it contributes real orientation, status, or context; do
+   not remove purposeful existing structure merely to make screens uniform.
+6. For a material visual direction, ask one question: state the recommended
    direction, user outcome, and tradeoff that requires a choice.
-6. Implement semantic tokens/primitives first, then feature composition.
+7. Implement semantic tokens/primitives first, then feature composition.
    Give each purposeful animation a reduced-motion variant and keep generated
    placeholder imagery deterministic and brand-matched.
-7. Update this document and the feature doc in the same change; add an ADR when
+8. Update this document and the feature doc in the same change; add an ADR when
    the choice is broad, durable, or reverses a prior rule.
 
 ## Decision matrix
 
-| Situation                                     | Decision                                                                  |
-| --------------------------------------------- | ------------------------------------------------------------------------- |
-| Existing primitive and token fit              | Compose them locally.                                                     |
-| Light hierarchy is unclear                    | Add tonal surface/fill, spacing, or type contrast before a sparse border. |
-| Pattern is used by more than one site area    | Promote to `src/modules/` or a low-level component as appropriate.        |
-| A new token/pattern will guide future screens | Document it here and update change impact.                                |
-| A change is merely local layout               | Keep it route-local; no system change.                                    |
-| Copy seems to need another font size          | Use weight, color, spacing, or an existing role; never add a fifth size.  |
-| A principal hero needs stronger scale         | Consider rare `text-display`; keep ordinary app screens to three roles.   |
+| Situation                                     | Decision                                                                           |
+| --------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Existing primitive and token fit              | Compose them locally.                                                              |
+| Light hierarchy is unclear                    | Add tonal surface/fill, spacing, or type contrast before a sparse border.          |
+| Pattern is used by more than one site area    | Promote to `src/modules/` or a low-level component as appropriate.                 |
+| A new token/pattern will guide future screens | Document it here and update change impact.                                         |
+| A change is merely local layout               | Keep it route-local; no system change.                                             |
+| Copy seems to need another font size          | Use weight, color, spacing, or an existing role; never add a fifth size.           |
+| A principal hero needs stronger scale         | Consider rare `text-display`; keep ordinary app screens to three roles.            |
+| A section seems to need an eyebrow/subtitle   | Use title plus useful blurb by default; add supporting copy only for real context. |
 
 ## Completion check
 

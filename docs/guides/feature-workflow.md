@@ -2,19 +2,27 @@
 
 The agent performs this workflow; there is no generator command.
 
-| Step      | Action                                                                                                                       | Expected outcome / stop condition                                                      |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| 1. Frame  | Read related feature, architecture, design, and decision pages. Create or update the feature doc.                            | Value, happy path, non-goals, WebMCP, and Markdown/index classifications are explicit. |
-| 2. Decide | Use the matrices below. Ask one question only if the answer changes the product.                                             | A purpose-built contract and ownership boundary are selected.                          |
-| 3. Design | Check ShadCN and user-named sources before custom UI. Use current design tokens and the library/motion matrices.             | The UI is accessible and fits the design language.                                     |
-| 4. Build  | Add the smallest vertical slice: contract, domain behavior, UI, Markdown/index treatment, WebMCP classification, and errors. | No generic multipurpose endpoint or leaky boundary is introduced.                      |
-| 5. Prove  | Add behavior tests and one happy-path E2E test when the feature is substantial; evaluate desktop and mobile ergonomics.      | Tests use independent assertions and cover the public seam.                            |
-| 6. Record | Update feature/design/architecture/ADR docs and `.changes` manifest as applicable.                                           | Docs describe the shipped truth, not intent.                                           |
-| 7. Verify | Run `bun run verify`.                                                                                                        | All gates pass; fix failures rather than suppressing them.                             |
+| Step      | Action                                                                                                                       | Expected outcome / stop condition                                                                       |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| 1. Frame  | Read related feature, architecture, design, and decision pages. Create or update the feature doc.                            | Value, happy path, non-goals, WebMCP, Markdown/index, metadata, and cache classifications are explicit. |
+| 2. Decide | Use the matrices below. Ask one question only if the answer changes the product.                                             | A purpose-built contract and ownership boundary are selected.                                           |
+| 3. Design | Check ShadCN and user-named sources before custom UI. Use current design tokens and the library/motion matrices.             | The UI is accessible and fits the design language.                                                      |
+| 4. Build  | Add the smallest vertical slice: contract, domain behavior, UI, Markdown/index treatment, WebMCP classification, and errors. | No generic multipurpose endpoint or leaky boundary is introduced.                                       |
+| 5. Prove  | Add behavior tests and one happy-path E2E test when the feature is substantial; evaluate desktop and mobile ergonomics.      | Tests use independent assertions and cover the public seam.                                             |
+| 6. Record | Update feature/design/architecture/ADR docs and `.changes` manifest as applicable.                                           | Docs describe the shipped truth, not intent.                                                            |
+| 7. Verify | Run `bun run verify`.                                                                                                        | All gates pass; fix failures rather than suppressing them.                                              |
 
 The full agent operating sequence—including manual desktop/mobile proof,
 applicable-skill review, Lefthook, and optional test-video preferences—is in
 [agent feature delivery](agent-feature-delivery.md).
+
+Use the [product-building router](building-the-product.md) first for the
+mandatory cross-cutting decision matrix; this guide supplies the feature-level
+workflow and its supporting matrices.
+
+When public content changes, also follow the
+[search delivery workflow](search-discovery-workflow.md). Do not create public
+discovery paths for private surfaces.
 
 `docs/features/<feature>.md` is created before implementation and updated in the
 same change. It is a beacon for later work: preserve valuable behavior, reject

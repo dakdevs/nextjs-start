@@ -16,7 +16,10 @@ export const handleUpdateAccountProfileForAccountScreen = (request: {
   context: RpcContext
   input: UpdateAccountProfileForAccountScreenInput
 }) => {
-  if (request.context.session === null) throw new ORPCError('UNAUTHORIZED')
+  if (request.context.session === null) {
+    throw new ORPCError('UNAUTHORIZED')
+  }
+
   return runQueueEffect(
     updateAccountProfileForAccountScreen({
       accountId: requireAuthenticatedSession(request.context).user.id,

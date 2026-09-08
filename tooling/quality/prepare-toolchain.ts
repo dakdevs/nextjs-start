@@ -7,6 +7,7 @@ async function run(command: string[]) {
     stderr: 'inherit',
     stdout: 'inherit',
   })
+
   const exitCode = await process.exited
 
   if (exitCode !== 0) {
@@ -17,6 +18,7 @@ async function run(command: string[]) {
 async function pluginIsBuilt() {
   try {
     await access(pluginConfig)
+
     return true
   } catch {
     return false
@@ -30,6 +32,7 @@ if (!(await pluginIsBuilt())) {
     '-p',
     'node_modules/@dakdevs/oxlint-plugin/tsconfig.build.json',
   ])
+
   await run([
     'node',
     'node_modules/@dakdevs/oxlint-plugin/scripts/make-cli-executable.mjs',

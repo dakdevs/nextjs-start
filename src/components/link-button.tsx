@@ -3,7 +3,7 @@ import { cn } from 'cn'
 import type { VariantProps } from 'class-variance-authority'
 import type { ComponentProps } from 'react'
 
-import { buttonVariants } from '~/components/shadcn/button'
+import { buttonVariants } from '~/components/shadcn/button-variants'
 
 /** Link semantics with the shared button appearance. */
 export function LinkButton({

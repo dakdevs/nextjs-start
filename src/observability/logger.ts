@@ -5,8 +5,8 @@ export const logUnexpectedError = (input: {
   errorId: string
   operation: string
   requestId: string
-}) =>
-  Effect.logError('Unexpected application error', input.cause).pipe(
+}) => {
+  return Effect.logError('Unexpected application error', input.cause).pipe(
     Effect.annotateLogs({
       causeName: input.cause instanceof Error ? input.cause.name : 'UnknownFailure',
       errorId: input.errorId,
@@ -15,3 +15,4 @@ export const logUnexpectedError = (input: {
       requestId: input.requestId,
     }),
   )
+}

@@ -8,7 +8,10 @@ type RpcContext = ReturnType<typeof makeRpcContext>
 
 /** The one-purpose account-screen read handler. */
 export const handleGetAccountProfileForAccountScreen = (context: RpcContext) => {
-  if (context.session === null) throw new ORPCError('UNAUTHORIZED')
+  if (context.session === null) {
+    throw new ORPCError('UNAUTHORIZED')
+  }
+
   return runAppEffect(
     getAccountProfileForAccountScreen(requireAuthenticatedSession(context).user.id),
   )

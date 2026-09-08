@@ -6,12 +6,14 @@ import { createServerRpcClient } from '~/orpc/server-client'
 export default async function AdminDataPage() {
   const result = await loadAdminScreen(async () => {
     const client = await createServerRpcClient()
+
     const [catalog, profiles, failedQueueEvents, workflowReceipts] = await Promise.all([
       client.admin.getDataCatalogForAdminDataCatalog({}),
       client.admin.listAccountProfilesForAdminDataCatalog({}),
       client.admin.listFailedQueueEventsForAdminDataCatalog({}),
       client.admin.listWorkflowReceiptsForAdminDataCatalog({}),
     ])
+
     return { catalog, ...failedQueueEvents, ...profiles, ...workflowReceipts }
   })
 

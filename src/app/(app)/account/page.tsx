@@ -7,18 +7,25 @@ import { UnexpectedRpcError } from '~/orpc/unexpected-error-interceptor'
 async function loadAccountProfile() {
   try {
     const client = await createServerRpcClient()
+
     const profile = await client.account.getAccountProfileForAccountScreen({})
+
     return { profile, status: 'ready' } as const
   } catch (cause) {
-    if (cause instanceof UnexpectedRpcError)
+    if (cause instanceof UnexpectedRpcError) {
       return { errorId: cause.data.errorId, status: 'failed' } as const
+    }
+
     throw cause
   }
 }
 
 export default async function AccountPage() {
   const result = await loadAccountProfile()
-  if (result.status === 'failed') return <AccountLoadFailure errorId={result.errorId} />
+
+  if (result.status === 'failed') {
+    return <AccountLoadFailure errorId={result.errorId} />
+  }
 
   return (
     <main className="mx-auto w-full max-w-3xl px-5 py-12 sm:px-8 sm:py-18">

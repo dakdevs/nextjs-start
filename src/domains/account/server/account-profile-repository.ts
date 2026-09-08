@@ -17,10 +17,10 @@ type AccountProfileUpdate = z.infer<
   typeof updateAccountProfileForAccountScreenInputSchema
 > & { readonly accountId: string }
 
-export const getAccountProfileForAccountScreenFromDatabase = (accountId: string) =>
-  Effect.tryPromise({
-    try: () =>
-      db
+export const getAccountProfileForAccountScreenFromDatabase = (accountId: string) => {
+  return Effect.tryPromise({
+    try: () => {
+      return db
         .select({
           name: users.name,
           email: users.email,
@@ -30,30 +30,34 @@ export const getAccountProfileForAccountScreenFromDatabase = (accountId: string)
         })
         .from(users)
         .leftJoin(accountProfiles, eq(accountProfiles.accountId, users.id))
-        .where(eq(users.id, accountId)),
-    catch: (cause) => new AccountProfileReadError({ cause }),
+        .where(eq(users.id, accountId))
+    },
+    catch: (cause) => {
+      return new AccountProfileReadError({ cause })
+    },
   }).pipe(
-    Effect.flatMap(([profile]) =>
-      profile === undefined
+    Effect.flatMap(([profile]) => {
+      return profile === undefined
         ? Effect.fail(new AccountProfileNotFoundError())
-        : Effect.succeed({ ...profile, bio: profile.bio ?? '' }),
-    ),
+        : Effect.succeed({ ...profile, bio: profile.bio ?? '' })
+    }),
   )
+}
 
 export const updateAccountProfileForAccountScreenInDatabase = (
   input: AccountProfileUpdate,
-) =>
-  DateTime.nowAsDate.pipe(
-    Effect.flatMap((now) =>
-      Effect.tryPromise({
-        try: () =>
-          db.transaction((transaction) =>
-            transaction
+) => {
+  return DateTime.nowAsDate.pipe(
+    Effect.flatMap((now) => {
+      return Effect.tryPromise({
+        try: () => {
+          return db.transaction((transaction) => {
+            return transaction
               .update(users)
               .set({ name: input.name, updatedAt: now })
               .where(eq(users.id, input.accountId))
-              .then(() =>
-                transaction
+              .then(() => {
+                return transaction
                   .insert(accountProfiles)
                   .values({
                     accountId: input.accountId,
@@ -63,11 +67,15 @@ export const updateAccountProfileForAccountScreenInDatabase = (
                   .onConflictDoUpdate({
                     target: accountProfiles.accountId,
                     set: { bio: input.bio, updatedAt: now },
-                  }),
-              ),
-          ),
-        catch: (cause) => new AccountProfileUpdateError({ cause }),
-      }),
-    ),
+                  })
+              })
+          })
+        },
+        catch: (cause) => {
+          return new AccountProfileUpdateError({ cause })
+        },
+      })
+    }),
     Effect.as({ name: input.name, bio: input.bio }),
   )
+}
