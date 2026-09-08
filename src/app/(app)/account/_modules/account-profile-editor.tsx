@@ -1,49 +1,36 @@
 'use client'
 
 import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { isInferableError } from '@orpc/client'
 import type { InferRouterContractOutputs } from '@orpc/contract'
 
 import { Alert, AlertDescription } from '~/components/shadcn/alert'
-import { Button } from '~/components/shadcn/button'
-import { getFormText } from '~/components/form-data'
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from '~/components/shadcn/field'
-import { Input } from '~/components/shadcn/input'
-import { Textarea } from '~/components/shadcn/textarea'
+import { FieldGroup } from '~/components/shadcn/field'
 import { getAccountProfileForAccountScreenContract } from '~/domains/account/contracts/get-account-profile-for-account-screen'
+import { updateAccountProfileForAccountScreenInputSchema } from '~/domains/account/contracts/update-account-profile-for-account-screen'
+import { useAppForm } from '~/modules/forms/use-app-form'
+import { ReportedSubmissionError } from '~/modules/forms/reported-submission-error'
 import { rpc } from '~/orpc/client'
 
 type AccountProfile = InferRouterContractOutputs<
   typeof getAccountProfileForAccountScreenContract
 >
-type AccountProfileEditorProps = {
-  profile: AccountProfile
-  onProfileUpdated: (profile: AccountProfile) => void
-}
 
 export function AccountProfileEditor({
   onProfileUpdated,
   profile,
-}: AccountProfileEditorProps) {
+}: {
+  profile: AccountProfile
+  onProfileUpdated: (profile: AccountProfile) => void
+}) {
   const [message, setMessage] = useState<string | null>(null)
-  const [previousProfile, setPreviousProfile] = useState(profile)
-  const [draft, setDraft] = useState({ name: profile.name, bio: profile.bio })
-
-  if (profile !== previousProfile) {
-    setPreviousProfile(profile)
-    setDraft({ name: profile.name, bio: profile.bio })
-  }
 
   const mutation = useMutation(
     rpc.account.updateAccountProfileForAccountScreen.mutationOptions({
       onSuccess: (updated) => {
         onProfileUpdated({ ...profile, ...updated })
+
         setMessage('Changes saved.')
       },
       onError: (error) => {
@@ -56,88 +43,83 @@ export function AccountProfileEditor({
     }),
   )
 
-  const updateProfile = (formData: FormData) => {
-    setMessage(null)
-    mutation.mutate({
-      name: getFormText(formData, 'name'),
-      bio: getFormText(formData, 'bio'),
-    })
-  }
+  const form = useAppForm({
+    defaultValues: { name: profile.name, bio: profile.bio },
+    validators: {
+      onChange: updateAccountProfileForAccountScreenInputSchema,
+      onBlur: updateAccountProfileForAccountScreenInputSchema,
+      onSubmit: updateAccountProfileForAccountScreenInputSchema,
+    },
+    onSubmit: async ({ value }) => {
+      setMessage(null)
+      // The typed mutation callback owns the safe server-result message.
+
+      await mutation.mutateAsync(value).catch(() => {
+        throw new ReportedSubmissionError()
+      })
+    },
+  })
+
+  // Server/WebMCP profile changes replace the draft; passkey-only changes do not.
+  useEffect(() => {
+    form.reset({ name: profile.name, bio: profile.bio })
+  }, [form, profile.name, profile.bio])
 
   return (
-    <form
-      className="rounded-2xl bg-card p-6 sm:p-8"
-      method="post"
-      onSubmit={(event) => {
-        event.preventDefault()
-        updateProfile(new FormData(event.currentTarget))
-      }}
-    >
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="name">Display name</FieldLabel>
-          <Input
-            id="name"
-            name="name"
-            value={draft.name}
-            maxLength={100}
-            required
-            onChange={(event) => {
-              setDraft((current) => ({ ...current, name: event.target.value }))
+    <form.AppForm>
+      <form.Form className="rounded-2xl bg-card p-6 sm:p-8">
+        <FieldGroup>
+          <form.AppField name="name">
+            {(field) => {
+              return (
+                <field.TextField
+                  label="Display name"
+                  id="name"
+                  autoComplete="name"
+                  maxLength={100}
+                  required
+                />
+              )
             }}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input
-            id="email"
-            value={profile.email}
-            readOnly
-            aria-describedby="email-description"
-          />
-          <FieldDescription id="email-description">
-            Email changes belong to a future, dedicated account flow.
-          </FieldDescription>
-        </Field>
-        <Field>
-          <div className="flex items-baseline justify-between gap-4">
-            <FieldLabel htmlFor="bio">Bio</FieldLabel>
-            <span className="text-ui text-muted-foreground">Up to 500 characters</span>
+          </form.AppField>
+          <div>
+            <p className="text-ui font-medium">Email</p>
+            <p className="mt-2 text-body">{profile.email}</p>
+            <p className="mt-2 text-ui text-muted-foreground">
+              Email changes belong to a future, dedicated account flow.
+            </p>
           </div>
-          <Textarea
-            id="bio"
-            name="bio"
-            value={draft.bio}
-            maxLength={500}
-            rows={5}
-            onChange={(event) => {
-              setDraft((current) => ({ ...current, bio: event.target.value }))
+          <form.AppField name="bio">
+            {(field) => {
+              return (
+                <field.TextareaField
+                  label="Bio"
+                  id="bio"
+                  description="Up to 500 characters"
+                  maxLength={500}
+                  rows={5}
+                />
+              )
             }}
-          />
-        </Field>
-      </FieldGroup>
-      <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
-        <div
-          aria-live="polite"
-          className="text-ui text-muted-foreground"
-        >
-          {message}
+          </form.AppField>
+        </FieldGroup>
+        <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
+          <form.Feedback message={message} />
+          <form.SubmitButton
+            size="lg"
+            pendingLabel="Saving…"
+          >
+            Save changes
+          </form.SubmitButton>
         </div>
-        <Button
-          type="submit"
-          size="lg"
-          disabled={mutation.isPending}
-        >
-          {mutation.isPending ? 'Saving…' : 'Save changes'}
-        </Button>
-      </div>
-      {profile.emailVerified ? null : (
-        <Alert className="mt-6 border-0 bg-muted">
-          <AlertDescription>
-            Your email is not verified yet. Check your inbox to finish setup.
-          </AlertDescription>
-        </Alert>
-      )}
-    </form>
+        {profile.emailVerified ? null : (
+          <Alert className="mt-6 border-0 bg-muted">
+            <AlertDescription>
+              Your email is not verified yet. Check your inbox to finish setup.
+            </AlertDescription>
+          </Alert>
+        )}
+      </form.Form>
+    </form.AppForm>
   )
 }

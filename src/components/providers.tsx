@@ -19,8 +19,15 @@ export function Providers({
   children,
   enableWebMcpDevelopmentRuntime,
 }: ProvidersProps) {
-  const [queryClient] = useState(() => new QueryClient())
-  const [isWebMcpReady, setIsWebMcpReady] = useState(!enableWebMcpDevelopmentRuntime)
+  const [queryClient] = useState(() => {
+    return new QueryClient()
+  })
+
+  const [isWebMcpDevelopmentRuntimeReady, setIsWebMcpDevelopmentRuntimeReady] =
+    useState(false)
+
+  const isWebMcpReady =
+    !enableWebMcpDevelopmentRuntime || isWebMcpDevelopmentRuntimeReady
 
   return (
     <MotionConfig reducedMotion="user">
@@ -36,7 +43,7 @@ export function Providers({
               <WebMcpDevelopmentRuntime
                 enabled={enableWebMcpDevelopmentRuntime}
                 onReady={() => {
-                  setIsWebMcpReady(true)
+                  setIsWebMcpDevelopmentRuntimeReady(true)
                 }}
               />
               <GlobalWebMcpTools />

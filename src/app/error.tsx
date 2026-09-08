@@ -7,6 +7,7 @@ type RootErrorProps = { error: Error & { digest?: string }; reset: () => void }
 
 export default function RootError({ error, reset }: RootErrorProps) {
   const errorId = useClientBoundaryError(error)
+
   return (
     <main className="grid min-h-dvh place-items-center bg-background p-5">
       <section className="max-w-md rounded-2xl bg-card p-7">

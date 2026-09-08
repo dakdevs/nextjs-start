@@ -2,9 +2,15 @@
 
 import { useSyncExternalStore } from 'react'
 
-const subscribe = () => () => {}
-const getClientSnapshot = () => true
-const getServerSnapshot = () => false
+const subscribe = () => {
+  return () => {}
+}
+const getClientSnapshot = () => {
+  return true
+}
+const getServerSnapshot = () => {
+  return false
+}
 
 /** Lets controls fail closed until React owns their event handlers. */
 export function useClientReady() {

@@ -8,6 +8,7 @@ await withTestPostgres(async (environment) => {
       ['bunx', 'vitest', 'run', '--config', 'vitest.integration.config.ts'],
       environment,
     )
+
     return
   }
 
@@ -16,6 +17,7 @@ await withTestPostgres(async (environment) => {
       ['bunx', 'vitest', 'run', '--config', 'vitest.workflow.config.ts'],
       environment,
     )
+
     return
   }
 
@@ -24,8 +26,11 @@ await withTestPostgres(async (environment) => {
       ...environment,
       NODE_ENV: 'production',
     } satisfies NodeJS.ProcessEnv
+
     await runChecked(['bun', 'run', 'build'], productionEnvironment)
+
     await runChecked(['bunx', 'playwright', 'test'], productionEnvironment)
+
     return
   }
 

@@ -15,35 +15,39 @@ const currentTime = new Date('2026-09-05T12:00:00.000Z')
 const userFor = (
   label: string,
   ban: Pick<typeof users.$inferInsert, 'banned' | 'banExpires'>,
-) => ({
-  ...ban,
-  email: `${label}-${randomUUID()}@example.test`,
-  emailVerified: true,
-  id: `${label}-${randomUUID()}`,
-  name: label,
-})
-
-const sessionFor = (user: typeof users.$inferInsert): AuthenticatedSession => ({
-  session: {
-    createdAt: currentTime,
-    expiresAt: new Date('2026-10-05T12:00:00.000Z'),
-    id: `session_${user.id}`,
-    ipAddress: null,
-    token: `token_${user.id}`,
-    updatedAt: currentTime,
-    userAgent: null,
-    userId: user.id,
-  },
-  user: {
-    createdAt: currentTime,
-    email: user.email,
+) => {
+  return {
+    ...ban,
+    email: `${label}-${randomUUID()}@example.test`,
     emailVerified: true,
-    id: user.id,
-    image: null,
-    name: user.name,
-    updatedAt: currentTime,
-  },
-})
+    id: `${label}-${randomUUID()}`,
+    name: label,
+  }
+}
+
+const sessionFor = (user: typeof users.$inferInsert): AuthenticatedSession => {
+  return {
+    session: {
+      createdAt: currentTime,
+      expiresAt: new Date('2026-10-05T12:00:00.000Z'),
+      id: `session_${user.id}`,
+      ipAddress: null,
+      token: `token_${user.id}`,
+      updatedAt: currentTime,
+      userAgent: null,
+      userId: user.id,
+    },
+    user: {
+      createdAt: currentTime,
+      email: user.email,
+      emailVerified: true,
+      id: user.id,
+      image: null,
+      name: user.name,
+      updatedAt: currentTime,
+    },
+  }
+}
 
 describe('current user access', () => {
   it('allows a new session and current-session read after a temporary ban expires', async () => {
@@ -51,12 +55,15 @@ describe('current user access', () => {
       banned: true,
       banExpires: new Date('2020-09-05T11:59:59.000Z'),
     })
+
     await db.insert(users).values(person)
 
     await expect(assertUserCanCreateSession(person.id)).resolves.toBeUndefined()
+
     await expect(resolveCurrentSession(sessionFor(person))).resolves.toMatchObject({
       user: { id: person.id, role: 'user' },
     })
+
     await expect(
       db
         .select({
@@ -74,13 +81,16 @@ describe('current user access', () => {
       banned: true,
       banExpires: new Date('2030-09-05T12:00:00.000Z'),
     })
+
     await db.insert(users).values(person)
 
     await expect(assertUserCanCreateSession(person.id)).rejects.toMatchObject({
       body: { code: 'BANNED_USER' },
       status: 'FORBIDDEN',
     })
+
     await expect(resolveCurrentSession(sessionFor(person))).resolves.toBeNull()
+
     await expect(getCurrentUserAccess(person.id, currentTime)).resolves.toMatchObject({
       banActive: true,
     })
@@ -88,12 +98,14 @@ describe('current user access', () => {
 
   it('blocks both a new session and current-session read for a permanent ban', async () => {
     const person = userFor('permanent-ban', { banned: true, banExpires: null })
+
     await db.insert(users).values(person)
 
     await expect(assertUserCanCreateSession(person.id)).rejects.toMatchObject({
       body: { code: 'BANNED_USER' },
       status: 'FORBIDDEN',
     })
+
     await expect(resolveCurrentSession(sessionFor(person))).resolves.toBeNull()
   })
 
@@ -102,6 +114,7 @@ describe('current user access', () => {
       banned: true,
       banExpires: new Date('2020-09-05T11:59:59.000Z'),
     })
+
     await db.insert(users).values(person)
 
     try {

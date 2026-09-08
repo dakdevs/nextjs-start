@@ -23,15 +23,16 @@ import { runEmailEffect } from '~/email/runtime'
 import { runAppEffect } from '~/effect/runtime'
 import { logUnexpectedError } from '~/observability/logger'
 
-const sendEmail = (input: { subject: string; text: string; to: string }) =>
-  runEmailEffect(
-    Effect.flatMap(EmailService, (service) =>
-      service.sendTransactional({
+const sendEmail = (input: { subject: string; text: string; to: string }) => {
+  return runEmailEffect(
+    Effect.flatMap(EmailService, (service) => {
+      return service.sendTransactional({
         ...input,
         idempotencyKey: crypto.randomUUID(),
-      }),
-    ),
+      })
+    }),
   )
+}
 
 const scheduleAuthBackgroundTask = (task: Promise<unknown>) => {
   after(async () => {
@@ -39,6 +40,7 @@ const scheduleAuthBackgroundTask = (task: Promise<unknown>) => {
       await task
     } catch (cause) {
       const errorId = crypto.randomUUID()
+
       await runAppEffect(
         logUnexpectedError({
           cause,
@@ -53,6 +55,7 @@ const scheduleAuthBackgroundTask = (task: Promise<unknown>) => {
 
 const scheduleAuthEmail = (input: Parameters<typeof sendEmail>[0]) => {
   scheduleAuthBackgroundTask(sendEmail(input))
+
   return Promise.resolve()
 }
 
@@ -65,8 +68,8 @@ const authSchema = {
   verification: verifications,
 }
 
-export const createAuth = () =>
-  betterAuth({
+export const createAuth = () => {
+  return betterAuth({
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
     // Keep Better Auth's model names explicit while application tables remain
@@ -85,21 +88,23 @@ export const createAuth = () =>
       enabled: true,
       requireEmailVerification: true,
       revokeSessionsOnPasswordReset: true,
-      sendResetPassword: ({ user, url }) =>
-        scheduleAuthEmail({
+      sendResetPassword: ({ user, url }) => {
+        return scheduleAuthEmail({
           subject: 'Reset your password',
           text: `Reset your password: ${url}`,
           to: user.email,
-        }),
+        })
+      },
     },
     emailVerification: {
       sendOnSignUp: true,
-      sendVerificationEmail: ({ user, url }) =>
-        scheduleAuthEmail({
+      sendVerificationEmail: ({ user, url }) => {
+        return scheduleAuthEmail({
           subject: 'Verify your email',
           text: `Verify your email: ${url}`,
           to: user.email,
-        }),
+        })
+      },
     },
     databaseHooks: {
       session: {
@@ -125,5 +130,6 @@ export const createAuth = () =>
       storage: 'database',
     },
   })
+}
 
 export const auth = createAuth()

@@ -20,13 +20,17 @@ const event = {
 describe('optional transactional outbox seam', () => {
   it('stages the exact event through the transaction-bound adapter', async () => {
     const staged: Array<string> = []
+
     const outbox = TransactionalOutbox.of({
-      stageAccountProfileUpdated: (input) =>
-        Effect.sync(() => {
+      stageAccountProfileUpdated: (input) => {
+        return Effect.sync(() => {
           staged.push(input.eventId)
-        }),
+        })
+      },
       claimNext: Effect.succeed(Option.none()),
-      markPublished: () => Effect.void,
+      markPublished: () => {
+        return Effect.void
+      },
     })
 
     await Effect.runPromise(
@@ -40,16 +44,23 @@ describe('optional transactional outbox seam', () => {
 
   it('marks a claimed event only after the queue accepts it', async () => {
     const marked: Array<string> = []
+
     const outbox = TransactionalOutbox.of({
-      stageAccountProfileUpdated: () => Effect.void,
+      stageAccountProfileUpdated: () => {
+        return Effect.void
+      },
       claimNext: Effect.succeed(Option.some(event)),
-      markPublished: (eventId) =>
-        Effect.sync(() => {
+      markPublished: (eventId) => {
+        return Effect.sync(() => {
           marked.push(eventId)
-        }),
+        })
+      },
     })
+
     const transport = QueueTransport.of({
-      send: () => Promise.resolve({ messageId: 'message_123' }),
+      send: () => {
+        return Promise.resolve({ messageId: 'message_123' })
+      },
     })
 
     await expect(

@@ -9,3 +9,4 @@ feature/architecture page, and state the consequence and reversal signal.
 - [0003: direct queues by default; outbox for critical divergence](0003-async-delivery-default.md)
 - [0004: restrained four-role typography scale](0004-restrained-typography-scale.md)
 - [0005: transactional admin bootstrap and narrow operations](0005-admin-bootstrap-and-boundaries.md)
+- [0006: explicit Effect host boundaries, mandatory braces and correctness](0006-effect-host-boundaries.md)

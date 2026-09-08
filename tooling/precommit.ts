@@ -9,6 +9,7 @@ const checks = [
   ['bun', 'run', 'knip'],
   ['bun', 'run', 'docs:check'],
   ['bun', 'run', 'architecture:check'],
+  ['bun', 'run', 'react-doctor'],
   ['bun', 'run', 'test'],
 ] as const
 

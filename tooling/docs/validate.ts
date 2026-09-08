@@ -32,11 +32,18 @@ const changeManifestSchema = z.object({
 
 const markdownLink = /\[[^\]]+\]\(([^)]+)\)/gu
 const failures: string[] = []
-const markdownFiles = [...new Bun.Glob('docs/**/*.md').scanSync()]
+const markdownFiles = [
+  'AGENTS.md',
+  ...new Bun.Glob('docs/**/*.md').scanSync(),
+  ...new Bun.Glob('.agents/skills/**/*.md').scanSync(),
+  ...new Bun.Glob('src/**/AGENTS.md').scanSync(),
+  ...new Bun.Glob('tooling/**/AGENTS.md').scanSync(),
+]
 
 async function pathExists(path: string) {
   try {
     await access(path)
+
     return true
   } catch {
     return false
@@ -45,22 +52,34 @@ async function pathExists(path: string) {
 
 for (const file of markdownFiles) {
   const source = await Bun.file(file).text()
+
   const lines = source.split('\n').length
 
-  if (lines > 150) failures.push(`${file}: ${lines} lines exceeds the 150-line cap`)
+  if (lines > 150) {
+    failures.push(`${file}: ${lines} lines exceeds the 150-line cap`)
+  }
 
   if (file.startsWith('docs/features/')) {
     for (const heading of requiredFeatureHeadings) {
-      if (!source.includes(heading)) failures.push(`${file}: missing ${heading}`)
+      if (!source.includes(heading)) {
+        failures.push(`${file}: missing ${heading}`)
+      }
     }
   }
 
   for (const match of source.matchAll(markdownLink)) {
     const target = match[1]?.split('#')[0]
-    if (target === undefined || target === '' || /^(?:#|https?:|mailto:)/u.test(target))
+
+    if (
+      target === undefined ||
+      target === '' ||
+      /^(?:#|https?:|mailto:)/u.test(target)
+    ) {
       continue
+    }
 
     const absoluteTarget = resolve(dirname(file), target)
+
     if (!(await pathExists(absoluteTarget))) {
       failures.push(`${file}: broken link ${target}`)
     }
@@ -69,20 +88,27 @@ for (const file of markdownFiles) {
 
 const featureIds = new Set(
   markdownFiles
-    .filter((file) => file.startsWith('docs/features/'))
-    .map((file) => file.slice('docs/features/'.length, -'.md'.length)),
+    .filter((file) => {
+      return file.startsWith('docs/features/')
+    })
+    .map((file) => {
+      return file.slice('docs/features/'.length, -'.md'.length)
+    }),
 )
 
 for (const file of new Bun.Glob('.changes/*.json').scanSync()) {
   const parsed = changeManifestSchema.safeParse(await Bun.file(file).json())
+
   if (!parsed.success) {
     failures.push(`${file}: ${z.prettifyError(parsed.error)}`)
+
     continue
   }
 
   for (const featureId of parsed.data.impact.features) {
-    if (!featureIds.has(featureId))
+    if (!featureIds.has(featureId)) {
       failures.push(`${file}: unknown feature ${featureId}`)
+    }
   }
 }
 

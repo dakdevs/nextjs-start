@@ -26,12 +26,14 @@ export class FailedQueueEventStore extends Context.Service<
   }
 >()('nextjs-start/queues/failed-event-store/FailedQueueEventStore') {}
 
-export const makeInMemoryFailedQueueEventStore = (records: Array<FailedQueueEvent>) =>
-  FailedQueueEventStore.of({
-    record: (failedEvent) =>
-      Effect.sync(() => {
+export const makeInMemoryFailedQueueEventStore = (records: Array<FailedQueueEvent>) => {
+  return FailedQueueEventStore.of({
+    record: (failedEvent) => {
+      return Effect.sync(() => {
         records.push(failedEvent)
-      }),
+      })
+    },
   })
+}
 
 export { FailedQueueEventStoreError }

@@ -1,13 +1,13 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, type ComponentProps, type ReactNode } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from 'cn'
 
 import { Label } from '~/components/shadcn/label'
 import { Separator } from '~/components/shadcn/separator'
 
-function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
+function FieldSet({ className, ...props }: ComponentProps<'fieldset'>) {
   return (
     <fieldset
       data-slot="field-set"
@@ -24,7 +24,7 @@ function FieldLegend({
   className,
   variant = 'legend',
   ...props
-}: React.ComponentProps<'legend'> & { variant?: 'legend' | 'label' }) {
+}: ComponentProps<'legend'> & { variant?: 'legend' | 'label' }) {
   return (
     <legend
       data-slot="field-legend"
@@ -38,7 +38,7 @@ function FieldLegend({
   )
 }
 
-function FieldGroup({ className, ...props }: React.ComponentProps<'div'>) {
+function FieldGroup({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div
       data-slot="field-group"
@@ -73,7 +73,7 @@ function Field({
   className,
   orientation = 'vertical',
   ...props
-}: React.ComponentProps<'div'> & VariantProps<typeof fieldVariants>) {
+}: ComponentProps<'div'> & VariantProps<typeof fieldVariants>) {
   return (
     <div
       role="group"
@@ -85,7 +85,7 @@ function Field({
   )
 }
 
-function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
+function FieldContent({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div
       data-slot="field-content"
@@ -98,7 +98,7 @@ function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
   )
 }
 
-function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>) {
+function FieldLabel({ className, ...props }: ComponentProps<typeof Label>) {
   return (
     <Label
       data-slot="field-label"
@@ -112,7 +112,7 @@ function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>)
   )
 }
 
-function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
+function FieldTitle({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div
       data-slot="field-label"
@@ -125,7 +125,7 @@ function FieldTitle({ className, ...props }: React.ComponentProps<'div'>) {
   )
 }
 
-function FieldDescription({ className, ...props }: React.ComponentProps<'p'>) {
+function FieldDescription({ className, ...props }: ComponentProps<'p'>) {
   return (
     <p
       data-slot="field-description"
@@ -144,13 +144,15 @@ function FieldSeparator({
   children,
   className,
   ...props
-}: React.ComponentProps<'div'> & {
-  children?: React.ReactNode
+}: ComponentProps<'div'> & {
+  children?: ReactNode
 }) {
+  const hasContent = children !== undefined && children !== null
+
   return (
     <div
       data-slot="field-separator"
-      data-content={!!children}
+      data-content={hasContent}
       className={cn(
         'relative -my-2 h-5 text-ui group-data-[variant=outline]/field-group:-mb-2',
         className,
@@ -158,16 +160,26 @@ function FieldSeparator({
       {...props}
     >
       <Separator className="absolute inset-0 top-1/2" />
-      {children && (
+      {hasContent ? (
         <span
           className="relative mx-auto block w-fit bg-background px-2 text-muted-foreground"
           data-slot="field-separator-content"
         >
           {children}
         </span>
-      )}
+      ) : null}
     </div>
   )
+}
+
+type FieldErrorDetail = { readonly message?: string } | undefined
+
+function FieldErrorListItem({ error }: { readonly error: FieldErrorDetail }) {
+  if (error?.message === undefined) {
+    return null
+  }
+
+  return <li>{error.message}</li>
 }
 
 function FieldError({
@@ -175,36 +187,45 @@ function FieldError({
   children,
   errors,
   ...props
-}: React.ComponentProps<'div'> & {
-  errors?: Array<{ message?: string } | undefined>
+}: ComponentProps<'div'> & {
+  errors?: FieldErrorDetail[]
 }) {
   const content = useMemo(() => {
-    if (children) {
+    if (children !== undefined && children !== null) {
       return children
     }
 
-    if (!errors?.length) {
+    if (errors === undefined || errors.length === 0) {
       return null
     }
 
-    const uniqueErrors = [
-      ...new Map(errors.map((error) => [error?.message, error])).values(),
-    ]
+    const errorsByMessage = new Map<string | undefined, FieldErrorDetail>()
 
-    if (uniqueErrors?.length == 1) {
+    for (const error of errors) {
+      errorsByMessage.set(error?.message, error)
+    }
+
+    const uniqueErrors = [...errorsByMessage.values()]
+
+    if (uniqueErrors.length === 1) {
       return uniqueErrors[0]?.message
     }
 
-    return (
-      <ul className="ml-4 flex list-disc flex-col gap-1">
-        {uniqueErrors.map(
-          (error, index) => error?.message && <li key={index}>{error.message}</li>,
-        )}
-      </ul>
-    )
+    const listItems = []
+
+    for (const error of uniqueErrors) {
+      listItems.push(
+        <FieldErrorListItem
+          key={error?.message ?? 'unknown'}
+          error={error}
+        />,
+      )
+    }
+
+    return <ul className="ml-4 flex list-disc flex-col gap-1">{listItems}</ul>
   }, [children, errors])
 
-  if (!content) {
+  if (content === null) {
     return null
   }
 

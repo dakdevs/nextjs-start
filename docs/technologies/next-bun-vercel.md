@@ -8,6 +8,10 @@ browser or domain model depend on Bun-specific APIs.
 
 - Prefer Server Components for initial, authenticated reads and thin route
   composition. Client Components own interactivity and remote query state.
+- Prefer synchronous page/layout shells unless a parent truly needs to await.
+  Keep request-dependent children under useful Suspense boundaries and explicitly
+  cache eligible public reads; follow [rendering and caching](next-rendering-and-caching.md)
+  and [invalidation](next-cache-invalidation.md). Async does not mean uncached.
 - Route handlers are transport edges: establish context, call an operation, map
   safe failure, and finish. Keep business rules outside them.
 - Deploy only to Vercel. Configure Bun on Vercel; local developer tools may use

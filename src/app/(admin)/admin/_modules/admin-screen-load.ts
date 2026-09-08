@@ -12,8 +12,10 @@ export async function loadAdminScreen<T>(
   try {
     return { status: 'ready', data: await load() }
   } catch (cause) {
-    if (cause instanceof UnexpectedRpcError)
+    if (cause instanceof UnexpectedRpcError) {
       return { status: 'failed', errorId: cause.data.errorId }
+    }
+
     throw cause
   }
 }

@@ -10,22 +10,23 @@ import { processedQueueEvents } from '~/queues/schema'
 /** Keep the application lease equal to the Queue callback visibility lease. */
 export const processedQueueEventLeaseSeconds = 300
 
-const matchesKey = (key: { consumerName: string; eventId: string }) =>
-  and(
+const matchesKey = (key: { consumerName: string; eventId: string }) => {
+  return and(
     eq(processedQueueEvents.consumerName, key.consumerName),
     eq(processedQueueEvents.eventId, key.eventId),
   )
+}
 
 /**
  * The composite key scopes deduplication to a consumer. A claim ID fences stale
  * workers after a crash lease is reclaimed.
  */
 export const postgresProcessedQueueEventStore = ProcessedQueueEventStore.of({
-  claim: (key) =>
-    Effect.tryPromise({
-      try: () =>
-        db.transaction((transaction) =>
-          transaction
+  claim: (key) => {
+    return Effect.tryPromise({
+      try: () => {
+        return db.transaction((transaction) => {
+          return transaction
             .insert(processedQueueEvents)
             .values({ ...key, status: 'processing' })
             .onConflictDoUpdate({
@@ -40,6 +41,7 @@ export const postgresProcessedQueueEventStore = ProcessedQueueEventStore.of({
             .returning({ claimId: processedQueueEvents.claimId })
             .then((claimed) => {
               const [lease] = claimed
+
               if (lease !== undefined) {
                 return { claimId: lease.claimId, status: 'claimed' as const }
               }
@@ -48,19 +50,23 @@ export const postgresProcessedQueueEventStore = ProcessedQueueEventStore.of({
                 .select({ status: processedQueueEvents.status })
                 .from(processedQueueEvents)
                 .where(matchesKey(key))
-                .then(([existing]) =>
-                  existing?.status === 'completed'
+                .then(([existing]) => {
+                  return existing?.status === 'completed'
                     ? { status: 'completed' as const }
-                    : { status: 'in-progress' as const },
-                )
-            }),
-        ),
-      catch: (cause) => new EventStoreError({ cause, operation: 'claim' }),
-    }),
-  complete: (lease) =>
-    Effect.tryPromise({
-      try: () =>
-        db
+                    : { status: 'in-progress' as const }
+                })
+            })
+        })
+      },
+      catch: (cause) => {
+        return new EventStoreError({ cause, operation: 'claim' })
+      },
+    })
+  },
+  complete: (lease) => {
+    return Effect.tryPromise({
+      try: () => {
+        return db
           .update(processedQueueEvents)
           .set({ completedAt: sql`now()`, status: 'completed' })
           .where(
@@ -69,13 +75,17 @@ export const postgresProcessedQueueEventStore = ProcessedQueueEventStore.of({
               eq(processedQueueEvents.claimId, lease.claimId),
               eq(processedQueueEvents.status, 'processing'),
             ),
-          ),
-      catch: (cause) => new EventStoreError({ cause, operation: 'complete' }),
-    }).pipe(Effect.asVoid),
-  release: (lease) =>
-    Effect.tryPromise({
-      try: () =>
-        db
+          )
+      },
+      catch: (cause) => {
+        return new EventStoreError({ cause, operation: 'complete' })
+      },
+    }).pipe(Effect.asVoid)
+  },
+  release: (lease) => {
+    return Effect.tryPromise({
+      try: () => {
+        return db
           .update(processedQueueEvents)
           .set({ status: 'failed' })
           .where(
@@ -84,7 +94,11 @@ export const postgresProcessedQueueEventStore = ProcessedQueueEventStore.of({
               eq(processedQueueEvents.claimId, lease.claimId),
               eq(processedQueueEvents.status, 'processing'),
             ),
-          ),
-      catch: (cause) => new EventStoreError({ cause, operation: 'release' }),
-    }).pipe(Effect.asVoid),
+          )
+      },
+      catch: (cause) => {
+        return new EventStoreError({ cause, operation: 'release' })
+      },
+    }).pipe(Effect.asVoid)
+  },
 })

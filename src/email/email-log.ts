@@ -6,7 +6,9 @@ type DevelopmentEmailLogInput = {
 }
 
 /** Metadata safe for operational logs: it cannot disclose a recipient or token-bearing body. */
-export const developmentEmailLogEntry = (input: DevelopmentEmailLogInput) => ({
-  event: 'development_email_written',
-  messageId: input.messageId,
-})
+export const developmentEmailLogEntry = (input: DevelopmentEmailLogInput) => {
+  return {
+    event: 'development_email_written',
+    messageId: input.messageId,
+  }
+}

@@ -26,36 +26,44 @@ type AdminPaginatedSearchInput = Parameters<
 export const getAdminHomeSummaryForAdminHome =
   getAdminHomeSummaryForAdminHomeFromDatabase
 
-export const listUsersForAdminUserSupport = (input: AdminPaginatedSearchInput) =>
-  listUsersForAdminUserSupportFromDatabase(input)
+export const listUsersForAdminUserSupport = (input: AdminPaginatedSearchInput) => {
+  return listUsersForAdminUserSupportFromDatabase(input)
+}
 
 /** Delivers through Better Auth only; reset tokens and links never enter this domain. */
 export const requestPasswordResetForAdminUserSupport = (input: {
   readonly actorUserId: string
   readonly correlationId: string
   readonly userId: string
-}) =>
-  Effect.gen(function* () {
+}) => {
+  return Effect.gen(function* () {
     const user = yield* findAdminPasswordResetTarget(input.userId)
     // Record the operator's request before crossing the external delivery
     // boundary. A failed audit write must never result in an unaudited email.
+
     const audit = yield* recordAdminPasswordResetRequest({
       actorUserId: input.actorUserId,
       correlationId: input.correlationId,
       subjectUserId: input.userId,
     })
+
     yield* Effect.tryPromise({
-      try: () =>
-        auth.api.requestPasswordReset({
+      try: () => {
+        return auth.api.requestPasswordReset({
           body: {
             email: user.email,
             redirectTo: `${env.BETTER_AUTH_URL}/reset-password`,
           },
-        }),
-      catch: (cause) => new AdminPasswordResetError({ cause }),
+        })
+      },
+      catch: (cause) => {
+        return new AdminPasswordResetError({ cause })
+      },
     })
+
     return { audit, requested: true as const }
   })
+}
 
 export const listServiceAccountsForAdminServiceAccounts =
   listServiceAccountsForAdminServiceAccountsFromDatabase
@@ -80,4 +88,6 @@ export const listWorkflowReceiptsForAdminDataCatalog =
 
 export const listAdminActivityForAdminActivityScreen = (
   input: AdminPaginatedSearchInput,
-) => listAdminActivityForAdminActivityScreenFromDatabase(input)
+) => {
+  return listAdminActivityForAdminActivityScreenFromDatabase(input)
+}

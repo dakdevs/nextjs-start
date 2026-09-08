@@ -27,14 +27,24 @@ function progressForCell(
   columns: number,
   rows: number,
 ) {
-  if (direction === 'up') return 1 - (y + 0.5) / rows
-  if (direction === 'down') return (y + 0.5) / rows
-  if (direction === 'left') return 1 - (x + 0.5) / columns
+  if (direction === 'up') {
+    return 1 - (y + 0.5) / rows
+  }
+
+  if (direction === 'down') {
+    return (y + 0.5) / rows
+  }
+
+  if (direction === 'left') {
+    return 1 - (x + 0.5) / columns
+  }
+
   return (x + 0.5) / columns
 }
 
-const hueFill = (hue: number, opacity: number) =>
-  `hsla(${((hue % 360) + 360) % 360}, 85%, 58%, ${opacity})`
+const hueFill = (hue: number, opacity: number) => {
+  return `hsla(${((hue % 360) + 360) % 360}, 85%, 58%, ${opacity})`
+}
 
 function paintGradient(
   canvas: HTMLCanvasElement,
@@ -43,22 +53,32 @@ function paintGradient(
   properties: DitherGradientProperties,
 ) {
   const context = canvas.getContext('2d')
-  if (context === null || width <= 0 || height <= 0) return
+
+  if (context === null || width <= 0 || height <= 0) {
+    return
+  }
 
   const columns = Math.min(
     MAX_COLUMNS,
     Math.max(4, Math.round(width / properties.cell)),
   )
+
   const rows = Math.min(MAX_ROWS, Math.max(4, Math.round(height / properties.cell)))
+
   canvas.width = columns
+
   canvas.height = rows
 
   for (let y = 0; y < rows; y += 1) {
     for (let x = 0; x < columns; x += 1) {
       const density = 1 - progressForCell(properties.direction, x, y, columns, rows)
+
       const threshold = BAYER_4[y & 3]?.[x & 3] ?? 0
+
       const hue = density > threshold ? properties.from : properties.to
+
       context.fillStyle = hueFill(hue, properties.opacity)
+
       context.fillRect(x, y, 1, 1)
     }
   }
@@ -70,20 +90,30 @@ function paintGradient(
  */
 export function DitherGradient(properties: DitherGradientProperties) {
   const wrapperReference = useRef<HTMLDivElement>(null)
+
   const canvasReference = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const wrapper = wrapperReference.current
+
     const canvas = canvasReference.current
-    if (wrapper === null || canvas === null) return () => {}
+
+    if (wrapper === null || canvas === null) {
+      return () => {}
+    }
 
     const paint = () => {
       const box = wrapper.getBoundingClientRect()
+
       paintGradient(canvas, box.width, box.height, properties)
     }
+
     paint()
+
     const observer = new ResizeObserver(paint)
+
     observer.observe(wrapper)
+
     return () => {
       observer.disconnect()
     }

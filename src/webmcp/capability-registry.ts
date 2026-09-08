@@ -36,7 +36,7 @@ type Capability = {
   input: z.ZodObject
 }
 
-const emptyInput = z.object({}).strict()
+const emptyInput = z.strictObject({})
 
 export const webMcpCapabilities = {
   navigateAccount: {

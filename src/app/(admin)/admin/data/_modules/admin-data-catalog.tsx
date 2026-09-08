@@ -29,6 +29,7 @@ type WorkflowReceipts = InferRouterContractOutputs<
 const dateTimeFormatter = new Intl.DateTimeFormat('en', {
   dateStyle: 'medium',
   timeStyle: 'short',
+  timeZone: 'UTC',
 })
 
 function RecentDataSection({
@@ -92,7 +93,9 @@ export function AdminDataCatalog({
       >
         {catalog.domains.map((domain) => {
           const isHidden = domain.visibility === 'security-hidden'
+
           const Icon = isHidden ? EyeOffIcon : Rows3Icon
+
           return (
             <Box
               key={domain.tableName}
@@ -170,51 +173,53 @@ export function AdminDataCatalog({
         {recentProfiles.length === 0 ? (
           <EmptyRecentData>No account profiles have been updated yet.</EmptyRecentData>
         ) : (
-          recentProfiles.map((profile) => (
-            <Box
-              key={profile.accountId}
-              bg="var(--card)"
-              borderRadius="2xl"
-              p={{ base: '5', sm: '6' }}
-            >
-              <Flex
-                align={{ base: 'start', sm: 'center' }}
-                justify="space-between"
-                gap="4"
+          recentProfiles.map((profile) => {
+            return (
+              <Box
+                key={profile.accountId}
+                bg="var(--card)"
+                borderRadius="2xl"
+                p={{ base: '5', sm: '6' }}
               >
-                <Box minW="0">
+                <Flex
+                  align={{ base: 'start', sm: 'center' }}
+                  justify="space-between"
+                  gap="4"
+                >
+                  <Box minW="0">
+                    <Text
+                      className="text-ui"
+                      color="var(--muted-foreground)"
+                    >
+                      Account ID
+                    </Text>
+                    <Text
+                      fontFamily="mono"
+                      mt="1"
+                      overflowWrap="anywhere"
+                    >
+                      {profile.accountId}
+                    </Text>
+                  </Box>
                   <Text
                     className="text-ui"
                     color="var(--muted-foreground)"
+                    flexShrink="0"
                   >
-                    Account ID
+                    {dateTimeFormatter.format(profile.updatedAt)} UTC
                   </Text>
-                  <Text
-                    fontFamily="mono"
-                    mt="1"
-                    overflowWrap="anywhere"
-                  >
-                    {profile.accountId}
-                  </Text>
-                </Box>
+                </Flex>
                 <Text
-                  className="text-ui"
                   color="var(--muted-foreground)"
-                  flexShrink="0"
+                  lineHeight="tall"
+                  mt="4"
+                  overflowWrap="anywhere"
                 >
-                  {dateTimeFormatter.format(profile.updatedAt)}
+                  {profile.bio.length === 0 ? 'No bio provided.' : profile.bio}
                 </Text>
-              </Flex>
-              <Text
-                color="var(--muted-foreground)"
-                lineHeight="tall"
-                mt="4"
-                overflowWrap="anywhere"
-              >
-                {profile.bio.length === 0 ? 'No bio provided.' : profile.bio}
-              </Text>
-            </Box>
-          ))
+              </Box>
+            )
+          })
         )}
       </RecentDataSection>
 
@@ -225,51 +230,53 @@ export function AdminDataCatalog({
         {recentEvents.length === 0 ? (
           <EmptyRecentData>No failed queue events are awaiting review.</EmptyRecentData>
         ) : (
-          recentEvents.map((event) => (
-            <Box
-              key={event.messageId}
-              bg="var(--card)"
-              borderRadius="2xl"
-              p={{ base: '5', sm: '6' }}
-            >
-              <Flex
-                align={{ base: 'start', sm: 'center' }}
-                justify="space-between"
-                gap="4"
+          recentEvents.map((event) => {
+            return (
+              <Box
+                key={event.messageId}
+                bg="var(--card)"
+                borderRadius="2xl"
+                p={{ base: '5', sm: '6' }}
               >
-                <Box minW="0">
-                  <Text
-                    fontWeight="semibold"
-                    overflowWrap="anywhere"
-                  >
-                    {event.consumerName}
-                  </Text>
+                <Flex
+                  align={{ base: 'start', sm: 'center' }}
+                  justify="space-between"
+                  gap="4"
+                >
+                  <Box minW="0">
+                    <Text
+                      fontWeight="semibold"
+                      overflowWrap="anywhere"
+                    >
+                      {event.consumerName}
+                    </Text>
+                    <Text
+                      className="text-ui"
+                      color="var(--muted-foreground)"
+                      mt="1"
+                    >
+                      {event.deliveryCount} delivery attempts · {event.failureCode}
+                    </Text>
+                  </Box>
                   <Text
                     className="text-ui"
                     color="var(--muted-foreground)"
-                    mt="1"
+                    flexShrink="0"
                   >
-                    {event.deliveryCount} delivery attempts · {event.failureCode}
+                    {dateTimeFormatter.format(event.failedAt)} UTC
                   </Text>
-                </Box>
+                </Flex>
                 <Text
                   className="text-ui"
                   color="var(--muted-foreground)"
-                  flexShrink="0"
+                  mt="4"
+                  overflowWrap="anywhere"
                 >
-                  {dateTimeFormatter.format(event.failedAt)}
+                  Message ID: {event.messageId}
                 </Text>
-              </Flex>
-              <Text
-                className="text-ui"
-                color="var(--muted-foreground)"
-                mt="4"
-                overflowWrap="anywhere"
-              >
-                Message ID: {event.messageId}
-              </Text>
-            </Box>
-          ))
+              </Box>
+            )
+          })
         )}
       </RecentDataSection>
 
@@ -282,47 +289,49 @@ export function AdminDataCatalog({
             No workflow receipts have been recorded yet.
           </EmptyRecentData>
         ) : (
-          recentReceipts.map((receipt) => (
-            <Box
-              key={receipt.eventId}
-              bg="var(--card)"
-              borderRadius="2xl"
-              p={{ base: '5', sm: '6' }}
-            >
-              <Flex
-                align={{ base: 'start', sm: 'center' }}
-                justify="space-between"
-                gap="4"
+          recentReceipts.map((receipt) => {
+            return (
+              <Box
+                key={receipt.eventId}
+                bg="var(--card)"
+                borderRadius="2xl"
+                p={{ base: '5', sm: '6' }}
               >
-                <Box minW="0">
-                  <Text fontWeight="semibold">Workflow receipt</Text>
+                <Flex
+                  align={{ base: 'start', sm: 'center' }}
+                  justify="space-between"
+                  gap="4"
+                >
+                  <Box minW="0">
+                    <Text fontWeight="semibold">Workflow receipt</Text>
+                    <Text
+                      className="text-ui"
+                      color="var(--muted-foreground)"
+                      mt="1"
+                      overflowWrap="anywhere"
+                    >
+                      Subject: {receipt.subjectId}
+                    </Text>
+                  </Box>
                   <Text
                     className="text-ui"
                     color="var(--muted-foreground)"
-                    mt="1"
-                    overflowWrap="anywhere"
+                    flexShrink="0"
                   >
-                    Subject: {receipt.subjectId}
+                    {dateTimeFormatter.format(receipt.recordedAt)} UTC
                   </Text>
-                </Box>
+                </Flex>
                 <Text
                   className="text-ui"
                   color="var(--muted-foreground)"
-                  flexShrink="0"
+                  mt="4"
+                  overflowWrap="anywhere"
                 >
-                  {dateTimeFormatter.format(receipt.recordedAt)}
+                  Correlation ID: {receipt.correlationId}
                 </Text>
-              </Flex>
-              <Text
-                className="text-ui"
-                color="var(--muted-foreground)"
-                mt="4"
-                overflowWrap="anywhere"
-              >
-                Correlation ID: {receipt.correlationId}
-              </Text>
-            </Box>
-          ))
+              </Box>
+            )
+          })
         )}
       </RecentDataSection>
     </AdminPage>

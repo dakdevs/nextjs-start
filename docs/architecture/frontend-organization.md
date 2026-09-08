@@ -26,3 +26,6 @@ Use semantic Tailwind tokens, accessible HTML, keyboard paths, focus states, and
 reduced-motion behavior. See [design system](../design-system/README.md).
 Every form declares its HTTP method; forms carrying credentials or private data
 use POST so a pre-hydration submit cannot place values in URLs or access logs.
+All application forms use the shared TanStack Form composition layer and its
+configured ShadCN/Base UI controls, including in the Chakra-laid-out admin
+workspace. See [application forms](forms.md).

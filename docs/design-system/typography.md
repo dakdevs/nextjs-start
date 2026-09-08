@@ -29,6 +29,12 @@ large heading or a responsive replacement for `title`. Never add a fifth size.
   Prefer weight, semantic color, spacing, and placement before changing scale.
 - Keep paragraph measures readable and preserve the line height attached to the
   role. Reflow or wrap at narrow widths instead of inventing breakpoint sizes.
+- Always use `text-wrap: balance` for content: headings, sentences, paragraphs,
+  descriptions, captions, and feedback. It inherits from the global body rule;
+  use `text-balance` when a component's wrapping style needs to be restored.
+  Do not replace it with `text-pretty` or manual line breaks for visual shaping.
+  Preserve functional whitespace for code and native single-line controls.
+  Browsers may limit balancing on long blocks; do not split prose to force it.
 
 ## Implementation rails
 
@@ -47,6 +53,7 @@ when the product outcome or hierarchy tradeoff is unresolved.
 2. Does every text element map cleanly to one existing role?
 3. Is `display` absent, or justified as the page's single principal statement?
 4. Does the family load centrally and remain readable without layout shift?
+5. Does all content retain balanced wrapping at desktop and mobile widths?
 
 ## Links
 

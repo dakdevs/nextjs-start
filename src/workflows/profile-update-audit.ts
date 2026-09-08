@@ -25,7 +25,9 @@ export async function profileUpdateAuditWorkflow(
   'use workflow'
 
   const receipt = await createProfileUpdateAuditReceipt(event)
+
   await writeProfileUpdateAuditReceipt(receipt)
+
   return receipt
 }
 
@@ -70,6 +72,7 @@ async function writeProfileUpdateAuditReceipt(
 }
 
 export const vercelProfileUpdateWorkflowStarter = {
-  start: (event: AccountProfileUpdatedEvent) =>
-    start(profileUpdateAuditWorkflow, [event]),
+  start: (event: AccountProfileUpdatedEvent) => {
+    return start(profileUpdateAuditWorkflow, [event])
+  },
 }

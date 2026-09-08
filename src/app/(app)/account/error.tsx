@@ -7,6 +7,7 @@ type AccountErrorProps = { error: Error & { digest?: string }; reset: () => void
 
 export default function AccountError({ error, reset }: AccountErrorProps) {
   const errorId = useClientBoundaryError(error)
+
   return (
     <main className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-3xl items-center px-5 sm:px-8">
       <section className="max-w-md rounded-2xl bg-card p-7">

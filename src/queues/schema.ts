@@ -21,14 +21,16 @@ export const processedQueueEvents = pgTable(
     claimedAt: timestamp('claimed_at', { withTimezone: true }).notNull().defaultNow(),
     completedAt: timestamp('completed_at', { withTimezone: true }),
   },
-  (table) => [
-    primaryKey({ columns: [table.consumerName, table.eventId] }),
-    index('processed_queue_events_claimed_at_idx').on(table.claimedAt),
-    check(
-      'processed_queue_events_status_check',
-      sql`${table.status} in ('processing', 'completed', 'failed')`,
-    ),
-  ],
+  (table) => {
+    return [
+      primaryKey({ columns: [table.consumerName, table.eventId] }),
+      index('processed_queue_events_claimed_at_idx').on(table.claimedAt),
+      check(
+        'processed_queue_events_status_check',
+        sql`${table.status} in ('processing', 'completed', 'failed')`,
+      ),
+    ]
+  },
 )
 
 /** Sanitized terminal failures retained because Vercel Queues has no native DLQ. */
@@ -43,5 +45,7 @@ export const failedQueueEvents = pgTable(
     deliveryCount: integer('delivery_count').notNull(),
     failedAt: timestamp('failed_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [primaryKey({ columns: [table.consumerName, table.messageId] })],
+  (table) => {
+    return [primaryKey({ columns: [table.consumerName, table.messageId] })]
+  },
 )

@@ -6,6 +6,7 @@ import { testAppOrigin } from './app-origin'
 
 async function runChecked(command: string[], environment: NodeJS.ProcessEnv) {
   const childEnvironment = { ...environment }
+
   delete childEnvironment.NO_COLOR
 
   const child = Bun.spawn(command, {
@@ -13,6 +14,7 @@ async function runChecked(command: string[], environment: NodeJS.ProcessEnv) {
     stderr: 'inherit',
     stdout: 'inherit',
   })
+
   const exitCode = await child.exited
 
   if (exitCode !== 0) {
@@ -22,24 +24,33 @@ async function runChecked(command: string[], environment: NodeJS.ProcessEnv) {
 
 async function capture(command: string[]) {
   const child = Bun.spawn(command, { stderr: 'pipe', stdout: 'pipe' })
+
   const output = await new Response(child.stdout).text()
+
   const errorOutput = await new Response(child.stderr).text()
+
   const exitCode = await child.exited
 
-  if (exitCode !== 0)
+  if (exitCode !== 0) {
     throw new Error(errorOutput || `Command failed: ${command.join(' ')}`)
+  }
+
   return output.trim()
 }
 
 async function waitForPostgres(databaseUrl: string) {
   for (let attempt = 0; attempt < 60; attempt += 1) {
     const sql = postgres(databaseUrl, { connect_timeout: 1, max: 1 })
+
     try {
       await sql`select 1`
+
       await sql.end()
+
       return
     } catch {
       await sql.end({ timeout: 0 })
+
       await Bun.sleep(500)
     }
   }
@@ -75,11 +86,15 @@ export async function withTestPostgres(
 
   try {
     const portOutput = await capture(['docker', 'port', containerName, '5432/tcp'])
+
     const port = /:(\d+)$/u.exec(portOutput)?.[1]
-    if (port === undefined || port === '')
+
+    if (port === undefined || port === '') {
       throw new Error(`Could not resolve PostgreSQL port from: ${portOutput}`)
+    }
 
     const databaseUrl = `postgres://postgres:postgres@127.0.0.1:${port}/nextjs_start_test`
+
     await waitForPostgres(databaseUrl)
 
     const environment: NodeJS.ProcessEnv = {
@@ -97,6 +112,7 @@ export async function withTestPostgres(
     }
 
     await runChecked(['bunx', 'drizzle-kit', 'migrate'], environment)
+
     await task(environment)
   } finally {
     await runChecked(['docker', 'stop', containerName], process.env)

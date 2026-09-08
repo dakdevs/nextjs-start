@@ -43,4 +43,6 @@ const queueCallback = vercelQueueClient.handleCallback(
   },
 )
 
-export const POST = (request: Request) => queueCallback(request)
+export const POST = (request: Request) => {
+  return queueCallback(request)
+}

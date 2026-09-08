@@ -12,8 +12,14 @@ export default async function AdminLayout({
   readonly children: ReactNode
 }) {
   const session = await getCurrentSession()
-  if (session === null) redirect('/sign-in')
-  if (session.user.role !== accountRole.admin) redirect('/account')
+
+  if (session === null) {
+    redirect('/sign-in')
+  }
+
+  if (session.user.role !== accountRole.admin) {
+    redirect('/account')
+  }
 
   return (
     <AdminProviders>

@@ -11,21 +11,28 @@ import { adminSystem } from '~/app/(admin)/admin/_modules/admin-system'
 function AdminEmotionRegistry({ children }: { readonly children: ReactNode }) {
   const [{ cache, flush }] = useState(() => {
     const cache = createCache({ key: 'admin' })
+
     cache.compat = true
+
     const previousInsert = cache.insert
+
     let inserted: string[] = []
 
     cache.insert = (...arguments_) => {
       const serialized = arguments_[1]
+
       if (cache.inserted[serialized.name] === undefined) {
         inserted.push(serialized.name)
       }
+
       return previousInsert(...arguments_)
     }
 
     const flush = () => {
       const names = inserted
+
       inserted = []
+
       return names
     }
 
@@ -34,9 +41,17 @@ function AdminEmotionRegistry({ children }: { readonly children: ReactNode }) {
 
   useServerInsertedHTML(() => {
     const names = flush()
-    if (names.length === 0) return null
 
-    const styles = names.map((name) => cache.inserted[name]).join('')
+    if (names.length === 0) {
+      return null
+    }
+
+    const styles = names
+      .map((name) => {
+        return cache.inserted[name]
+      })
+      .join('')
+
     return (
       <style
         data-emotion={`${cache.key} ${names.join(' ')}`}

@@ -16,9 +16,11 @@ const consumerName = 'profile-update-audit'
 const permanentFailureMaximumDeliveries = 3
 const retryableFailureMaximumDeliveries = 12
 
-const retryDirective: RetryHandler = (_error, metadata) => ({
-  afterSeconds: Math.min(60, 2 ** metadata.deliveryCount),
-})
+const retryDirective: RetryHandler = (_error, metadata) => {
+  return {
+    afterSeconds: Math.min(60, 2 ** metadata.deliveryCount),
+  }
+}
 
 const InvalidAccountProfileUpdatedMessageError = Data.TaggedError(
   'InvalidAccountProfileUpdatedMessageError',
@@ -42,12 +44,14 @@ type QueueFailureDiagnostic = Readonly<{
   retryable: boolean
 }>
 
-const causeName = (cause: unknown) =>
-  cause instanceof Error ? cause.name : 'UnknownFailure'
+const causeName = (cause: unknown) => {
+  return cause instanceof Error ? cause.name : 'UnknownFailure'
+}
 
 const failureDiagnostic = (failure: QueueDeliveryFailure): QueueFailureDiagnostic => {
   if (failure instanceof QueueConsumerError) {
     const providerFailure = WorkflowWorldError.is(failure.cause) ? failure.cause : null
+
     return {
       causeName: causeName(failure.cause),
       providerCode: providerFailure?.code ?? 'unavailable',
@@ -65,21 +69,33 @@ const failureDiagnostic = (failure: QueueDeliveryFailure): QueueFailureDiagnosti
 }
 
 const failureCode = (failure: QueueDeliveryFailure) => {
-  if (failure instanceof QueueMessageInProgressError) return failure._tag
-  if (failure instanceof QueueConsumerError) return failure._tag
-  if (failure instanceof InvalidAccountProfileUpdatedMessageError) return failure._tag
+  if (failure instanceof QueueMessageInProgressError) {
+    return failure._tag
+  }
+
+  if (failure instanceof QueueConsumerError) {
+    return failure._tag
+  }
+
+  if (failure instanceof InvalidAccountProfileUpdatedMessageError) {
+    return failure._tag
+  }
+
   return 'UnknownQueueConsumerError'
 }
 
-const maximumDeliveries = (failure: QueueDeliveryFailure) =>
-  failure instanceof QueueMessageInProgressError ||
-  (failure instanceof QueueConsumerError && failure.retryable)
+const maximumDeliveries = (failure: QueueDeliveryFailure) => {
+  return failure instanceof QueueMessageInProgressError ||
+    (failure instanceof QueueConsumerError && failure.retryable)
     ? retryableFailureMaximumDeliveries
     : permanentFailureMaximumDeliveries
+}
 
 const handleDelivery = (message: QueueDeliveryMessage, metadata: MessageMetadata) => {
   const parsed = accountProfileUpdatedEventSchema.safeParse(message)
+
   const event = parsed.success ? parsed.data : null
+
   const processing = Effect.gen(function* () {
     if (!parsed.success) {
       return yield* new InvalidAccountProfileUpdatedMessageError({
@@ -92,12 +108,17 @@ const handleDelivery = (message: QueueDeliveryMessage, metadata: MessageMetadata
 
   return processing.pipe(
     Effect.catchIf(
-      (failure) => metadata.deliveryCount >= maximumDeliveries(failure),
-      (failure) =>
-        Effect.gen(function* () {
+      (failure) => {
+        return metadata.deliveryCount >= maximumDeliveries(failure)
+      },
+      (failure) => {
+        return Effect.gen(function* () {
           const store = yield* FailedQueueEventStore
+
           const code = failureCode(failure)
+
           const diagnostic = failureDiagnostic(failure)
+
           yield* store
             .record({
               consumerName,
@@ -108,15 +129,15 @@ const handleDelivery = (message: QueueDeliveryMessage, metadata: MessageMetadata
               messageId: metadata.messageId,
             })
             .pipe(
-              Effect.mapError(
-                (cause) =>
-                  new QueueConsumerError({
-                    cause,
-                    retryAfterMilliseconds: null,
-                    retryable: true,
-                  }),
-              ),
+              Effect.mapError((cause) => {
+                return new QueueConsumerError({
+                  cause,
+                  retryAfterMilliseconds: null,
+                  retryable: true,
+                })
+              }),
             )
+
           yield* Effect.logError('Queue event moved to durable quarantine').pipe(
             Effect.annotateLogs({
               consumerName,
@@ -133,7 +154,8 @@ const handleDelivery = (message: QueueDeliveryMessage, metadata: MessageMetadata
           )
 
           return { status: 'quarantined' as const }
-        }),
+        })
+      },
     ),
   )
 }

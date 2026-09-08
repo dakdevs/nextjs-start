@@ -19,6 +19,7 @@ const themeOptions = ['light', 'dark', 'system'] as const
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme, theme } = useTheme()
+
   const icon = resolvedTheme === 'dark' ? Moon : Sun
 
   return (
@@ -42,25 +43,27 @@ export function ThemeToggle() {
         align="end"
         className="w-36 bg-popover shadow-none ring-1 ring-foreground/10"
       >
-        <DropdownMenuLabel>Theme</DropdownMenuLabel>
         <DropdownMenuRadioGroup
           value={theme}
           onValueChange={setTheme}
         >
-          {themeOptions.map((option) => (
-            <DropdownMenuRadioItem
-              key={option}
-              value={option}
-            >
-              <span className="capitalize">{option}</span>
-              {theme === option ? (
-                <CheckIcon
-                  className="ml-auto"
-                  aria-hidden="true"
-                />
-              ) : null}
-            </DropdownMenuRadioItem>
-          ))}
+          <DropdownMenuLabel>Theme</DropdownMenuLabel>
+          {themeOptions.map((option) => {
+            return (
+              <DropdownMenuRadioItem
+                key={option}
+                value={option}
+              >
+                <span className="capitalize">{option}</span>
+                {theme === option ? (
+                  <CheckIcon
+                    className="ml-auto"
+                    aria-hidden="true"
+                  />
+                ) : null}
+              </DropdownMenuRadioItem>
+            )
+          })}
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -16,11 +16,21 @@ agent-readable content, WebMCP parity, success/open questions, and links.
 - Describe observable behavior, not file names or a hoped-for implementation.
 - Include what is explicitly not valuable so nearby scope creep can be rejected.
 - Make the happy path a short sequence a human can recognize and test.
+- When a feature specifies UI copy hierarchy, describe the information it must
+  communicate; do not prescribe ornamental eyebrows or subtitles without a
+  distinct orientation, status, or context purpose.
 - Record an unresolved question only when its answer changes product behavior.
 - Classify every meaningful textual result separately as public Markdown plus
   index, public Markdown without index, index-only overview, authenticated
   scoped Markdown, or a specific exemption; link the
   [agent-readable guide](../technologies/agent-readable-content.md).
+- For every page, record its metadata/discovery contract: accurate title and
+  description, canonical and indexability decision, brand-matched share-image
+  choice, and JSON-LD rationale where structured data applies. Private pages
+  still need truthful metadata, but never public discovery.
+- Record each affected route's rendering/cache contract: static or dynamic
+  reason, freshness requirement, invalidation path, and nearest async/Suspense
+  boundary. Prefer synchronous page and layout shells unless they await data.
 - Link parent architecture and sibling features that constrain the feature.
 
 ## Updating rules
@@ -81,6 +91,16 @@ non-goals, classify WebMCP access, and know which supporting docs to update.
 
 <Markdown/index classification, exact visibility and projection, or specific exemption;
 this is independent of WebMCP>
+
+## Page metadata and discovery
+
+<For each page: title/description, canonical, index/noindex, share image, and
+JSON-LD rationale if applicable. Private pages remain outside public discovery.>
+
+## Rendering and cache contract
+
+<Static or dynamic reason, freshness requirement, invalidation path, and nearest
+async/Suspense boundary.>
 
 ## Success and open questions
 

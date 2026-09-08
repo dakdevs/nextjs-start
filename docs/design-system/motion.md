@@ -23,6 +23,20 @@ child entrances, carousel-like movement without user intent, and `transition: al
 Product motion should generally finish under 300ms; a page transition may reach
 400ms only when it clarifies navigation.
 
+## Post-UI motion scout
+
+After creating or materially changing UI, automatically use the repository's
+read-only [animation-opportunity scout](../../.agents/skills/find-animation-opportunities/SKILL.md).
+It reports whether motion would help; its valid result may be no changes. A
+separate implementation step remains scoped to the user's UI task.
+
+The scout admits a candidate only when frequency, purpose, speed, and function
+all pass. It caps a whole-app report at 5–7 suggestions (fewer for a feature),
+uses existing values rather than a parallel motion language, records rejected
+candidates, and gives exact duration, easing, transform, and origin for each
+accepted proposal. Respect reduced motion, composite-friendly properties, and
+desktop/mobile performance when implementing an accepted proposal.
+
 ## Vocabulary
 
 Name the observed effect before choosing a mechanism: **pop in** (near-full
@@ -68,4 +82,4 @@ docs and implementation prompts so motion is intentional and reviewable.
 
 ## Links
 
-[Design system](README.md) · [UI library selection](../reference/ui-library-selection.md) · [Evolution workflow](evolution.md) · [Feature workflow](../guides/feature-workflow.md)
+[Design system](README.md) · [Animation-opportunity scout](../../.agents/skills/find-animation-opportunities/SKILL.md) · [UI library selection](../reference/ui-library-selection.md) · [Evolution workflow](evolution.md) · [Feature workflow](../guides/feature-workflow.md)

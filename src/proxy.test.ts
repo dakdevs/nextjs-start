@@ -30,10 +30,13 @@ describe('home document negotiation', () => {
         headers: { accept: 'text/markdown' },
       }),
     )
+
     expect(response.headers.get('x-middleware-rewrite')).toBe(
       'https://example.test/index.md?source=docs',
     )
+
     expect(response.headers.get('vary')).toContain('Accept')
+
     expect(response.headers.get('cache-control')).toBe('private, no-store')
   })
 
@@ -45,7 +48,9 @@ describe('home document negotiation', () => {
     { headers: { accept: 'text/html' } },
   ])('leaves non-document traffic on its original route: %j', (init) => {
     const response = proxy(new NextRequest('https://example.test/', init))
+
     expect(response.headers.has('x-middleware-rewrite')).toBe(false)
+
     expect(response.headers.get('vary')).toContain('Accept')
   })
 
@@ -55,6 +60,7 @@ describe('home document negotiation', () => {
         headers: { accept: 'text/markdown' },
       }),
     )
+
     expect(response.headers.has('x-middleware-rewrite')).toBe(false)
   })
 })

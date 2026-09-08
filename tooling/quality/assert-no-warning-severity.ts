@@ -10,6 +10,7 @@ function checkRules(prefix: string, rules = config.rules) {
     const severity = Array.isArray(setting) ? setting[0] : setting
 
     const parsedSeverity = severitySchema.safeParse(severity)
+
     if (parsedSeverity.success && warningSeverities.has(parsedSeverity.data)) {
       violations.push(`${prefix}${name}`)
     }
@@ -19,6 +20,7 @@ function checkRules(prefix: string, rules = config.rules) {
 function checkCategories(prefix: string, categories = config.categories) {
   for (const [name, severity] of Object.entries(categories ?? {})) {
     const parsedSeverity = severitySchema.safeParse(severity)
+
     if (parsedSeverity.success && warningSeverities.has(parsedSeverity.data)) {
       violations.push(`${prefix}category:${name}`)
     }

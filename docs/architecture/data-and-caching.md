@@ -15,6 +15,13 @@ they do not return broad records for callers to trim later.
 
 ## Cache rules
 
+Use [Next rendering and caching](../technologies/next-rendering-and-caching.md)
+and [cache lifetime/invalidation](../technologies/next-cache-invalidation.md)
+for the implementation workflow. Classify static, cached-public, and uncached
+request-dependent sections before coding. Prefer synchronous page shells and
+put actual async reads under the nearest useful Suspense boundary; Suspense
+itself does not cache. Read the active config before selecting Next cache APIs.
+
 Authenticated and user-specific data is uncached by default. Cache only public,
 stable reads with an explicit freshness period, tags, invalidation owner, and
 test isolation plan. Never introduce a blanket repository or Effect cache.

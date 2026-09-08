@@ -22,17 +22,17 @@ export default async function HomePage() {
           <h1 className="mt-5 text-balance text-display font-semibold text-foreground">
             {homeContent.title}
           </h1>
-          <p className="mt-6 max-w-xl text-pretty text-body text-muted-foreground">
+          <p className="mt-6 max-w-xl text-balance text-body text-muted-foreground">
             {homeContent.description}
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <LinkButton
-              href={session ? '/account' : '/sign-up'}
+              href={session === null ? '/sign-up' : '/account'}
               size="lg"
             >
-              {session ? 'Open account' : 'Create account'}
+              {session === null ? 'Create account' : 'Open account'}
             </LinkButton>
-            {session ? null : (
+            {session === null ? (
               <LinkButton
                 href="/sign-in"
                 variant="secondary"
@@ -40,7 +40,7 @@ export default async function HomePage() {
               >
                 Sign in
               </LinkButton>
-            )}
+            ) : null}
           </div>
         </section>
       </main>

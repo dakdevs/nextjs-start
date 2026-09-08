@@ -9,6 +9,7 @@ const checks = [
   ['bun', 'run', 'knip'],
   ['bun', 'run', 'docs:check'],
   ['bun', 'run', 'architecture:check'],
+  ['bun', 'run', 'react-doctor'],
   ['bun', 'run', 'test'],
   ['bunx', 'vitest', 'run', '--config', 'vitest.workflow.config.ts'],
   ['bunx', 'vitest', 'run', '--config', 'vitest.integration.config.ts'],
@@ -25,5 +26,6 @@ await withTestPostgres(async (environment) => {
   } satisfies NodeJS.ProcessEnv
 
   await runChecked(['bun', 'run', 'build'], productionEnvironment)
+
   await runChecked(['bunx', 'playwright', 'test'], productionEnvironment)
 })

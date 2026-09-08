@@ -21,7 +21,7 @@ export function AuthShell({ children, description, title }: AuthShellProps) {
         <div className="px-1 py-6 sm:px-4 sm:py-8">
           <p className="text-ui font-medium text-muted-foreground">Account</p>
           <h1 className="mt-3 text-title font-semibold text-foreground">{title}</h1>
-          <p className="mt-3 text-pretty leading-6 text-muted-foreground">
+          <p className="mt-3 text-balance leading-6 text-muted-foreground">
             {description}
           </p>
           <div className="mt-8">{children}</div>

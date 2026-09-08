@@ -35,7 +35,9 @@ function acceptsEnvironment(environment: NodeJS.ProcessEnv) {
       env: environment,
       stdio: 'ignore',
     })
+
     child.once('error', reject)
+
     child.once('exit', (exitCode) => {
       resolve(exitCode === 0)
     })
@@ -50,17 +52,20 @@ describe('environment policy', () => {
         BETTER_AUTH_SECRET: 'replace-with-at-least-32-random-characters',
       }),
     ).resolves.toBe(false)
+
     await expect(acceptsEnvironment(localEnvironment)).resolves.toBe(true)
   })
 
   test('accepts the local development mailbox only outside deployments', async () => {
     await expect(acceptsEnvironment(localEnvironment)).resolves.toBe(true)
+
     await expect(
       acceptsEnvironment({
         ...productionEnvironment,
         EMAIL_DELIVERY: 'development',
       }),
     ).resolves.toBe(false)
+
     await expect(
       acceptsEnvironment({
         ...productionEnvironment,
@@ -77,6 +82,7 @@ describe('environment policy', () => {
         RESEND_API_KEY: '',
       }),
     ).resolves.toBe(false)
+
     await expect(acceptsEnvironment(productionEnvironment)).resolves.toBe(true)
   })
 
@@ -87,6 +93,7 @@ describe('environment policy', () => {
         BETTER_AUTH_URL: 'http://localhost:3001',
       }),
     ).resolves.toBe(false)
+
     await expect(
       acceptsEnvironment({
         ...localEnvironment,
@@ -104,12 +111,14 @@ describe('environment policy', () => {
         NEXT_PUBLIC_APP_URL: 'http://example.com',
       }),
     ).resolves.toBe(false)
+
     await expect(
       acceptsEnvironment({
         ...productionEnvironment,
         DATABASE_URL: 'postgres://application:secret@pool.example.com/application',
       }),
     ).resolves.toBe(false)
+
     await expect(
       acceptsEnvironment({
         ...productionEnvironment,

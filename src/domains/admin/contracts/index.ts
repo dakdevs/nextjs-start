@@ -41,42 +41,37 @@ const safeWorkflowReceipt = z.object({
   recordedAt: z.date(),
   subjectId: z.string(),
 })
-const adminPaginationCursor = z
-  .object({ createdAt: z.date(), id: z.string().min(1) })
-  .strict()
+const adminPaginationCursor = z.strictObject({
+  createdAt: z.date(),
+  id: z.string().min(1),
+})
 
-export const adminPaginatedSearchInputSchema = z
-  .object({
-    cursor: adminPaginationCursor.optional(),
-    query: z.string().trim().max(100).optional(),
-  })
-  .strict()
+export const adminPaginatedSearchInputSchema = z.strictObject({
+  cursor: adminPaginationCursor.optional(),
+  query: z.string().trim().max(100).optional(),
+})
 
-export const requestPasswordResetForAdminUserSupportInputSchema = z
-  .object({ userId: z.string().min(1) })
-  .strict()
+export const requestPasswordResetForAdminUserSupportInputSchema = z.strictObject({
+  userId: z.string().min(1),
+})
 
-export const createServiceAccountForAdminServiceAccountsInputSchema = z
-  .object({
-    name: z.string().trim().min(1).max(100),
-    scopes: z.array(z.enum(serviceAccountScope)).min(1).max(1),
-  })
-  .strict()
+export const createServiceAccountForAdminServiceAccountsInputSchema = z.strictObject({
+  name: z.string().trim().min(1).max(100),
+  scopes: z.array(z.enum(serviceAccountScope)).min(1).max(1),
+})
 
-export const serviceAccountIdForAdminServiceAccountsInputSchema = z
-  .object({ serviceAccountId: z.uuid() })
-  .strict()
+export const serviceAccountIdForAdminServiceAccountsInputSchema = z.strictObject({
+  serviceAccountId: z.uuid(),
+})
 
 export const adminContracts = {
-  getAdminHomeSummaryForAdminHome: adminContractBase
-    .input(z.object({}).strict())
-    .output(
-      z.object({
-        activeServiceAccountCount: z.number().int().nonnegative(),
-        administratorCount: z.number().int().nonnegative(),
-        userCount: z.number().int().nonnegative(),
-      }),
-    ),
+  getAdminHomeSummaryForAdminHome: adminContractBase.input(z.strictObject({})).output(
+    z.object({
+      activeServiceAccountCount: z.number().int().nonnegative(),
+      administratorCount: z.number().int().nonnegative(),
+      userCount: z.number().int().nonnegative(),
+    }),
+  ),
   listUsersForAdminUserSupport: adminContractBase
     .input(adminPaginatedSearchInputSchema)
     .output(
@@ -89,7 +84,7 @@ export const adminContracts = {
     .input(requestPasswordResetForAdminUserSupportInputSchema)
     .output(z.object({ audit: auditReference, requested: z.literal(true) })),
   listServiceAccountsForAdminServiceAccounts: adminContractBase
-    .input(z.object({}).strict())
+    .input(z.strictObject({}))
     .output(z.object({ serviceAccounts: z.array(safeServiceAccount) })),
   createServiceAccountForAdminServiceAccounts: adminContractBase
     .input(createServiceAccountForAdminServiceAccountsInputSchema)
@@ -112,36 +107,34 @@ export const adminContracts = {
   revokeServiceAccountForAdminServiceAccounts: adminContractBase
     .input(serviceAccountIdForAdminServiceAccountsInputSchema)
     .output(z.object({ audit: auditReference, revoked: z.literal(true) })),
-  getDataCatalogForAdminDataCatalog: adminContractBase
-    .input(z.object({}).strict())
-    .output(
-      z.object({
-        domains: z.array(
-          z.object({
-            category: z.enum([
-              'account',
-              'authentication',
-              'delivery',
-              'operations',
-              'security',
-            ]),
-            displayName: z.string(),
-            reason: z.string(),
-            rowCount: z.number().int().nonnegative().nullable(),
-            tableName: z.string(),
-            visibility: z.enum(['safe-count', 'security-hidden']),
-          }),
-        ),
-      }),
-    ),
+  getDataCatalogForAdminDataCatalog: adminContractBase.input(z.strictObject({})).output(
+    z.object({
+      domains: z.array(
+        z.object({
+          category: z.enum([
+            'account',
+            'authentication',
+            'delivery',
+            'operations',
+            'security',
+          ]),
+          displayName: z.string(),
+          reason: z.string(),
+          rowCount: z.number().int().nonnegative().nullable(),
+          tableName: z.string(),
+          visibility: z.enum(['safe-count', 'security-hidden']),
+        }),
+      ),
+    }),
+  ),
   listAccountProfilesForAdminDataCatalog: adminContractBase
-    .input(z.object({}).strict())
+    .input(z.strictObject({}))
     .output(z.object({ recentProfiles: z.array(safeProfile) })),
   listFailedQueueEventsForAdminDataCatalog: adminContractBase
-    .input(z.object({}).strict())
+    .input(z.strictObject({}))
     .output(z.object({ recentEvents: z.array(safeFailedQueueEvent) })),
   listWorkflowReceiptsForAdminDataCatalog: adminContractBase
-    .input(z.object({}).strict())
+    .input(z.strictObject({}))
     .output(z.object({ recentReceipts: z.array(safeWorkflowReceipt) })),
   listAdminActivityForAdminActivityScreen: adminContractBase
     .input(adminPaginatedSearchInputSchema)

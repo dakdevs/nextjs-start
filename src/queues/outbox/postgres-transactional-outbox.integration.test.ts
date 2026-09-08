@@ -29,24 +29,27 @@ describe('PostgreSQL transactional outbox adapter', () => {
   })
 
   it('stages, publishes, and marks one event with the same idempotency key', async () => {
-    await db.transaction((transaction) =>
-      Effect.runPromise(
+    await db.transaction((transaction) => {
+      return Effect.runPromise(
         stageAccountProfileUpdatedInOutbox(event).pipe(
           Effect.provideService(
             TransactionalOutbox,
             makePostgresTransactionalOutbox(transaction),
           ),
         ),
-      ),
-    )
+      )
+    })
 
     const deliveries: Array<string> = []
+
     const transport = QueueTransport.of({
       send: (_topic, _payload, options) => {
         deliveries.push(options.idempotencyKey)
+
         return Promise.resolve({ messageId: 'outbox_message' })
       },
     })
+
     await Effect.runPromise(
       publishNextPostgresOutboxMessage.pipe(
         Effect.provideService(QueueTransport, transport),
@@ -59,6 +62,7 @@ describe('PostgreSQL transactional outbox adapter', () => {
       .where(eq(transactionalOutboxMessages.eventId, event.eventId))
 
     expect(deliveries).toEqual([event.eventId])
+
     expect(stored?.publishedAt).toBeInstanceOf(Date)
   })
 })

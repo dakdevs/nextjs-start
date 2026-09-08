@@ -28,19 +28,23 @@ import {
 import { runAppEffect } from '~/effect/runtime'
 import { GET as serviceHealth } from '~/app/api/service/health/route'
 
-const person = (label: string, emailVerified = true) => ({
-  email: `${label}-${randomUUID()}@example.test`,
-  emailVerified,
-  id: `${label}_${randomUUID()}`,
-  name: label,
-})
+const person = (label: string, emailVerified = true) => {
+  return {
+    email: `${label}-${randomUUID()}@example.test`,
+    emailVerified,
+    id: `${label}_${randomUUID()}`,
+    name: label,
+  }
+}
 
-const sessionFor = (userId: string) => ({
-  expiresAt: new Date('2027-09-05T00:00:00.000Z'),
-  id: `session_${randomUUID()}`,
-  token: `token_${randomUUID()}`,
-  userId,
-})
+const sessionFor = (userId: string) => {
+  return {
+    expiresAt: new Date('2027-09-05T00:00:00.000Z'),
+    id: `session_${randomUUID()}`,
+    token: `token_${randomUUID()}`,
+    userId,
+  }
+}
 
 const adminMigrationPath = new URL(
   '../../../../drizzle/0001_admin_reference.sql',
@@ -51,19 +55,25 @@ async function removeAdminReferenceSchema() {
   await db.execute(
     sql.raw('drop trigger if exists session_admin_bootstrap on "session"'),
   )
+
   await db.execute(
     sql.raw('drop trigger if exists user_admin_role_promotion_guard on "user"'),
   )
+
   await db.execute(
     sql.raw('drop trigger if exists admin_audit_event_immutable on admin_audit_event'),
   )
+
   await db.execute(
     sql.raw('drop function if exists claim_first_verified_session_admin()'),
   )
+
   await db.execute(sql.raw('drop function if exists guard_admin_role_promotion()'))
+
   await db.execute(
     sql.raw('drop function if exists prevent_admin_audit_event_mutation()'),
   )
+
   await db.execute(
     sql.raw(
       'drop table if exists admin_audit_event, admin_bootstrap_claim, service_account',
@@ -73,10 +83,15 @@ async function removeAdminReferenceSchema() {
 
 async function applyAdminReferenceMigration() {
   const migration = await readFile(adminMigrationPath, 'utf8')
+
   const statements = migration
     .split('--> statement-breakpoint')
-    .map((statement) => statement.trim())
-    .filter((statement) => statement.length > 0)
+    .map((statement) => {
+      return statement.trim()
+    })
+    .filter((statement) => {
+      return statement.length > 0
+    })
 
   await db.transaction(async (transaction) => {
     for (const statement of statements) {
@@ -87,8 +102,11 @@ async function applyAdminReferenceMigration() {
 
 async function createAdministrator() {
   const administrator = person('administrator')
+
   await db.insert(users).values(administrator)
+
   await db.insert(sessions).values(sessionFor(administrator.id))
+
   return administrator
 }
 
@@ -108,7 +126,9 @@ describe('admin reference PostgreSQL boundaries', () => {
       ...person('existing-administrator'),
       role: accountRole.admin,
     }
+
     const laterMember = person('later-member')
+
     await db.insert(users).values([existingAdministrator, laterMember])
 
     await applyAdminReferenceMigration()
@@ -133,10 +153,12 @@ describe('admin reference PostgreSQL boundaries', () => {
       ...person('first-existing-administrator'),
       role: accountRole.admin,
     }
+
     const secondAdministrator = {
       ...person('second-existing-administrator'),
       role: accountRole.admin,
     }
+
     await db.insert(users).values([firstAdministrator, secondAdministrator])
 
     await expect(applyAdminReferenceMigration()).rejects.toThrow(
@@ -147,21 +169,25 @@ describe('admin reference PostgreSQL boundaries', () => {
       .update(users)
       .set({ role: accountRole.user })
       .where(eq(users.id, secondAdministrator.id))
+
     await applyAdminReferenceMigration()
   })
 
   it('rolls back the administrator claim when the qualifying session does not commit', async () => {
     const candidate = person('rolled-back')
+
     await db.insert(users).values(candidate)
 
     await expect(
       db.transaction(async (transaction) => {
         await transaction.insert(sessions).values(sessionFor(candidate.id))
+
         throw new Error('Rollback the qualifying session')
       }),
     ).rejects.toThrow('Rollback the qualifying session')
 
     await expect(db.select().from(adminBootstrapClaims)).resolves.toEqual([])
+
     await expect(
       db.select({ role: users.role }).from(users).where(eq(users.id, candidate.id)),
     ).resolves.toEqual([{ role: accountRole.user }])
@@ -169,7 +195,9 @@ describe('admin reference PostgreSQL boundaries', () => {
 
   it('does not deliver a reset email when writing its immutable audit event fails', async () => {
     const target = person('password-reset-target')
+
     await db.insert(users).values(target)
+
     const delivery = vi.spyOn(auth.api, 'requestPasswordReset')
 
     await expect(
@@ -187,7 +215,9 @@ describe('admin reference PostgreSQL boundaries', () => {
 
   it('atomically gives one concurrent verified session the global administrator claim', async () => {
     const first = person('first')
+
     const second = person('second')
+
     await db.insert(users).values([first, second])
 
     await Promise.all([
@@ -199,14 +229,20 @@ describe('admin reference PostgreSQL boundaries', () => {
       .select({ id: users.id, role: users.role })
       .from(users)
       .where(eq(users.role, accountRole.admin))
+
     expect(administrators).toHaveLength(1)
+
     expect([first.id, second.id]).toContain(administrators[0]?.id)
+
     await expect(db.select().from(adminBootstrapClaims)).resolves.toHaveLength(1)
+
     const bootstrapEvents = await db
       .select({ subjectUserId: adminAuditEvents.subjectUserId })
       .from(adminAuditEvents)
       .where(eq(adminAuditEvents.action, 'admin.bootstrap.claimed'))
+
     expect(bootstrapEvents).toHaveLength(1)
+
     expect(bootstrapEvents[0]?.subjectUserId).toMatch(/^(first|second)_/u)
   })
 
@@ -221,14 +257,18 @@ describe('admin reference PostgreSQL boundaries', () => {
         scopes: ['system:health:read'],
       }),
     )
+
     const [stored] = await db
       .select({ digest: serviceAccounts.tokenDigest, scopes: serviceAccounts.scopes })
       .from(serviceAccounts)
       .where(eq(serviceAccounts.id, created.serviceAccount.id))
 
     expect(Object.keys(created.serviceAccount)).not.toContain('tokenDigest')
+
     expect(stored?.digest).not.toBe(created.token)
+
     expect(stored?.scopes).toEqual(['system:health:read'])
+
     await expect(
       runAppEffect(authenticateServiceAccountForSystemHealth(created.token)),
     ).resolves.toBeUndefined()
@@ -240,9 +280,11 @@ describe('admin reference PostgreSQL boundaries', () => {
         serviceAccountId: created.serviceAccount.id,
       }),
     )
+
     await expect(
       runAppEffect(authenticateServiceAccountForSystemHealth(created.token)),
     ).rejects.toMatchObject({ _tag: 'ServiceAccountUnauthorizedError' })
+
     await expect(
       runAppEffect(authenticateServiceAccountForSystemHealth(rotated.token)),
     ).resolves.toBeUndefined()
@@ -254,9 +296,11 @@ describe('admin reference PostgreSQL boundaries', () => {
         serviceAccountId: created.serviceAccount.id,
       }),
     )
+
     await expect(
       runAppEffect(authenticateServiceAccountForSystemHealth(rotated.token)),
     ).rejects.toMatchObject({ _tag: 'ServiceAccountUnauthorizedError' })
+
     await expect(
       serviceHealth(
         new Request(`${env.NEXT_PUBLIC_APP_URL}/api/service/health`, {
@@ -284,28 +328,51 @@ describe('admin reference PostgreSQL boundaries', () => {
         }),
       ]),
     )
-    const safeCounts = catalog.domains.filter(
-      (domain) => domain.visibility === 'safe-count',
-    )
-    const hiddenCounts = catalog.domains.filter(
-      (domain) => domain.visibility === 'security-hidden',
-    )
-    expect(safeCounts.every((domain) => Number.isInteger(domain.rowCount))).toBe(true)
-    expect(hiddenCounts.every((domain) => domain.rowCount === null)).toBe(true)
+
+    const safeCounts = catalog.domains.filter((domain) => {
+      return domain.visibility === 'safe-count'
+    })
+
+    const hiddenCounts = catalog.domains.filter((domain) => {
+      return domain.visibility === 'security-hidden'
+    })
+
+    expect(
+      safeCounts.every((domain) => {
+        return Number.isInteger(domain.rowCount)
+      }),
+    ).toBe(true)
+
+    expect(
+      hiddenCounts.every((domain) => {
+        return domain.rowCount === null
+      }),
+    ).toBe(true)
+
     expect(JSON.stringify(catalog)).not.toContain('token_digest')
   })
 
   it('explicitly classifies every persisted application table', async () => {
     const catalog = await runAppEffect(getDataCatalogForAdminDataCatalogFromDatabase)
+
     const tables = await db.execute<{ table_name: string }>(sql`
       select table_name from information_schema.tables
       where table_schema = 'public' and table_type = 'BASE TABLE'
         and table_name <> '__drizzle_migrations'
     `)
 
-    const classified = new Set(catalog.domains.map((domain) => domain.tableName))
-    expect(tables.map((table) => table.table_name).toSorted()).toEqual(
-      [...classified].toSorted(),
+    const classified = new Set(
+      catalog.domains.map((domain) => {
+        return domain.tableName
+      }),
     )
+
+    expect(
+      tables
+        .map((table) => {
+          return table.table_name
+        })
+        .toSorted(),
+    ).toEqual([...classified].toSorted())
   })
 })

@@ -9,4 +9,6 @@ const emailRuntime = ManagedRuntime.make(
 /** Runs an email Effect at the Better Auth delivery boundary. */
 export const runEmailEffect = <Value, Failure>(
   effect: Effect.Effect<Value, Failure, EmailService>,
-) => emailRuntime.runPromise(effect)
+) => {
+  return emailRuntime.runPromise(effect)
+}

@@ -11,6 +11,7 @@ describe('browser WebMCP capability registry', () => {
       transport: 'shared-orpc',
       annotations: { readOnlyHint: true, untrustedContentHint: true },
     })
+
     expect(webMcpCapabilities.updateAccountProfile).toMatchObject({
       auth: 'authenticated',
       classification: 'shared-orpc',
@@ -27,6 +28,7 @@ describe('browser WebMCP capability registry', () => {
       risk: 'credential',
       transport: 'ui-initiation',
     })
+
     expect(webMcpCapabilities.prepareSignOut).toMatchObject({
       auth: 'authenticated',
       confirmation: 'human-ui',
@@ -42,6 +44,7 @@ describe('browser WebMCP capability registry', () => {
       route: '/admin',
       transport: 'shared-orpc',
     })
+
     expect(webMcpCapabilities.listAdminUsers).toMatchObject({
       auth: 'administrator',
       classification: 'shared-orpc',
@@ -49,18 +52,21 @@ describe('browser WebMCP capability registry', () => {
       transport: 'shared-orpc',
       annotations: { readOnlyHint: true, untrustedContentHint: true },
     })
+
     expect(webMcpCapabilities.getAdminDataCatalog).toMatchObject({
       auth: 'administrator',
       classification: 'shared-orpc',
       route: '/admin/data',
       transport: 'shared-orpc',
     })
+
     const adminDataReads = [
       webMcpCapabilities.getAdminDataCatalog,
       webMcpCapabilities.listAdminAccountProfiles,
       webMcpCapabilities.listAdminFailedQueueEvents,
       webMcpCapabilities.listAdminWorkflowReceipts,
     ]
+
     for (const capability of adminDataReads) {
       expect(capability).toMatchObject({
         auth: 'administrator',
@@ -71,12 +77,15 @@ describe('browser WebMCP capability registry', () => {
         annotations: { idempotentHint: true, readOnlyHint: true },
       })
     }
+
     expect(webMcpCapabilities.listAdminAccountProfiles.annotations).toMatchObject({
       untrustedContentHint: true,
     })
+
     expect(webMcpCapabilities.listAdminFailedQueueEvents.annotations).toMatchObject({
       untrustedContentHint: true,
     })
+
     expect(webMcpCapabilities.listAdminServiceAccounts).toMatchObject({
       auth: 'administrator',
       classification: 'shared-orpc',
@@ -84,6 +93,7 @@ describe('browser WebMCP capability registry', () => {
       transport: 'shared-orpc',
       annotations: { readOnlyHint: true, untrustedContentHint: true },
     })
+
     expect(webMcpCapabilities.listAdminActivity).toMatchObject({
       auth: 'administrator',
       classification: 'shared-orpc',
@@ -110,6 +120,7 @@ describe('browser WebMCP capability registry', () => {
         transport: 'ui-initiation',
       })
     }
+
     expect(webMcpCapabilities.prepareRevokeServiceAccount.annotations).toMatchObject({
       destructiveHint: true,
     })

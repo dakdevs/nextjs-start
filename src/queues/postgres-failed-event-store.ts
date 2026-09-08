@@ -12,10 +12,10 @@ import { failedQueueEvents } from '~/queues/schema'
 
 /** Durable, sanitized terminal-failure storage for queues without a native DLQ. */
 export const postgresFailedQueueEventStore = FailedQueueEventStore.of({
-  record: (failedEvent) =>
-    Effect.tryPromise({
-      try: () =>
-        db
+  record: (failedEvent) => {
+    return Effect.tryPromise({
+      try: () => {
+        return db
           .insert(failedQueueEvents)
           .values(failedEvent)
           .onConflictDoUpdate({
@@ -27,7 +27,11 @@ export const postgresFailedQueueEventStore = FailedQueueEventStore.of({
               failedAt: sql`now()`,
               failureCode: failedEvent.failureCode,
             },
-          }),
-      catch: (cause) => new FailedQueueEventStoreError({ cause }),
-    }).pipe(Effect.asVoid),
+          })
+      },
+      catch: (cause) => {
+        return new FailedQueueEventStoreError({ cause })
+      },
+    }).pipe(Effect.asVoid)
+  },
 })

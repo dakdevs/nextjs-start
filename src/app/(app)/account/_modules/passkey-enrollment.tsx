@@ -21,20 +21,27 @@ export function PasskeyEnrollment({
   onDismiss,
 }: PasskeyEnrollmentProps) {
   const [message, setMessage] = useState<string | null>(null)
+
   const [isPending, setIsPending] = useState(false)
 
   const addPasskey = async () => {
     setIsPending(true)
+
     setMessage(null)
+
     try {
       const result = await authClient.passkey.addPasskey({ name: 'Account passkey' })
-      if (result.error) {
+
+      if (result.error !== null) {
         setMessage(
           'The passkey was not added. You can try again whenever you are ready.',
         )
+
         return
       }
+
       onAdded()
+
       setMessage(
         'Passkey added. You can now choose it as an alternative sign-in method.',
       )
@@ -90,7 +97,10 @@ export function PasskeyEnrollment({
     </section>
   )
 
-  if (isOpen) return offer
+  if (isOpen) {
+    return offer
+  }
+
   if (hasPasskey) {
     return (
       <section className="rounded-2xl bg-muted p-6 sm:p-8">
@@ -101,5 +111,6 @@ export function PasskeyEnrollment({
       </section>
     )
   }
+
   return null
 }

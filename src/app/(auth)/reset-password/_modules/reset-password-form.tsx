@@ -1,40 +1,52 @@
 'use client'
 
 import { useState } from 'react'
+import { z } from 'zod'
 
 import { authClient } from '~/auth/client'
-import { getFormText } from '~/components/form-data'
 import { LinkButton } from '~/components/link-button'
 import { Alert, AlertDescription } from '~/components/shadcn/alert'
-import { Button } from '~/components/shadcn/button'
-import { Field, FieldLabel } from '~/components/shadcn/field'
-import { Input } from '~/components/shadcn/input'
+import { ReportedSubmissionError } from '~/modules/forms/reported-submission-error'
+import { useAppForm } from '~/modules/forms/use-app-form'
+
+const passwordSchema = z.string().min(8, 'Use at least 8 characters.')
 
 export function ResetPasswordForm({ token }: { readonly token: string }) {
   const [message, setMessage] = useState<string | null>(null)
-  const [isPending, setIsPending] = useState(false)
+
   const [isComplete, setIsComplete] = useState(false)
 
-  const resetPassword = async (formData: FormData) => {
-    setIsPending(true)
-    setMessage(null)
-    try {
-      const result = await authClient.resetPassword({
-        newPassword: getFormText(formData, 'password'),
-        token,
-      })
-      if (result.error) {
+  const form = useAppForm({
+    defaultValues: { password: '' },
+    onSubmit: async ({ value }) => {
+      setMessage(null)
+
+      try {
+        const result = await authClient.resetPassword({
+          newPassword: value.password,
+          token,
+        })
+
+        if (result.error !== null) {
+          setMessage('Something went wrong. Please request another link.')
+
+          throw new ReportedSubmissionError()
+        }
+
+        window.history.replaceState(window.history.state, '', '/reset-password')
+
+        setIsComplete(true)
+      } catch (error) {
+        if (error instanceof ReportedSubmissionError) {
+          throw error
+        }
+
         setMessage('Something went wrong. Please request another link.')
-        return
+
+        throw new ReportedSubmissionError()
       }
-      window.history.replaceState(window.history.state, '', '/reset-password')
-      setIsComplete(true)
-    } catch {
-      setMessage('Something went wrong. Please request another link.')
-    } finally {
-      setIsPending(false)
-    }
-  }
+    },
+  })
 
   if (isComplete) {
     return (
@@ -54,38 +66,38 @@ export function ResetPasswordForm({ token }: { readonly token: string }) {
   }
 
   return (
-    <form
-      className="space-y-6"
-      method="post"
-      onSubmit={(event) => {
-        event.preventDefault()
-        void resetPassword(new FormData(event.currentTarget))
-      }}
-    >
-      <Field>
-        <FieldLabel htmlFor="password">New password</FieldLabel>
-        <Input
-          id="password"
+    <form.AppForm>
+      <form.Form className="space-y-6">
+        <form.AppField
           name="password"
-          type="password"
-          autoComplete="new-password"
-          minLength={8}
-          required
-        />
-      </Field>
-      {message === null ? null : (
-        <Alert className="border-0 bg-muted">
-          <AlertDescription>{message}</AlertDescription>
-        </Alert>
-      )}
-      <Button
-        className="w-full"
-        type="submit"
-        size="lg"
-        disabled={isPending}
-      >
-        {isPending ? 'Saving password…' : 'Save new password'}
-      </Button>
-    </form>
+          validators={{
+            onChange: passwordSchema,
+            onBlur: passwordSchema,
+            onSubmit: passwordSchema,
+          }}
+        >
+          {(field) => {
+            return (
+              <field.TextField
+                label="New password"
+                id="password"
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                required
+              />
+            )
+          }}
+        </form.AppField>
+        <form.Feedback message={message} />
+        <form.SubmitButton
+          className="w-full"
+          size="lg"
+          pendingLabel="Saving password…"
+        >
+          Save new password
+        </form.SubmitButton>
+      </form.Form>
+    </form.AppForm>
   )
 }

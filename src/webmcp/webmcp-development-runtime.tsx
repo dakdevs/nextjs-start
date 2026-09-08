@@ -13,6 +13,7 @@ export function WebMcpDevelopmentRuntime({
     if (enabled) {
       void import('@mcp-b/webmcp-polyfill').then(({ initializeWebMCPPolyfill }) => {
         initializeWebMCPPolyfill({ installTestingShim: true })
+
         onReady()
       })
     }

@@ -20,4 +20,6 @@ const child = Bun.spawn(['bunx', 'knip'], {
 })
 
 const exitCode = await child.exited
-if (exitCode !== 0) throw new Error(`Knip failed (${exitCode})`)
+if (exitCode !== 0) {
+  throw new Error(`Knip failed (${exitCode})`)
+}

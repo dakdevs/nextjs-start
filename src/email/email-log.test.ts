@@ -17,8 +17,11 @@ describe('developmentEmailLogEntry', () => {
     const serialized = JSON.stringify(entry)
 
     expect(serialized).toContain('mail_01')
+
     expect(serialized).not.toContain('person@example.test')
+
     expect(serialized).not.toContain('secret-token')
+
     expect(serialized).not.toContain('Reset your password')
   })
 })
